@@ -1,0 +1,35 @@
+account:
+  id: admin_type_000
+  description: User with admin access
+  loginid: administrator
+  password: password123
+---
+account:
+  id: admin_type_001
+  description: User with admin and audit permissions
+  loginid: elvis
+  password: password123
+---
+account:
+  id: audit-1
+  description: User with only audit permissions
+  loginid: audit-only@your-domain.com
+  password: 1234-xyz-!@#$
+---
+account:
+  id: custom-req-xyz
+  description: Custom permissions
+  hosts:
+    qa: https://xyz123.qa-domain.com
+    qa2: https://xyz1234.qa2-domain.com
+    prod: http://www.the-production-domain.com/login.aspx
+  loginid: custom-account@your-company.com
+  password: xyz-123
+---
+account:
+  id: easy
+  role: admin
+  description: Customized
+  env: qa3
+  loginid: easy-account
+  password: HelloWorld
