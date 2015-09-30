@@ -1,4 +1,3 @@
-require 'rubygems'
 require 'singleton'
 
 module Scoutui::Base
@@ -10,11 +9,16 @@ module Scoutui::Base
 
     def initialize
       @globals={
+          :browser => 'chrome',
           :userid => nil,
           :password => nil,
           :host => nil,
           :localization => 'en-us'
       }
+    end
+
+    def getBrowserType()
+      @globals[:browser].to_sym
     end
 
     def getHost()
