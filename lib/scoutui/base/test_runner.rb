@@ -53,7 +53,9 @@ module Scoutui::Base
   end
 
     def setup()
-      browserType = Scoutui::Utils::TestUtils.instance.getBrowserType()
+    #  browserType = Scoutui::Utils::TestUtils.instance.getBrowserType()
+      browserType = Scoutui::Base::UserVars.instance.getBrowserType()
+
       puts __FILE__ + (__LINE__).to_s + " setup() : #{browserType}"
 
       begin
