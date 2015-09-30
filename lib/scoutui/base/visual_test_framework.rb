@@ -46,7 +46,6 @@ module Scoutui::Base
 
         obj = Scoutui::Base::QBrowser.getObject(my_driver, _xpath)
         if !obj.nil? && !obj.attribute('type').downcase.match(/(text|password)/).nil?
-
           obj.send_keys(Scoutui::Base::UserVars.instance.get(_val))
         end
 
@@ -62,6 +61,7 @@ module Scoutui::Base
       end
 
     end
+
 
     # Scoutui::Base::VisualTestFramework.processFile(@drv, @eyes, @test_settings['host'], @test_settings['dut'])
     def self.processFile(my_driver, eyes, test_settings)
@@ -154,7 +154,6 @@ module Scoutui::Base
           end
         end
 
-        #
       end
 
 
