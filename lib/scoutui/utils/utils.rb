@@ -26,7 +26,7 @@ module Scoutui::Utils
     def parseCommandLine()
       @options = {}
       OptionParser.new do |opt|
-        opt.on('-f', '--file TESTFILE') { |o|
+        opt.on('-c', '--config TESTFILE') { |o|
             if !o.nil?
               @options[:json_config_file]=o
 
@@ -95,7 +95,7 @@ module Scoutui::Utils
     # Returns JSON file contents/format
     def getTestSettings()
 
-      [:host, :userid, :password].each do |k|
+      [:browser, :host, :userid, :password].each do |k|
 
         puts __FILE__ + (__LINE__).to_s + " opt[test_config].has_key(#{k.to_s}) => #{@options[:test_config].has_key?(k.to_s)}"
         if @options[:test_config].has_key?(k.to_s)
