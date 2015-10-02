@@ -1,0 +1,17 @@
+page:
+  skip: false
+  url: http://www.elvis.com
+---
+page:
+  skip: true
+  action: type(//input[@id="userid"], ${userid})
+---
+page:
+  skip: true
+  action: type(//input[@id="password"], ${password})
+---
+page:
+  skip: true
+  action: click(//input[@id="btnSubmit"])
+  expected:
+    avatar: //img[@id="cnqr-profile-avatar"]
