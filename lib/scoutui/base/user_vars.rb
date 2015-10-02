@@ -47,6 +47,10 @@ module Scoutui::Base
       v
     end
 
+    def getVar(k)
+      @globals[k].to_s
+    end
+
     def setVar(k, v)
       @globals[k]=v
       v

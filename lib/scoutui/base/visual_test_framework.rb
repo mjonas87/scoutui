@@ -1,8 +1,4 @@
-require 'rubygems'
 
-##
-# 1. q_applitools
-# 2. q_accounts
 
 module Scoutui::Base
 
@@ -64,12 +60,14 @@ module Scoutui::Base
 
 
     # Scoutui::Base::VisualTestFramework.processFile(@drv, @eyes, @test_settings['host'], @test_settings['dut'])
-    def self.processFile(my_driver, eyes, test_settings)
+    def self.processFile(eyeScout, test_settings)
+
+      my_driver = eyeScout.drv()
 
       baseUrl = Scoutui::Base::UserVars.instance.getHost()
       datafile = test_settings['dut']
 
-      puts __FILE__ + (__LINE__).to_s + " processFile(#{my_driver}, #{eyes}, #{baseUrl}, #{datafile})" if Scoutui::Utils::TestUtils.instance.isDebug?
+      puts __FILE__ + (__LINE__).to_s + " processFile(#{eyeScout}, #{baseUrl}, #{datafile})" if Scoutui::Utils::TestUtils.instance.isDebug?
 
       i=0
       dut_dupes = YAML.load_stream File.read(datafile)
@@ -127,15 +125,15 @@ module Scoutui::Base
             obj = Scoutui::Base::QBrowser.getObject(my_driver, xpath)
 
             if obj.nil?
-              puts __FILE__ + (__LINE__).to_s + " NOT FOUND : #{link_name} with xpath #{xpath}"
+              puts " NOT FOUND : #{link_name} with xpath #{xpath}"
             else
-              puts __FILE__ + (__LINE__).to_s + " link object(#{link_name} with xpath #{xpath}=> #{obj.displayed?}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+              puts " link object(#{link_name} with xpath #{xpath}=> #{obj.displayed?}"  if Scoutui::Utils::TestUtils.instance.isDebug?
             end
 
           end
         end
 
-        eyes.check_window(name)  if Scoutui::Utils::TestUtils.instance.eyesEnabled?
+        eyeScout.check_window(name)
 
         puts "\to links : #{e['page']['links'].class.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
@@ -150,7 +148,7 @@ module Scoutui::Base
             puts __FILE__ + (__LINE__).to_s + " [click]: link object => #{obj.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
             obj.click
 
-            eyes.check_window(link_name)  if Scoutui::Utils::TestUtils.instance.eyesEnabled?
+            eyeScout.check_window(link_name)
           end
         end
 
