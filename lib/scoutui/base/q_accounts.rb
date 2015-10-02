@@ -7,7 +7,7 @@ module Scoutui::Base
     attr_accessor :dut
     attr_accessor :accounts
 
-    def initialize(f='/Users/pkim/working/nui-qa/apps/gat/data/accounts.yaml')
+    def initialize(f='/tmp/qa/accounts.yaml')
       @accounts = YAML.load_stream File.read(f)
     end
 
