@@ -1,0 +1,16 @@
+{
+  "Project": "NUI",
+  "Version": "1.00",
+  "Description": "Localization with Japanese",
+
+  "browser": "firefox",
+
+  "eyes": {
+    "title": "beta",
+    "app": "09-26"
+  },
+
+  "host": "http://www.elvis-presley.com",
+  "dut": "../spec/fixtures/static_test.elvis.yml"
+
+}
