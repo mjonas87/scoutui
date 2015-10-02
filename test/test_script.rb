@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 require_relative '../lib/scoutui'
 
 require 'logger'
@@ -10,20 +11,12 @@ require 'logger'
 # --browser <chrome|firefox|ie>
 
 
-
-
-puts 'Start'
-
 nav = Scoutui::Navigator.new(Scoutui::Utils::TestUtils.instance.parseCommandLine())
 
 
-runner = Scoutui::Base::TestRunner.new(nav)
+runner = Scoutui::Base::TestScout.new(nav)
 
-if runner.hasSettings?
-  runner.dumpSettings
-
-  runner.run()
-end
-
+runner.start()
+runner.report()
 
 

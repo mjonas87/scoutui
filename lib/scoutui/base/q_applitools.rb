@@ -1,4 +1,4 @@
-require 'rubygems'
+
 require 'eyes_selenium'
 require 'httparty'
 
