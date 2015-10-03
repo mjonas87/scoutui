@@ -11,6 +11,7 @@ class Scoutui::Navigator
   attr_reader :test_name
   attr_reader :viewport_size
   attr_reader :driver
+  attr_reader :test_list
 
   def initialize(opts={})
 
