@@ -2,6 +2,8 @@
 
 The Scoutui gem provides a simple, yet powerful visual test framework to help you with an automated visual test strategy.
 
+This project is still under beta development, but working - the version '1.0.0' will be the first "stable" release.
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -27,14 +29,18 @@ To run unit tests:
 Following these steps to get started.
 
 1. goto the ./test folder
-2. Run the script 'test-simple.sh'
+2. Set the environment variable APPLITOOLS_API_KEY with your key
+
+   export APPLITOOLS_API_KEY=<your key>
+3. Run the script 'test-simple.sh'
+4. Goto your Applitools account and look for the test named "Graceland"
 
 ## Development
 
 
-## Ti ryb
+## To run from the command line
 
-ruby test_script.rb  --file ../spec/fixtures/static_test_settings.json --host rqa3 --lang en-us  --title "abc 123"  --user peter --password Hello --browser chrome  --eyes TruE
+ruby test_script.rb  --config <your test settings JSON file> --eyes
 
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
