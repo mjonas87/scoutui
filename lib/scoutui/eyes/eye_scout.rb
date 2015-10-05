@@ -26,6 +26,7 @@ module Scoutui::Eyes
 
 
     def closeOut()
+      return if !Scoutui::Utils::TestUtils.instance.eyesEnabled?
       eyes().close(false)
       eyes().abort_if_not_closed if !eyes().nil?
     end
