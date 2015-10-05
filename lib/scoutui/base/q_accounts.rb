@@ -7,8 +7,12 @@ module Scoutui::Base
     attr_accessor :dut
     attr_accessor :accounts
 
-    def initialize(f='/tmp/qa/accounts.yaml')
-      @accounts = YAML.load_stream File.read(f)
+    def initialize(f)
+
+      if !f.nil?
+        @accounts = YAML.load_stream File.read(f)
+      end
+
     end
 
     def _find(id, attr)
