@@ -14,18 +14,19 @@ module Scoutui::Utils
 
     def initialize
 
+      @env_list={:accounts => 'SCOUTUI_ACCOUNTS', :browser => 'SCOUTUI_BROWSER', :applitools_api_key => 'APPLITOOLS_API_KEY'}
       @options={}
 
-      [:test_file, :host, :loc, :title, :browser, :userid, :password, :json_config_file, :test_config, :debug].each do |o|
-        o=nil
+      [:accounts, :browser, :test_file, :host, :loc, :title,
+       :userid, :password, :json_config_file, :test_config, :debug].each do |o|
+        @options[o]=nil
       end
 
-      @options[:enable_eyes]=true
+      @options[:enable_eyes]=false
       @options[:match_level]='strict'
     end
 
     def parseCommandLine()
- #     @options = {}
 
       OptionParser.new do |opt|
         opt.on('-c', '--config TESTFILE') { |o|
@@ -36,6 +37,8 @@ module Scoutui::Utils
               @options[:test_config]=jsonData=JSON.parse(jFile)
             end
         }
+        opt.on('--accounts [Account]')    { |o| @options[:accounts] = o }
+        opt.on('-b', '--browser [TYPE]', [:chrome, :firefox, :ie, :safari], "Select browser (chrome, ie, firefox, safari)") { |o| @options[:browser] = o }
         opt.on('-d', '--debug Bool')    { |o| @options[:debug] = (o.to_s.downcase=='true')}
         opt.on('-h', '--host HOST')     { |o| @options[:host] = o }
         opt.on('-l', '--lang LOCAL')    { |o| @options[:loc] = o }
@@ -43,22 +46,14 @@ module Scoutui::Utils
         opt.on('-a', '--app AppName')   { |o| @options[:app] = o }
         opt.on('--match [TYPE]', [:layout2, :layout, :strict, :exact, :content], "Select match level (layout, strict, exact, content)") { |o| @options[:match_level] = o }
         opt.on('-t', '--title TITLE')   { |o| @options[:title] = o }
-        opt.on('-b', '--browser BROWSER') { |o| @options[:browser] = o }
+
         opt.on('-u', '--user USER_ID')  { |o|
           @options[:userid] = o
           Scoutui::Base::UserVars.instance.setVar(:user, @options[:userid].to_s)
         }
         opt.on('-p', '--password PASSWORD') { |o| @options[:password] = o }
-        opt.on('-e', '--eyes Boolean') { |o|
-          @options[:enabled_eyes]=false
-
-          if !o.nil?
-            if !o.match(/true|1/i).nil?
-              @options[:enable_eyes]=true
-            end
-
-          end
-
+        opt.on('-e', '--eyes', "Toggle eyes") {
+          @options[:enable_eyes]=true
         }
       end.parse!
 
@@ -74,6 +69,7 @@ module Scoutui::Utils
         puts "Eyes      => #{@options[:enable_eyes]}"
         puts "Test Cfg  => #{@options[:json_config_file]}"
         puts "Match Level => #{@options[:match_level]}"
+        puts "Accounts    => #{@options[:accounts]}"
       end
 
       @options
@@ -109,11 +105,14 @@ module Scoutui::Utils
     # Returns JSON file contents/format
     def getTestSettings()
 
-      [:browser, :host, :userid, :password].each do |k|
+      [:accounts, :browser, :host, :userid, :password].each do |k|
 
         puts __FILE__ + (__LINE__).to_s + " opt[test_config].has_key(#{k.to_s}) => #{@options[:test_config].has_key?(k.to_s)}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
-        if @options[:test_config].has_key?(k.to_s)
+        puts __FILE__ + (__LINE__).to_s + " options[#{k}] : #{@options[k].to_s}"
+        if @options.has_key?(k) && !@options[k].nil?
+          Scoutui::Base::UserVars.instance.set(k, @options[k].to_s)
+        elsif @options[:test_config].has_key?(k.to_s)
 
           puts __FILE__ + (__LINE__).to_s + " opts[#{k}].nil => #{@options[k].nil?}" if Scoutui::Utils::TestUtils.instance.isDebug?
           # Ensure commnand line takes precedence
@@ -124,6 +123,10 @@ module Scoutui::Utils
             Scoutui::Base::UserVars.instance.set(k, @options[:test_config][k.to_s].to_s)
           end
 
+        elsif @env_list.has_key?(k)
+          # If an ENV is available, use it.
+          puts __FILE__ + (__LINE__).to_s + " #{k} => ENV(#{@env_list[k]}) = #{ENV[@env_list[k].to_s]}"
+          Scoutui::Base::UserVars.instance.set(k, ENV[@env_list[k].to_s])
         end
       end
 
