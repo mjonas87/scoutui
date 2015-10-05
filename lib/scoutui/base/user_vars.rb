@@ -9,12 +9,19 @@ module Scoutui::Base
 
     def initialize
       @globals={
+          :accounts => '/tmp/qa/accounts.yaml',
           :browser => 'chrome',
           :userid => nil,
           :password => nil,
           :host => nil,
           :localization => 'en-us'
       }
+    end
+
+    def dump()
+      @globals.each_pair do |k, v|
+        puts __FILE__ + (__LINE__).to_s + " #{k} => #{v}"
+      end
     end
 
     def getBrowserType()
@@ -35,6 +42,8 @@ module Scoutui::Base
       elsif k=='${host}'
         k=:host
       end
+
+      puts __FILE__ + (__LINE__).to_s + " get(#{k} => #{@globals.has_key?(k)}"
 
       if @globals.has_key?(k)
         v=@globals[k]
