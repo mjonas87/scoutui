@@ -24,7 +24,10 @@ To run unit tests:
 
 ## Usage
 
-TODO: Write usage instructions here
+Following these steps to get started.
+
+1. goto the ./test folder
+2. Run the script 'test-simple.sh'
 
 ## Development
 
