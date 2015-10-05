@@ -16,4 +16,4 @@ TEST_CFG="../spec/fixtures/static_test_settings.elvis.json"
 ##
 MATCH_TYPE="content"
 
-./test_script.rb --config $TEST_CFG  --browser $BUT --eyes true --app $APP --title $TITLE --key $KEY   --match content
+./test_script.rb --config $TEST_CFG  --browser $BUT --eyes --app $APP --title $TITLE --key $KEY   --match content
