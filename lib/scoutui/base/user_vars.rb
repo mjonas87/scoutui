@@ -24,6 +24,15 @@ module Scoutui::Base
       end
     end
 
+    def getViewPort()
+      arr=Scoutui::Base::UserVars.instance.getVar('eyes.viewport').match(/(\d+)\s*x\s*(\d+)$/i)
+      if arr.size==3
+        _sz = {:width => arr[1].to_i, :height => arr[2].to_i }
+      end
+
+      _sz
+    end
+
     def getBrowserType()
       @globals[:browser].to_sym
     end
@@ -35,6 +44,7 @@ module Scoutui::Base
     def get(k)
       v=k
 
+      # Needs refactoring!
       if k=='${userid}'
         k=:userid
       elsif k=='${password}'
