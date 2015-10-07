@@ -5,7 +5,7 @@ module Scoutui::Base
 
   class TestScout
     attr_reader :context
-    attr_reader :test_settings  # { host, localization, dut }
+    attr_reader :test_settings  # { host, dut }
     attr_reader :userRecord
     attr_reader :eyesRecord   # {'title' , 'app'}
     attr_reader :eyeScout

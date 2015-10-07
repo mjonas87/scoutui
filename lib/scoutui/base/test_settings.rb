@@ -11,7 +11,6 @@ module Scoutui::Base
     attr_accessor :user
     attr_accessor :eyesReport
     attr_accessor :url
-    attr_accessor :localization
 
 
     def initialize(opts)
@@ -23,16 +22,13 @@ module Scoutui::Base
       @eyesReport=opts[:eyesReport] || nil
       @url=opts[:url]||nil
 
-      @localization_test_data='/Users/pkim/working/nui-qa/apps/gat/tests/localization.json'
-      @localization_json = File.read(@localization_test_data)
-      @localizationObj = JSON.parse(@localization_json)
     end
 
     def setConfig(c)
       if c.instance_of?(Hash)
         @testConfig=c
       else
-        # a JSON file was passed
+        # a JSON file was passed  (ERROR handling needed)
         jFile = File.read(c)
         @testConfig=JSON.parse(jFile)
       end
@@ -47,12 +43,6 @@ module Scoutui::Base
 
     def setLang(lang)
       @lang=lang
-    end
-
-
-    def getLocalization()
-      #  @testConfig["language-mapping"][@lang]
-      @localizationObj["language-mapping"][@lang]
     end
 
     def getUrl()
