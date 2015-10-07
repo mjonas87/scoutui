@@ -42,8 +42,11 @@ module Scoutui::Eyes
     def initialize(browserType)
       browserType = Scoutui::Base::UserVars.instance.getBrowserType()
 
+      viewport_size = Scoutui::Base::UserVars.instance.getViewPort()
+
       if Scoutui::Utils::TestUtils.instance.isDebug?
         puts __FILE__ + (__LINE__).to_s + " setup() : #{browserType}"
+        puts __FILE__ + (__LINE__).to_s + " viewport => #{viewport_size}"
         puts __FILE__ + (__LINE__).to_s + " eyes cfg => #{@eyesRecord}"
         puts __FILE__ + (__LINE__).to_s + " title => " + Scoutui::Base::UserVars.instance.getVar('eyes.title')
         puts __FILE__ + (__LINE__).to_s + " app => " + Scoutui::Base::UserVars.instance.getVar('eyes.app')
@@ -59,7 +62,7 @@ module Scoutui::Eyes
         @driver = @eyes.open(
             app_name:  Scoutui::Base::UserVars.instance.getVar('eyes.app'),   # @eyesRecord['app'],
             test_name: Scoutui::Base::UserVars.instance.getVar('eyes.title'), # @eyesRecord['title'],
-            viewport_size: {width: 1024, height: 768},
+            viewport_size: viewport_size,
             #    viewport_size: {width: 800, height: 600},
             driver: @drv)
 
