@@ -22,10 +22,6 @@ module Scoutui::Base
 
         @test_settings=Scoutui::Utils::TestUtils.instance.getTestSettings()
 
-   #     accounts = Scoutui::Base::QAccounts.new(Scoutui::Base::UserVars.instance.getVar(:accounts))
-
-   #     @userRecord = accounts.getUserRecord(@test_settings['user'])
-
         @eyesRecord = @test_settings['eyes']
       end
 
