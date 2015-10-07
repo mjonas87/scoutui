@@ -17,13 +17,17 @@ module Scoutui::Utils
       @env_list={:accounts => 'SCOUTUI_ACCOUNTS', :browser => 'SCOUTUI_BROWSER', :applitools_api_key => 'APPLITOOLS_API_KEY'}
       @options={}
 
-      [:accounts, :browser, :test_file, :host, :loc, :title,
+      [:accounts, :browser, :test_file, :host, :loc, :title, :viewport,
        :userid, :password, :json_config_file, :test_config, :debug].each do |o|
         @options[o]=nil
       end
 
       @options[:enable_eyes]=false
-      @options[:match_level]='strict'
+      @options[:match_level]='layout'
+      @options[:debug]=false
+
+      Scoutui::Base::UserVars.instance.set('eyes.viewport', '1024x768')
+
     end
 
     def parseCommandLine()
@@ -38,13 +42,13 @@ module Scoutui::Utils
             end
         }
         opt.on('--accounts [Account]')    { |o| @options[:accounts] = o }
-        opt.on('-b', '--browser [TYPE]', [:chrome, :firefox, :ie, :safari], "Select browser (chrome, ie, firefox, safari)") { |o| @options[:browser] = o }
-        opt.on('-d', '--debug Bool')    { |o| @options[:debug] = (o.to_s.downcase=='true')}
+        opt.on('-b', '--browser [TYPE]', [:chrome, :firefox, :ie, :safari, :phantomjs], "Select browser (chrome, ie, firefox, safari)") { |o| @options[:browser] = o }
+        opt.on('-d', '--debug', 'Enable debug')  { |o| @options[:debug] = true }
         opt.on('-h', '--host HOST')     { |o| @options[:host] = o }
         opt.on('-l', '--lang LOCAL')    { |o| @options[:loc] = o }
         opt.on('-k', '--key EyesLicense') { |o| options[:license_file] = o }
         opt.on('-a', '--app AppName')   { |o| @options[:app] = o }
-        opt.on('--match [TYPE]', [:layout2, :layout, :strict, :exact, :content], "Select match level (layout, strict, exact, content)") { |o| @options[:match_level] = o }
+        opt.on('--match [LEVEL]', [:layout2, :layout, :strict, :exact, :content], "Select match level (layout, strict, exact, content)") { |o| @options[:match_level] = o }
         opt.on('-t', '--title TITLE')   { |o| @options[:title] = o }
 
         opt.on('-u', '--user USER_ID')  { |o|
@@ -55,6 +59,7 @@ module Scoutui::Utils
         opt.on('-e', '--eyes', "Toggle eyes") {
           @options[:enable_eyes]=true
         }
+        opt.on('--viewport [resolution]') { |o| options[:viewport] = o }
       end.parse!
 
       if Scoutui::Utils::TestUtils.instance.isDebug?
@@ -70,6 +75,8 @@ module Scoutui::Utils
         puts "Test Cfg  => #{@options[:json_config_file]}"
         puts "Match Level => #{@options[:match_level]}"
         puts "Accounts    => #{@options[:accounts]}"
+        puts "Viewport    => #{@options[:viewport]}"
+        puts "Viewport (Var) => #{Scoutui::Base::UserVars.instance.getViewPort().to_s}"
       end
 
       @options
@@ -132,24 +139,29 @@ module Scoutui::Utils
 
       puts __FILE__ + (__LINE__).to_s + " test_config => #{@options[:test_config]}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
-      ['match_level', 'title', 'app'].each do |k|
 
-        _v=nil
+      # Applitools Eyes settings
+      if @options[:test_config].has_key?('eyes')
 
-        if @options[:test_config].has_key?('eyes')
-          _v=@options[:test_config]['eyes'][k].to_s
+        ['match_level', 'title', 'app', 'viewport'].each do |k|
+
+          _v=nil
+
+          if @options[:test_config]['eyes'].has_key?(k)
+            _v=@options[:test_config]['eyes'][k].to_s
+          end
+
+          if !@options[k.to_sym].nil?
+            _v=@options[k.to_sym].to_s
+          end
+
+          if Scoutui::Utils::TestUtils.instance.isDebug?
+            puts __FILE__ + (__LINE__).to_s + " #{k} => #{_v}"
+          end
+
+          Scoutui::Base::UserVars.instance.set('eyes.' + k, _v) if !_v.nil?
+
         end
-
-        if !@options[k.to_sym].nil?
-          _v=@options[k.to_sym].to_s
-        end
-
-        if Scoutui::Utils::TestUtils.instance.isDebug?
-          puts __FILE__ + (__LINE__).to_s + " #{k} => #{_v}"
-        end
-
-        Scoutui::Base::UserVars.instance.set('eyes.' + k, _v)
-
       end
 
       @options[:test_config]
