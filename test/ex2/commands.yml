@@ -1,0 +1,69 @@
+page:
+  action: type(//input[@id="userid"], ${userid})
+---
+page:
+  action: type(//input[@id="password"], ${password})
+---
+page:
+  action: click(//input[@id="btnSubmit"])
+  expected:
+    avatar: //img[@id="cnqr-profile-avatar"]
+---
+page:
+  name: travel_home
+  url: /travelhome.asp
+  reqid: 101
+  expected:
+    hello: //input[@id="inputVirtualAgentQuery"]
+---
+page:
+  skip: false
+  name: travel_price_to_beat
+  url: /UI/Travel/TravelPoints/
+  reqid: 102
+  expected:
+    search_by_keyword: //input[@id="keywords"]
+---
+page:
+  skip: false
+  name: travel_trip_lib
+  url: /travelportal/triplibrary.asp
+  reqid: 103
+  expected:
+    search_trip: //input[@id="txtSearchValue"]
+---
+page:
+  skip: false
+  name: approvals_portal
+  url: /approvalsportal.asp
+  reqid: 103
+  expected:
+    wait: //*[@id="approveTripsTab_tabTitle"]
+---
+page:
+  skip: false
+  name: companyLocation
+  url: /UI/companyadmin/CompanyLocation
+  reqid: 103
+  expected:
+    wait: //*[@id="featured"]
+---
+page:
+  skip: false
+  name: ereceiptAdmin
+  url: /companyadmin/ereceiptAdmin.asp
+  reqid: 103
+  expected:
+    wait: //input[@id="Save"]
+---
+page:
+  action: click(//a[@id="cnqr-profile-menu-link"])
+  snapit: true
+  expected:
+    wait: //a[text()='Sign Out']
+---
+page:
+  action: click(//a[text()="Sign Out"])
+  snapit: false
+  expected:
+    wait: //input[@id="btnSubmit"]

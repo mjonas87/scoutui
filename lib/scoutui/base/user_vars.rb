@@ -43,7 +43,7 @@ module Scoutui::Base
         k=:host
       end
 
-      puts __FILE__ + (__LINE__).to_s + " get(#{k} => #{@globals.has_key?(k)}"
+      puts __FILE__ + (__LINE__).to_s + " get(#{k} => #{@globals.has_key?(k)}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
       if @globals.has_key?(k)
         v=@globals[k]

@@ -30,6 +30,14 @@ module Scoutui::Base
       end
     end
 
+    def self.isClick?(_action)
+      !_action.match(/click\(/).nil?
+    end
+
+    def self.isMouseOver(_action)
+      !_action.match(/mouseover\(/).nil?
+    end
+
 
     def self.processCommand(_action, e, my_driver)
       puts __FILE__ + (__LINE__).to_s + " Process ACTION : #{_action}"  if Scoutui::Utils::TestUtils.instance.isDebug?
@@ -54,10 +62,52 @@ module Scoutui::Base
         obj.click
 
         processExpected(my_driver, e)
+      elsif isMouseOver(_action)
+        _xpath = _action.match(/mouseover\s*\((.*)\)/)[1].to_s.strip
+        obj = Scoutui::Base::QBrowser.getObject(my_driver, _xpath)
+        my_driver.action.move_to(obj).perform
+
       end
 
     end
 
+    def self.isRun(e)
+      _run=nil
+      if e["page"].has_key?("run")
+        _run = e["page"].has_key?("run").to_s
+      end
+      _run
+    end
+
+    def self.isSnapIt(e)
+      _snapit=false
+
+      if e["page"].has_key?("snapit")
+        _snapit = !(e["page"]["snapit"].to_s.match(/true/i).nil?)
+      end
+      _snapit
+    end
+
+    def self.processExpected(my_driver, e)
+      puts "\to Expected:  #{e['page']['expected'].class.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+
+      if e['page'].has_key?('expected')
+        expected_list=e['page']['expected']
+
+        expected_list.each_pair do |link_name, xpath|
+          puts "\t\t#{link_name} => #{xpath}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+
+          obj = Scoutui::Base::QBrowser.getFirstObject(my_driver, xpath)
+
+          if obj.nil?
+            puts " NOT FOUND : #{link_name} with xpath #{xpath}"
+          else
+            puts " link object(#{link_name} with xpath #{xpath}=> #{obj.displayed?}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+          end
+
+        end
+      end
+    end
 
     # Scoutui::Base::VisualTestFramework.processFile(@drv, @eyes, @test_settings['host'], @test_settings['dut'])
     def self.processFile(eyeScout, test_settings)
@@ -81,6 +131,9 @@ module Scoutui::Base
         _url = e["page"]["url"]
         _skip = e["page"]["skip"]
 
+
+
+
         if Scoutui::Utils::TestUtils.instance.isDebug?
           puts __FILE__ + (__LINE__).to_s + " action: #{_action}"
           puts __FILE__ + (__LINE__).to_s + " name: #{_name}"
@@ -96,8 +149,25 @@ module Scoutui::Base
           next
         end
 
+
+        if !isRun(e).nil?
+
+          tmpSettings=test_settings.dup
+          tmpSettings["dut"]=e["page"]["run"].to_s
+
+          processFile(eyeScout, tmpSettings)
+          puts __FILE__ + (__LINE__).to_s + " Completed execution of subfile"  if Scoutui::Utils::TestUtils.instance.isDebug?
+          next
+        end
+
         if !(_action.nil? || _action.empty?)
           processCommand(_action, e, my_driver)
+
+          if isSnapIt(e)
+            eyeScout.check_window(_name)
+            processExpected(my_driver, e)
+          end
+
           next
         end
 

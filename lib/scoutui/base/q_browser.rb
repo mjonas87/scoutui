@@ -25,6 +25,17 @@ module Scoutui::Base
       rc
     end
 
+    def self.getFirstObject(drv, xpath, _timeout=30)
+      rc=nil
+      begin
+        Selenium::WebDriver::Wait.new(timeout: _timeout).until { drv.find_elements(:xpath => xpath).size > 0 }
+        rc=drv.find_elements(:xpath => xpath)[0]
+      rescue => ex
+        ;
+      end
+      rc
+    end
+
     def self.getObject(drv, xpath, _timeout=30)
       rc=nil
       begin

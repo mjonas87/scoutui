@@ -109,7 +109,7 @@ module Scoutui::Utils
 
         puts __FILE__ + (__LINE__).to_s + " opt[test_config].has_key(#{k.to_s}) => #{@options[:test_config].has_key?(k.to_s)}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
-        puts __FILE__ + (__LINE__).to_s + " options[#{k}] : #{@options[k].to_s}"
+        puts __FILE__ + (__LINE__).to_s + " options[#{k}] : #{@options[k].to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
         if @options.has_key?(k) && !@options[k].nil?
           Scoutui::Base::UserVars.instance.set(k, @options[k].to_s)
         elsif @options[:test_config].has_key?(k.to_s)
@@ -125,7 +125,7 @@ module Scoutui::Utils
 
         elsif @env_list.has_key?(k)
           # If an ENV is available, use it.
-          puts __FILE__ + (__LINE__).to_s + " #{k} => ENV(#{@env_list[k]}) = #{ENV[@env_list[k].to_s]}"
+          puts __FILE__ + (__LINE__).to_s + " #{k} => ENV(#{@env_list[k]}) = #{ENV[@env_list[k].to_s]}"  if Scoutui::Utils::TestUtils.instance.isDebug?
           Scoutui::Base::UserVars.instance.set(k, ENV[@env_list[k].to_s])
         end
       end
