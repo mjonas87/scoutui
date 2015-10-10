@@ -40,7 +40,7 @@ module Scoutui::Base
     end
 
     def report
-
+      @eyeScout.generateReport()
     end
 
     def hasSettings?
@@ -110,6 +110,7 @@ module Scoutui::Base
       ensure
         puts __FILE__ + (__LINE__ ).to_s + " Close Eyes" if Scoutui::Utils::TestUtils.instance.isDebug?
         @eyeScout.closeOut()
+
       end
 
     end

@@ -119,8 +119,18 @@ module Scoutui::Base
 
       puts __FILE__ + (__LINE__).to_s + " processFile(#{eyeScout}, #{baseUrl}, #{datafile})" if Scoutui::Utils::TestUtils.instance.isDebug?
 
+      valid_file=false
       i=0
-      dut_dupes = YAML.load_stream File.read(datafile)
+      begin
+        dut_dupes = YAML.load_stream File.read(datafile)
+        valid_file=true
+      rescue => ex
+        puts __FILE__ + (__LINE__).to_s + " Invaid file: #{datafile} - abort processing."
+        puts ex.backtrace
+      end
+
+      return if !valid_file
+
       dut_dupes.each do |e|
         puts '-' * 72 if Scoutui::Utils::TestUtils.instance.isDebug?
         puts "#{i.to_s}. Processing #{e.inspect}" if Scoutui::Utils::TestUtils.instance.isDebug?
@@ -130,8 +140,7 @@ module Scoutui::Base
         _name = e["page"]["name"]
         _url = e["page"]["url"]
         _skip = e["page"]["skip"]
-
-
+        _region = e["page"]["region"]
 
 
         if Scoutui::Utils::TestUtils.instance.isDebug?
@@ -139,6 +148,7 @@ module Scoutui::Base
           puts __FILE__ + (__LINE__).to_s + " name: #{_name}"
           puts __FILE__ + (__LINE__).to_s + " url : #{_url}"
           puts __FILE__ + (__LINE__).to_s + " skip: #{_skip}"
+          puts __FILE__ + (__LINE__).to_s + " region: #{_region}"
         end
 
         skipIt = (!_skip.nil?) && (_skip.to_s.strip.downcase=='true')
@@ -162,10 +172,16 @@ module Scoutui::Base
 
         if !(_action.nil? || _action.empty?)
           processCommand(_action, e, my_driver)
+          processExpected(my_driver, e)
 
           if isSnapIt(e)
-            eyeScout.check_window(_name)
-            processExpected(my_driver, e)
+            if !_region.nil?
+              eyeScout.check_window(_name, _region)
+            else
+              eyeScout.check_window(_name)
+            end
+
+           # processExpected(my_driver, e)
           end
 
           next
@@ -203,7 +219,11 @@ module Scoutui::Base
           end
         end
 
-        eyeScout.check_window(name)
+        if !_region.nil?
+          eyeScount.check_window(_name, _region)
+        else
+          eyeScout.check_window(name)
+        end
 
         puts "\to links : #{e['page']['links'].class.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
@@ -218,7 +238,12 @@ module Scoutui::Base
             puts __FILE__ + (__LINE__).to_s + " [click]: link object => #{obj.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
             obj.click
 
-            eyeScout.check_window(link_name)
+            if !_region.nil?
+              eyeScount.check_window(_name, _region)
+            else
+              eyeScout.check_window(link_name)
+            end
+
           end
         end
 
