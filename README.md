@@ -31,7 +31,8 @@ Following these steps to get started.
 1. goto the ./test folder
 2. Set the environment variable APPLITOOLS_API_KEY with your key
 
-   export APPLITOOLS_API_KEY=<your key>
+   export APPLITOOLS_API_KEY=[__YOUR_APPLITOOLS_KEY__]
+   
 3. Run the script 'test-simple.sh'
 4. Goto your Applitools account and look for the test named "Graceland"
 
