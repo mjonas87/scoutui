@@ -1,4 +1,4 @@
-# Scoutui
+# ScoutUI
 
 The ScoutUI gem provides a simple, yet powerful visual test framework to help you and your team with an automated visual test strategy.
 
