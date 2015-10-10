@@ -7,6 +7,7 @@ module Scoutui::Eyes
 
     attr_accessor :drv
     attr_accessor :eyes
+    attr_accessor :testResults
 
     def teardown()
       @drv.quit()
@@ -27,19 +28,36 @@ module Scoutui::Eyes
 
     def closeOut()
       return if !Scoutui::Utils::TestUtils.instance.eyesEnabled?
-      eyes().close(false)
+      @testResults = eyes().close(false)
       eyes().abort_if_not_closed if !eyes().nil?
     end
 
-    def check_window(tag)
+    def check_window(tag, region=nil)
       puts __FILE__ + (__LINE__).to_s + " check_window(#{tag.to_s})"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
       return if !Scoutui::Utils::TestUtils.instance.eyesEnabled?
 
-      eyes().check_window(tag.to_s)
+      if region.nil?
+        eyes().check_window(tag.to_s)
+      else
+        f = eyes().force_fullpage_screenshot
+        eyes().check_region(:xpath, region, tag)
+        eyes().force_fullpage_screenshot = f
+      end
+
+    end
+
+    def generateReport()
+      puts " TestReport => #{@testResults}"
+    end
+
+    def getResults()
+      @testResults
     end
 
     def initialize(browserType)
+      @testResults=nil
+
       browserType = Scoutui::Base::UserVars.instance.getBrowserType()
 
       viewport_size = Scoutui::Base::UserVars.instance.getViewPort()
