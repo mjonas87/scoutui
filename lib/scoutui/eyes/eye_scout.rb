@@ -59,7 +59,6 @@ module Scoutui::Eyes
       @testResults=nil
 
       browserType = Scoutui::Base::UserVars.instance.getBrowserType()
-
       viewport_size = Scoutui::Base::UserVars.instance.getViewPort()
 
       if Scoutui::Utils::TestUtils.instance.isDebug?
@@ -77,12 +76,15 @@ module Scoutui::Eyes
 
         puts __FILE__ + (__LINE__).to_s + " eyes => #{eyes}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
-        @driver = @eyes.open(
-            app_name:  Scoutui::Base::UserVars.instance.getVar('eyes.app'),   # @eyesRecord['app'],
-            test_name: Scoutui::Base::UserVars.instance.getVar('eyes.title'), # @eyesRecord['title'],
-            viewport_size: viewport_size,
-            #    viewport_size: {width: 800, height: 600},
-            driver: @drv)
+        ## TBD - move the following into eye_scout ??
+        if Scoutui::Utils::TestUtils.instance.eyesEnabled?
+          @driver = @eyes.open(
+              app_name:  Scoutui::Base::UserVars.instance.getVar('eyes.app'),   # @eyesRecord['app'],
+              test_name: Scoutui::Base::UserVars.instance.getVar('eyes.title'), # @eyesRecord['title'],
+              viewport_size: viewport_size,
+              #    viewport_size: {width: 800, height: 600},
+              driver: @drv)
+        end
 
       rescue => ex
         puts ex.backtrace
