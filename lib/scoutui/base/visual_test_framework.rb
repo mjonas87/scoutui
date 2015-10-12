@@ -9,27 +9,6 @@ module Scoutui::Base
     end
 
 
-    def self.processExpected(my_driver, e)
-      puts "\to Expected:  #{e['page']['expected'].class.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
-
-      if e['page'].has_key?('expected')
-        expected_list=e['page']['expected']
-
-        expected_list.each_pair do |link_name, xpath|
-          puts "\t\t#{link_name} => #{xpath}" if Scoutui::Utils::TestUtils.instance.isDebug?
-
-          obj = Scoutui::Base::QBrowser.getObject(my_driver, xpath)
-
-          if obj.nil?
-            puts " NOT FOUND : #{link_name} with xpath #{xpath}"
-          else
-            puts " link object(#{link_name} with xpath #{xpath}=> #{obj.displayed?}"
-          end
-
-        end
-      end
-    end
-
     def self.isClick?(_action)
       !_action.match(/click\(/).nil?
     end
@@ -42,15 +21,23 @@ module Scoutui::Base
     def self.processCommand(_action, e, my_driver)
       puts __FILE__ + (__LINE__).to_s + " Process ACTION : #{_action}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
-      if !_action.match(/type\(/).nil?
+      if !_action.match(/pause/).nil?
+
+        puts __FILE__ + (__LINE__).to_s + " PAUSE";
+        gets();
+
+      elsif !_action.match(/type\(/).nil?
         _xpath = _action.match(/type\((.*),\s*/)[1].to_s
         _val   = _action.match(/type\(.*,\s*(.*)\)/)[1].to_s
 
         puts __FILE__ + (__LINE__).to_s + "Process TYPE #{_val} into  #{_xpath}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
         obj = Scoutui::Base::QBrowser.getObject(my_driver, _xpath)
+
         if !obj.nil? && !obj.attribute('type').downcase.match(/(text|password)/).nil?
           obj.send_keys(Scoutui::Base::UserVars.instance.get(_val))
+        else
+          puts __FILE__ + (__LINE__).to_s + " Unable to process command TYPE => #{obj.to_s}"
         end
 
       end
@@ -58,10 +45,13 @@ module Scoutui::Base
       if !_action.match(/click\(/).nil?
         _xpath = _action.match(/click\s*\((.*)\)/)[1].to_s.strip
         puts __FILE__ + (__LINE__).to_s + " click => #{_xpath}"  if Scoutui::Utils::TestUtils.instance.isDebug?
-        obj = Scoutui::Base::QBrowser.getObject(my_driver, _xpath)
-        obj.click
 
-        processExpected(my_driver, e)
+        _xpath = Scoutui::Base::UserVars.instance.get(_xpath)
+
+        puts __FILE__ + (__LINE__).to_s + " | translate : #{_xpath}" if Scoutui::Utils::TestUtils.instance.isDebug?
+
+        obj = Scoutui::Base::QBrowser.getObject(my_driver, _xpath)
+        obj.click if obj
       elsif isMouseOver(_action)
         _xpath = _action.match(/mouseover\s*\((.*)\)/)[1].to_s.strip
         obj = Scoutui::Base::QBrowser.getObject(my_driver, _xpath)
@@ -89,13 +79,18 @@ module Scoutui::Base
     end
 
     def self.processExpected(my_driver, e)
-      puts "\to Expected:  #{e['page']['expected'].class.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+      puts __FILE__ + (__LINE__).to_s + "\to Expected:  #{e['page']['expected'].class.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
       if e['page'].has_key?('expected')
         expected_list=e['page']['expected']
 
         expected_list.each_pair do |link_name, xpath|
           puts "\t\t#{link_name} => #{xpath}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+          if !xpath.match(/^page\([\w\d]+\)/).nil?
+
+            xpath = Scoutui::Utils::TestUtils.instance.getPageElement(xpath)
+            puts __FILE__ + (__LINE__).to_s + " Process page request #{xpath} => #{xpath}"
+          end
 
           obj = Scoutui::Base::QBrowser.getFirstObject(my_driver, xpath)
 
@@ -125,7 +120,7 @@ module Scoutui::Base
         dut_dupes = YAML.load_stream File.read(datafile)
         valid_file=true
       rescue => ex
-        puts __FILE__ + (__LINE__).to_s + " Invaid file: #{datafile} - abort processing."
+        puts __FILE__ + (__LINE__).to_s + " Invalid file: #{datafile} - abort processing."
         puts ex.backtrace
       end
 
@@ -202,11 +197,24 @@ module Scoutui::Base
 
         puts "\to Expected:  #{e['page']['expected'].class.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
+        processExpected(my_driver, e)
+
+        if false
+
         if e['page'].has_key?('expected')
           expected_list=e['page']['expected']
 
           expected_list.each_pair do |link_name, xpath|
             puts "\t\t#{link_name} => #{xpath}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+
+            if !xpath.match(/^page\([\w\d]+\)/).nil?
+
+
+              xpath = Scoutui::Utils::TestUtils.instance.getPageElement(xpath)
+
+              puts __FILE__ + (__LINE__).to_s + " Process page request #{xpath} => #{xpath}"
+
+            end
 
             obj = Scoutui::Base::QBrowser.getObject(my_driver, xpath)
 
@@ -218,6 +226,10 @@ module Scoutui::Base
 
           end
         end
+
+
+        end
+
 
         if !_region.nil?
           eyeScount.check_window(_name, _region)
