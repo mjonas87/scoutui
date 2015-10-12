@@ -42,7 +42,11 @@ module Scoutui::Base
     end
 
     def get(k)
+      foundKey=true
+
       v=k
+
+      _rc = k.match(/\$\{(.*)\}$/)
 
       # Needs refactoring!
       if k=='${userid}'
@@ -51,13 +55,31 @@ module Scoutui::Base
         k=:password
       elsif k=='${host}'
         k=:host
+      elsif k.is_a?(Symbol)
+        foundKey=true
+      elsif !_rc.nil?
+        k=_rc[1].to_s
+        puts __FILE__ + (__LINE__).to_s + " User Var found => #{k}"
+        if Scoutui::Utils::TestUtils.instance.getTestConfig().has_key?("user_vars")
+
+          if Scoutui::Utils::TestUtils.instance.getTestConfig()["user_vars"].has_key?(k)
+            v=Scoutui::Utils::TestUtils.instance.getTestConfig()["user_vars"][k].to_s
+          end
+
+        end
+
+      else
+        foundKey=false
       end
 
       puts __FILE__ + (__LINE__).to_s + " get(#{k} => #{@globals.has_key?(k)}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
-      if @globals.has_key?(k)
+      if @globals.has_key?(k) && foundKey
         v=@globals[k]
       end
+
+      puts __FILE__ + (__LINE__).to_s + " get(#{k} => #{@globals.has_key?(k)} ==> #{v.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
+
       v
     end
 
