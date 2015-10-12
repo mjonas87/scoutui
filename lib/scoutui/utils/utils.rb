@@ -11,6 +11,7 @@ module Scoutui::Utils
     include Singleton
 
     attr_accessor :options
+    attr_accessor :page_model
 
     def initialize
 
@@ -18,7 +19,7 @@ module Scoutui::Utils
       @options={}
 
       [:accounts, :browser, :test_file, :host, :loc, :title, :viewport,
-       :userid, :password, :json_config_file, :test_config, :debug].each do |o|
+       :userid, :password, :json_config_file, :page_model, :test_config, :debug].each do |o|
         @options[o]=nil
       end
 
@@ -26,9 +27,46 @@ module Scoutui::Utils
       @options[:match_level]='layout'
       @options[:debug]=false
 
+      @page_model=nil
+
       Scoutui::Base::UserVars.instance.set('eyes.viewport', '1024x768')
 
     end
+
+    def loadPageModel()
+      if !@options[:page_model].nil?
+        _f = File.read(@options[:page_model].to_s)
+        @page_model = JSON.parse(_f)
+
+        puts __FILE__ + (__LINE__).to_s + " JSON-PageModel => #{@page_model}"
+      end
+    end
+
+
+    def getPageElement(s)
+      hit=@page_model
+
+      nodes = s.split(/\./)
+
+      nodes.each { |elt|
+        getter = elt.split(/\(/)[0]
+        _obj = elt.match(/\((.*)\)/)[1]
+
+        puts __FILE__ + (__LINE__).to_s + " getter : #{getter}  obj: #{_obj}"
+
+        if getter.downcase=='page'
+          puts __FILE__ + (__LINE__).to_s + " -- process page --"
+          hit=@page_model[_obj]
+        elsif getter.downcase=='get'
+          hit=hit[_obj]
+        end
+        puts __FILE__ + (__LINE__).to_s + " HIT => #{hit}"
+      }
+
+      hit
+
+    end
+
 
     def parseCommandLine()
 
@@ -49,6 +87,11 @@ module Scoutui::Utils
         opt.on('-k', '--key EyesLicense') { |o| options[:license_file] = o }
         opt.on('-a', '--app AppName')   { |o| @options[:app] = o }
         opt.on('--match [LEVEL]', [:layout2, :layout, :strict, :exact, :content], "Select match level (layout, strict, exact, content)") { |o| @options[:match_level] = o }
+
+        opt.on('--pagemodel [PageModel]') { |o|
+          @options[:page_model] = o
+          loadPageModel()
+        }
         opt.on('-t', '--title TITLE')   { |o| @options[:title] = o }
 
         opt.on('-u', '--user USER_ID')  { |o|
@@ -77,6 +120,7 @@ module Scoutui::Utils
         puts "Accounts    => #{@options[:accounts]}"
         puts "Viewport    => #{@options[:viewport]}"
         puts "Viewport (Var) => #{Scoutui::Base::UserVars.instance.getViewPort().to_s}"
+        puts "PageModel file => #{@options[:page_model].to_s}"
       end
 
       @options
@@ -164,6 +208,11 @@ module Scoutui::Utils
         end
       end
 
+      @options[:test_config]
+    end
+
+
+    def getTestConfig()
       @options[:test_config]
     end
 
