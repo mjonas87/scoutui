@@ -58,7 +58,7 @@ module Scoutui::Eyes
 
           eyes.match_level = Applitools::Eyes::MATCH_LEVEL[match_level.to_sym]
         end
-        
+
         ## TBD - eyes.open()
 
 
