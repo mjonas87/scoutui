@@ -36,5 +36,5 @@ page:
   action: click(page(main_nav).get(search_btn))
 ---
 page:
-  skip: true
+  skip: false
   action: pause
