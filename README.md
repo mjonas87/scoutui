@@ -48,13 +48,16 @@ To run unit tests:
 
 Following these steps to get started.
 
-1. Goto the ./examples folder
+1. Goto the ./examples/ex1 folder
 2. Set the environment variable APPLITOOLS_API_KEY with your key
 
     export APPLITOOLS_API_KEY=[__YOUR_APPLITOOLS_KEY__]
+3. Set the environment variable SCOUTUI_BIN to the ScoutUi driver
+    
+    export SCOUTUI_BIN=[ScoutUI Path]\bin\scoutui_driver.rb
    
-3. Run the script 'test-simple.sh'
-4. Goto your Applitools account and look for the test named "Graceland"
+4. Run the script 'test-simple.sh'
+5. Goto your Applitools account and look for the test named "Graceland"
 
 ## Development
 
