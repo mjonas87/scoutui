@@ -12,7 +12,7 @@
 BUT=chrome
 
 # Specify the title and appName needed by Applitools
-TITLE=DEMO-ONE
+TITLE=DEMO-1012-MOUSE
 APP=Elvis
 
 # Specify the test configuration file
