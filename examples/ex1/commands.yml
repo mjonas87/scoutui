@@ -12,7 +12,7 @@ page:
   action: click(//*[@id='music']//a[text()="Studio Albums"])
   snapit: true
   expected:
-    wait: //footer[@id="footer"]//a[@class="credits"]
+    xyz: //footer[@id="footer"]//a[@class="credits"]
 ---
 page:
   skip: true
