@@ -1,0 +1,14 @@
+page:
+  name: JA
+  url: /?lang=ja
+  reqid: 101
+  expected:
+    hello: //input[@id="btnSubmit"]
+---
+page:
+  name: Localization Login
+  run: ./commands.loc.login.yml
+---
+page:
+  name: General Navigation
+  run: ./general.nav.yml

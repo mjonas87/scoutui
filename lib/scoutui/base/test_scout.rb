@@ -5,7 +5,7 @@ module Scoutui::Base
 
   class TestScout
     attr_reader :context
-    attr_reader :test_settings  # { host, localization, dut }
+    attr_reader :test_settings  # { host, dut }
     attr_reader :userRecord
     attr_reader :eyesRecord   # {'title' , 'app'}
     attr_reader :eyeScout
@@ -21,9 +21,6 @@ module Scoutui::Base
         puts __FILE__ + (__LINE__).to_s +  " * test config json => " + Scoutui::Utils::TestUtils.instance.testConfigFile() if Scoutui::Utils::TestUtils.instance.isDebug?
 
         @test_settings=Scoutui::Utils::TestUtils.instance.getTestSettings()
-
-        accounts = Scoutui::Base::QAccounts.new()
-        @userRecord = accounts.getUserRecord(@test_settings['user'])
 
         @eyesRecord = @test_settings['eyes']
       end
@@ -43,7 +40,7 @@ module Scoutui::Base
     end
 
     def report
-
+      @eyeScout.generateReport()
     end
 
     def hasSettings?
@@ -113,6 +110,7 @@ module Scoutui::Base
       ensure
         puts __FILE__ + (__LINE__ ).to_s + " Close Eyes" if Scoutui::Utils::TestUtils.instance.isDebug?
         @eyeScout.closeOut()
+
       end
 
     end

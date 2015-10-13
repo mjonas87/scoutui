@@ -1,0 +1,15 @@
+{
+  "Project": "Example",
+  "Version": "1.00",
+  "Description": "Example1 - http://www.Elvis.com",
+
+  "browser": "chrome",
+
+  "eyes": {
+    "title": "Example1",
+    "app": "09-26"
+  },
+
+  "host": "http://www.elvis-presley.com",
+  "dut": "./commands.yml"
+}

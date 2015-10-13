@@ -1,0 +1,18 @@
+{
+  "Project": "GAT",
+  "Version": "1.00",
+  "Description": "Gateway UI",
+
+  "browser": "chrome",
+
+  "eyes": {
+    "title": "GAT-DEMO",
+    "app": "10-06"
+  },
+
+  "userid": "acsontos@outtask.com",
+  "password": "outtask",
+
+  "host": "http:/rqa3-cb.concurtech.net",
+  "dut": "./commands.yml"
+}

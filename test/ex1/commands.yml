@@ -1,0 +1,25 @@
+page:
+  name: Home
+  url: http://www.elvis.com
+---
+page:
+  name: Mouseover Music
+  action: mouseover(//ul[@class="nav-primary"]//a[text()="Music"])
+  snapit: true
+---
+page:
+  name: Studio Albums
+  action: click(//*[@id='music']//a[text()="Studio Albums"])
+  snapit: true
+  expected:
+    wait: //footer[@id="footer"]//a[@class="credits"]
+---
+page:
+  skip: true
+  action: type(//input[@id="password"], ${password})
+---
+page:
+  skip: true
+  action: click(//input[@id="btnSubmit"])
+  expected:
+    avatar: //img[@id="cnqr-profile-avatar"]

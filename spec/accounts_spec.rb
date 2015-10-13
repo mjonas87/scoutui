@@ -14,10 +14,10 @@ describe 'Manage Accounts' do
     puts '-- After --'
   end
 
-  it 'qAccounts object is not nil' do
-    t=Scoutui::Base::QAccounts.new()
-    expect(t).not_to be nil
-  end
+ # it 'qAccounts object is not nil' do
+ #   t=Scoutui::Base::QAccounts.new()
+ #   expect(t).not_to be nil
+ # end
 
 
   it 'qAccounts object is not nil' do

@@ -1,0 +1,18 @@
+{
+    "home": {
+        "cars4sale": "//a[text()='Find Cars for Sale']",
+        "whyCarMax": "//a[text()='Why CarMax']",
+        "wait2": "//input[text()='Sign in']"
+    },
+
+    "main_nav": {
+        "search_input": "//input[@id='search']",
+        "search_btn": "//a[@id='search-btn']"
+    },
+
+
+    "search": {
+        "header": "//title"
+    }
+}
+

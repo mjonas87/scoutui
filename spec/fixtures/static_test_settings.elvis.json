@@ -3,7 +3,7 @@
   "Version": "1.00",
   "Description": "Localization with Japanese",
 
-  "browser": "firefox",
+  "browserx": "firefox",
 
   "eyes": {
     "title": "beta",

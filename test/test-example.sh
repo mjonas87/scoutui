@@ -3,7 +3,7 @@
 BUT=firefox
 TITLE=Graceland
 APP=Elvis
-KEY=../test/peter.eyes.json
+# export APPLITOOLS_API_KEY="__YOUR_KEY_HERE__"
 
 TEST_CFG="../spec/fixtures/static_test_settings.elvis.json"
 
@@ -16,4 +16,4 @@ TEST_CFG="../spec/fixtures/static_test_settings.elvis.json"
 ##
 MATCH_TYPE="content"
 
-./test_script.rb --config $TEST_CFG  --browser $BUT --eyes --app $APP --title $TITLE --key $KEY   --match content
+./test_script.rb --config $TEST_CFG  --browser $BUT --eyes --app $APP --title $TITLE  --match $MATCH_TYPE
