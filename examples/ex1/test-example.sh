@@ -12,6 +12,9 @@
 BUT=chrome
 
 # Specify the title and appName needed by Applitools
+# Specify the title and appName needed by Applitools
+## NOTE:  If the test configuration file specifies the title and app, it is superseded by the
+##        command line options.
 TITLE=Graceland
 APP=Elvis
 
