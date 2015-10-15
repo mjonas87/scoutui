@@ -1,0 +1,24 @@
+{
+  "Project": "Example",
+  "Version": "1.00",
+  "Description": "Example1",
+
+  "browser": "chrome",
+
+  "eyes": {
+    "title": "Example1",
+    "viewport": "1700x718",
+    "app": "09-26"
+  },
+
+  "host": "http://localhost:8081/trac/PWK/wiki",
+  "dut": "./commands.yml",
+
+
+  "user_vars": {
+    "Search_Me": "Van Halen",
+    "View_Tickets_Link": "page(main_nav).get(ViewTicketsLink)"
+  }
+
+}
+

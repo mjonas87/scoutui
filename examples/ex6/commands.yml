@@ -1,0 +1,53 @@
+page:
+  name: Home
+  description: Navigate to a specified URL and wait until the expected elements are present
+  url: http://localhost:8081/trac/PWK/wiki
+  expected:
+    wait: page(home).get(wiki_link)
+    wait2: page(home).get(login_form).get(password)
+---
+page:
+  name: Mouseover View Tickets
+  action: mouseover(page(main_nav).get(ViewTicketsLink))
+  snapit: true
+---
+page:
+  name: Click - specified by Alias
+  action: click(${View_Tickets_Link})
+  snapit: true
+---
+page:
+  skip: true
+  action: pause
+---
+page:
+  name: Click on Input
+  action: click(page(main_nav).get(search_input))
+  snapit: true
+---
+page:
+  action: type(page(main_nav).get(search_input), ${Search_Me})
+---
+page:
+  skip: true
+  name: Mouseover Music
+  action: mouseover(//ul[@class="nav-primary"]//a[text()="Music"])
+  snapit: true
+---
+page:
+  skip: true
+  name: Studio Albums
+  action: click(//*[@id='music']//a[text()="Studio Albums"])
+  snapit: true
+  expected:
+    wait: //footer[@id="footer"]//a[@class="credits"]
+---
+page:
+  skip: true
+  action: type(//input[@id="password"], ${password})
+---
+page:
+  skip: true
+  action: click(//input[@id="btnSubmit"])
+  expected:
+    avatar: //img[@id="cnqr-profile-avatar"]
