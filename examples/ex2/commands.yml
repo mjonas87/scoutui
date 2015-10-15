@@ -30,11 +30,6 @@ page:
   action: type(page(main_nav).get(search_input), ${Search_Me})
 ---
 page:
-  action: pause
----
-page:
   action: click(page(main_nav).get(search_btn))
----
-page:
-  skip: false
-  action: pause
+  expected:
+    wait: //input[@id='zip']
