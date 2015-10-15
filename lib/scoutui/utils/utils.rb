@@ -38,7 +38,7 @@ module Scoutui::Utils
         _f = File.read(@options[:page_model].to_s)
         @page_model = JSON.parse(_f)
 
-        puts __FILE__ + (__LINE__).to_s + " JSON-PageModel => #{@page_model}"
+        puts __FILE__ + (__LINE__).to_s + " JSON-PageModel => #{@page_model}" if Scoutui::Utils::TestUtils.instance.isDebug?
       end
     end
 
@@ -52,15 +52,15 @@ module Scoutui::Utils
         getter = elt.split(/\(/)[0]
         _obj = elt.match(/\((.*)\)/)[1]
 
-        puts __FILE__ + (__LINE__).to_s + " getter : #{getter}  obj: #{_obj}"
+        puts __FILE__ + (__LINE__).to_s + " getter : #{getter}  obj: #{_obj}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
         if getter.downcase=='page'
-          puts __FILE__ + (__LINE__).to_s + " -- process page --"
+          puts __FILE__ + (__LINE__).to_s + " -- process page --"  if Scoutui::Utils::TestUtils.instance.isDebug?
           hit=@page_model[_obj]
         elsif getter.downcase=='get'
           hit=hit[_obj]
         end
-        puts __FILE__ + (__LINE__).to_s + " HIT => #{hit}"
+        puts __FILE__ + (__LINE__).to_s + " HIT => #{hit}" if Scoutui::Utils::TestUtils.instance.isDebug?
       }
 
       hit
