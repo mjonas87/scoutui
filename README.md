@@ -67,11 +67,30 @@ Following these steps to get started.
 ### Command files
 Command files are currently supported only in YAML format, however JSON will be supported very shortly (by 10/28/2015).
 
-Each stanza of a Command YAML file starts with *page*.
+Each stanza of a Command YAML file starts with the key *page*
 
     page:
+    
+and can have the following *properties*
+
+    name: <String>
+used to name the snapshot stored in Applitools.  
+The string, representing the logical name of this window/validation point will appear in the test result report.
+
+    url: <Full URL>
+    
+specifies the URL to load right before the snapshot
+
+    url: <Partial URL>
+    
+    
+specifies the partial URL that should be concatenated to the provided host, before the snapshot
+    
+    
+    skip: <true | false>
+specifies whether or not to skip this stanza  (if skip is omitted, it's default value is true)
    
-The following 
+
 
 
 #### Example 1. Navigate to a URL then take snapshots after user actions (e.g. mouse events).
@@ -93,6 +112,20 @@ The following
         wait: //footer[@id="footer"]//a[@class="credits"]
         
 
+## A word about using Applitools Eyes
+
+1. CSS Transitions
+    
+    This method is to make the floating bar not captured when scrolling the screen in force-to-fullscreen mode.
+        use_css_transition
+2. Viewport
+
+    You can obtain the viewport by resizing the browser, to a desired width/height, then obtain the following values using Javascript console.
+   
+        window.innerWidth
+        window.innerHeight
+        
+        
 ## To run from the command line
 
 ruby test_script.rb  --config <your test settings JSON file> --eyes
