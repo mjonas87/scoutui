@@ -59,7 +59,7 @@ module Scoutui::Base
         foundKey=true
       elsif !_rc.nil?
         k=_rc[1].to_s
-        puts __FILE__ + (__LINE__).to_s + " User Var found => #{k}"
+        puts __FILE__ + (__LINE__).to_s + " User Var found => #{k}"  if Scoutui::Utils::TestUtils.instance.isDebug?
         if Scoutui::Utils::TestUtils.instance.getTestConfig().has_key?("user_vars")
 
           if Scoutui::Utils::TestUtils.instance.getTestConfig()["user_vars"].has_key?(k)

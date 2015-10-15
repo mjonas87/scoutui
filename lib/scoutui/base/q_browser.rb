@@ -43,7 +43,7 @@ module Scoutui::Base
         if !xpath.match(/^page\([\w\d]+\)/).nil?
 
           xpath = Scoutui::Utils::TestUtils.instance.getPageElement(xpath)
-          puts __FILE__ + (__LINE__).to_s + " Process page request #{xpath} => #{xpath}"
+          puts __FILE__ + (__LINE__).to_s + " Process page request #{xpath} => #{xpath}" if Scoutui::Utils::TestUtils.instance.isDebug?
         end
 
 

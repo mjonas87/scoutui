@@ -1,14 +1,14 @@
 {
   "Project": "Example",
   "Version": "1.00",
-  "Description": "Example1",
+  "Description": "Example - CarMax",
 
   "browser": "chrome",
 
   "eyes": {
-    "title": "Example1",
-    "viewport": "1700x718",
-    "app": "09-26"
+    "title": "Example - CarMax",
+    "viewport": "1024x718",
+    "app": "10-16"
   },
 
   "host": "http://www.carmax.com",
