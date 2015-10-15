@@ -23,7 +23,7 @@ module Scoutui::Base
 
       if !_action.match(/pause/).nil?
 
-        puts __FILE__ + (__LINE__).to_s + " PAUSE";
+        puts " PAUSE";
         gets();
 
       elsif !_action.match(/type\(/).nil?
@@ -89,7 +89,7 @@ module Scoutui::Base
           if !xpath.match(/^page\([\w\d]+\)/).nil?
 
             xpath = Scoutui::Utils::TestUtils.instance.getPageElement(xpath)
-            puts __FILE__ + (__LINE__).to_s + " Process page request #{xpath} => #{xpath}"
+            puts __FILE__ + (__LINE__).to_s + " Process page request #{xpath} => #{xpath}" if Scoutui::Utils::TestUtils.instance.isDebug?
           end
 
           obj = Scoutui::Base::QBrowser.getFirstObject(my_driver, xpath)
