@@ -30,4 +30,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "selenium-webdriver", ">= 2.47"
   spec.add_development_dependency "httparty"
   spec.add_development_dependency "json"
+  spec.add_development_dependency "faker"
+  spec.add_development_dependency "testmgr"
 end
