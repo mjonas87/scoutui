@@ -1,4 +1,5 @@
 require 'singleton'
+require 'faker'
 
 module Scoutui::Base
 
@@ -57,6 +58,8 @@ module Scoutui::Base
         k=:host
       elsif k.is_a?(Symbol)
         foundKey=true
+      elsif k=='__random_email__'
+        return Faker::Internet.email
       elsif !_rc.nil?
         k=_rc[1].to_s
         puts __FILE__ + (__LINE__).to_s + " User Var found => #{k}"  if Scoutui::Utils::TestUtils.instance.isDebug?
@@ -72,7 +75,7 @@ module Scoutui::Base
         foundKey=false
       end
 
-      puts __FILE__ + (__LINE__).to_s + " get(#{k} => #{@globals.has_key?(k)}" if Scoutui::Utils::TestUtils.instance.isDebug?
+      puts __FILE__ + (__LINE__).to_s + " get(#{k}) => #{@globals.has_key?(k)}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
       if @globals.has_key?(k) && foundKey
         v=@globals[k]
