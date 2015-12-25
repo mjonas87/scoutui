@@ -99,7 +99,7 @@ module Scoutui::Base
         # Navigate to the specified host
         goto(Scoutui::Base::UserVars.instance.get(:host))
 
-        snapPage('Landing Page')
+    #    snapPage('Landing Page')
 
         Scoutui::Base::VisualTestFramework.processFile(@eyeScout, @test_settings)
 
