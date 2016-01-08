@@ -4,6 +4,7 @@ require 'pp'
 require 'optparse'
 
 
+
 module Scoutui::Utils
 
 
@@ -11,62 +12,52 @@ module Scoutui::Utils
     include Singleton
 
     attr_accessor :options
-    attr_accessor :page_model
+    attr_accessor :app_model
 
     def initialize
 
       @env_list={:accounts => 'SCOUTUI_ACCOUNTS', :browser => 'SCOUTUI_BROWSER', :applitools_api_key => 'APPLITOOLS_API_KEY'}
       @options={}
 
-      [:accounts, :browser, :test_file, :host, :loc, :title, :viewport,
+      [:accounts, :browser, :capabilities, :test_file, :host, :loc, :title, :viewport,
        :userid, :password, :json_config_file, :page_model, :test_config, :debug].each do |o|
         @options[o]=nil
       end
 
       @options[:enable_eyes]=false
+      @options[:enable_sauce]=false
       @options[:match_level]='layout'
       @options[:debug]=false
 
-      @page_model=nil
+      @app_model=nil
 
       Scoutui::Base::UserVars.instance.set('eyes.viewport', '1024x768')
 
     end
 
-    def loadPageModel()
-      if !@options[:page_model].nil?
-        _f = File.read(@options[:page_model].to_s)
-        @page_model = JSON.parse(_f)
-
-        puts __FILE__ + (__LINE__).to_s + " JSON-PageModel => #{@page_model}" if Scoutui::Utils::TestUtils.instance.isDebug?
+    def loadModel(f=nil)
+      if f.nil?
+        return nil
       end
+
+      begin
+        @app_model = Scoutui::ApplicationModel::QModel.new(f)
+        @app_model.getAppModel()
+      rescue => ex
+        raise "ErrorLoad"
+      end
+
     end
 
+
+    def getForm(s)
+      _h = getPageElement(s)
+      Scoutui::Base::QForm.new(_h)
+    end
 
     def getPageElement(s)
-      hit=@page_model
-
-      nodes = s.split(/\./)
-
-      nodes.each { |elt|
-        getter = elt.split(/\(/)[0]
-        _obj = elt.match(/\((.*)\)/)[1]
-
-        puts __FILE__ + (__LINE__).to_s + " getter : #{getter}  obj: #{_obj}" if Scoutui::Utils::TestUtils.instance.isDebug?
-
-        if getter.downcase=='page'
-          puts __FILE__ + (__LINE__).to_s + " -- process page --"  if Scoutui::Utils::TestUtils.instance.isDebug?
-          hit=@page_model[_obj]
-        elsif getter.downcase=='get'
-          hit=hit[_obj]
-        end
-        puts __FILE__ + (__LINE__).to_s + " HIT => #{hit}" if Scoutui::Utils::TestUtils.instance.isDebug?
-      }
-
-      hit
-
+      @app_model.getPageElement(s)
     end
-
 
     def parseCommandLine()
 
@@ -81,6 +72,12 @@ module Scoutui::Utils
         }
         opt.on('--accounts [Account]')    { |o| @options[:accounts] = o }
         opt.on('-b', '--browser [TYPE]', [:chrome, :firefox, :ie, :safari, :phantomjs], "Select browser (chrome, ie, firefox, safari)") { |o| @options[:browser] = o }
+        opt.on('--capabilities CAP') {  |o|
+          @options[:capabilities]=o
+
+          jFile = File.read(o)
+          @options[:capabilities]=jsonData=JSON.parse(jFile, :symbolize_names => true)
+        }
         opt.on('-d', '--debug', 'Enable debug')  { |o| @options[:debug] = true }
         opt.on('-h', '--host HOST')     { |o| @options[:host] = o }
         opt.on('-l', '--lang LOCAL')    { |o| @options[:loc] = o }
@@ -88,9 +85,16 @@ module Scoutui::Utils
         opt.on('-a', '--app AppName')   { |o| @options[:app] = o }
         opt.on('--match [LEVEL]', [:layout2, :layout, :strict, :exact, :content], "Select match level (layout, strict, exact, content)") { |o| @options[:match_level] = o }
 
+        opt.on("--pages a,b,c", Array, "List of page models") do |list|
+          puts __FILE__ + (__LINE__).to_s + " list => #{list}"
+          @options[:pages]=list
+
+          loadModel(@options[:pages])
+        end
+
         opt.on('--pagemodel [PageModel]') { |o|
           @options[:page_model] = o
-          loadPageModel()
+          loadModel(@options[:page_model].to_s)
         }
         opt.on('-t', '--title TITLE')   { |o| @options[:title] = o }
 
@@ -101,6 +105,9 @@ module Scoutui::Utils
         opt.on('-p', '--password PASSWORD') { |o| @options[:password] = o }
         opt.on('-e', '--eyes', "Toggle eyes") {
           @options[:enable_eyes]=true
+        }
+        opt.on('-s', '--sauce', "Toggle SauceLabs") {
+          @options[:enable_sauce]=true
         }
         opt.on('--viewport [resolution]') { |o| options[:viewport] = o }
       end.parse!
@@ -126,12 +133,24 @@ module Scoutui::Utils
       @options
     end
 
+    def getCapabilities()
+      @options[:capabilities]
+    end
+
+    def getHost()
+      @options[:host].to_s
+    end
+
     def isDebug?
       @options[:debug]
     end
 
     def eyesEnabled?
       @options[:enable_eyes]
+    end
+
+    def sauceEnabled?
+      @options[:enable_sauce]
     end
 
     def getLicenseFile()
