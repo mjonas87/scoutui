@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Peter Kim"]
   spec.email         = ["h20dragon@outlook.com"]
 
-  spec.summary       = %q{Simple yet powerful navigation and browser snapshot framework.}
-  spec.description   = %q{Leverage a navigation framework integrated with Applitool's Eyes for page/image capture capabilities - welcome to the world of Visual Testing!}
+  spec.summary       = %q{Simple yet powerful application model based automation framework.}
+  spec.description   = %q{Leverage a fully functional e2e framework that's integrated with Applitool's Eyes and Sauce Labs!}
   spec.homepage      = "https://github.com/h20dragon"
   spec.license       = "MIT"
 
