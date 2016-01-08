@@ -24,3 +24,5 @@ Scoutui::Base::UserVars.instance.dump()
 
 puts '-' * 72
 puts "accounts => " + Scoutui::Base::UserVars.instance.getVar(:accounts).to_s
+puts "eyes.viewport => " + Scoutui::Base::UserVars.instance.getVar('eyes.viewport').to_s
+puts "eyes.viewport => " + Scoutui::Base::UserVars.instance.getViewPort().to_s
