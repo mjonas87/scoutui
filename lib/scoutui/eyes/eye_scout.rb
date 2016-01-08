@@ -1,24 +1,29 @@
 require 'eyes_selenium'
+require 'testmgr'
 
 module Scoutui::Eyes
 
 
   class EyeScout
 
-    attr_accessor :drv
     attr_accessor :eyes
     attr_accessor :testResults
+    attr_accessor :strategy
 
     def teardown()
-      @drv.quit()
+      @strategy.quit()
     end
 
     def navigate(url)
-      @drv.navigate().to(url)
+    @strategy.navigate(url)
     end
 
     def drv()
-      @drv
+      @strategy.getDriver()
+    end
+
+    def getStrategy()
+      @strategy
     end
 
     def eyes()
@@ -27,6 +32,9 @@ module Scoutui::Eyes
 
 
     def closeOut()
+
+#      Scoutui::Base::QHarMgr.instance.stop('/tmp/scoutui.har')
+
       return if !Scoutui::Utils::TestUtils.instance.eyesEnabled?
       @testResults = eyes().close(false)
       eyes().abort_if_not_closed if !eyes().nil?
@@ -49,11 +57,16 @@ module Scoutui::Eyes
 
     def generateReport()
       puts " TestReport => #{@testResults}"
+   #  Testmgr::TestReport.instance.generateReport()
+      Testmgr::TestReport.instance.report()
     end
 
     def getResults()
       @testResults
     end
+
+
+
 
     def initialize(browserType)
       @testResults=nil
@@ -61,8 +74,14 @@ module Scoutui::Eyes
       browserType = Scoutui::Base::UserVars.instance.getBrowserType()
       viewport_size = Scoutui::Base::UserVars.instance.getViewPort()
 
+      Testmgr::TestReport.instance.setDescription('ScoutUI Test')
+      Testmgr::TestReport.instance.setEnvironment(:qa, Scoutui::Utils::TestUtils.instance.getHost())
+      Testmgr::TestReport.instance.addRequirement('UI')
+      Testmgr::TestReport.instance.getReq('UI').add(Testmgr::TestCase.new('visible_when', "visible_when"))
+
       if Scoutui::Utils::TestUtils.instance.isDebug?
         puts __FILE__ + (__LINE__).to_s + " setup() : #{browserType}"
+        puts __FILE__ + (__LINE__).to_s + " sauce    => " + Scoutui::Utils::TestUtils.instance.eyesEnabled?.to_s
         puts __FILE__ + (__LINE__).to_s + " viewport => #{viewport_size}"
         puts __FILE__ + (__LINE__).to_s + " eyes cfg => #{@eyesRecord}"
         puts __FILE__ + (__LINE__).to_s + " title => " + Scoutui::Base::UserVars.instance.getVar('eyes.title')
@@ -71,7 +90,12 @@ module Scoutui::Eyes
       end
 
       begin
-        @drv=Selenium::WebDriver.for browserType.to_sym
+
+#        Scoutui::Base::QHarMgr.instance.start()
+#        @profile.proxy = Scoutui::Base::QHarMgr.instance.getSeleniumProfile()
+
+        @strategy = Scoutui::Commands::Strategy.new()
+
         @eyes=Scoutui::Eyes::EyeFactory.instance.createEyes()
 
         puts __FILE__ + (__LINE__).to_s + " eyes => #{eyes}" if Scoutui::Utils::TestUtils.instance.isDebug?
@@ -83,7 +107,7 @@ module Scoutui::Eyes
               test_name: Scoutui::Base::UserVars.instance.getVar('eyes.title'), # @eyesRecord['title'],
               viewport_size: viewport_size,
               #    viewport_size: {width: 800, height: 600},
-              driver: @drv)
+              driver: @strategy.getDriver())
         end
 
       rescue => ex
