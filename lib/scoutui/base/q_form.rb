@@ -105,6 +105,28 @@ module Scoutui::Base
 
                 Testmgr::TestReport.instance.getReq('UI').tc(k).add(_rc, __FILE__ + (__LINE__).to_s + " Verify expected title matches #{_not.to_s}#{_title} for form.")
 
+
+              elsif !v[k].match(/\s*(visible)\((.*)\)\=(.*)/).nil?
+                puts __FILE__ + (__LINE__).to_s + " ==> #{v[k].to_s}"
+                _match=v[k].match(/\s*(visible)\((.*)\)\=(.*)/)
+                _cond=_match[1]
+                _obj=_match[2]
+                _expected_val=_match[3]
+
+                puts __FILE__ + (__LINE__).to_s + " <cond, obj, when>::<#{_cond}, #{_obj}, #{_expected_val}"
+
+                depObj = Scoutui::Base::QBrowser.getObject(drv, _obj)
+                puts __FILE__ + (__LINE__).to_s + " hit => #{depObj.class.to_s} tag:#{depObj.tag_name}" if !depObj.nil?
+
+                desc=nil
+                if _expected_val.match(/true/i)
+                  obj = Scoutui::Base::QBrowser.getObject(drv, v['locator'])
+                  Testmgr::TestReport.instance.getReq('UI').tc(k).add(!depObj.nil? && depObj.displayed? && !obj.nil? && obj.displayed?, "Verify #{v['locator']} is displayed since #{_obj} is displayed")
+                elsif _expected_val.match(/false/i)
+                  obj = Scoutui::Base::QBrowser.getObject(drv, v['locator'])
+                  Testmgr::TestReport.instance.getReq('UI').tc(k).add( depObj.nil? && !obj.nil? && obj.displayed?, "Verify #{v['locator']} is displayed since #{_obj} is not visible.")
+                end
+
               elsif !v[k].match(/value\((.*)\)\=(.*)/).nil?
                   _match=v[k].match(/value\((.*)\)\=(.*)/)
                   _obj=_match[1]
@@ -175,6 +197,11 @@ module Scoutui::Base
               if !_type.match(/(password|text|email)/i).nil? && !_tag.match(/(input|textarea)/i).nil?
                 _v = Scoutui::Base::UserVars.instance.get(dut[k].to_s)
                 obj.send_keys(_v)
+
+              elsif _type.match(/(select)/i)
+                _v = Scoutui::Base::UserVars.instance.get(dut[k].to_s)
+                _opt = Selenium::WebDriver::Support::Select.new(obj)
+                _opt.select_by(:text, Scoutui::Base::UserVars.instance.get(_v))
               end
             end
 
