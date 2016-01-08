@@ -12,5 +12,5 @@
   },
 
   "host": "http://www.elvis-presley.com",
-  "dut": "./commands.yml"
+  "dut": "./commands.holidays.yml"
 }
