@@ -14,12 +14,11 @@ module Scoutui::Base
     def self.processCommand(_action, e, my_driver)
       puts __FILE__ + (__LINE__).to_s + " ===  Process ACTION : #{_action}  ==="  if Scoutui::Utils::TestUtils.instance.isDebug?
 
-      if !_action.match(/pause/i).nil?
+      if Scoutui::Commands::Utils.instance.isVerifyForm?(_action)
+        _c = Scoutui::Commands::VerifyForm.new(_action)
+        _c.execute(my_driver)
 
-        _c = Scoutui::Commands::Pause.new(nil)
-        _c.execute();
-
-      elsif !_action.match(/fillform\(/).nil?
+      elsif !_action.match(/fillform\(/).nil? && false
 
      #   _c = Scoutui::Commands::FillForm.new(_action)
 
@@ -34,7 +33,7 @@ module Scoutui::Base
         _f.verifyForm(my_driver)
         _f.fillForm(my_driver, dut)
 
-      elsif !_action.match(/submitform\(/).nil?
+      elsif !_action.match(/submitform\(/).nil? && false
         _cmd = Scoutui::Commands::SubmitForm.new(_action)
      #   _cmd.execute(my_driver)
 
@@ -42,7 +41,7 @@ module Scoutui::Base
         _f = Scoutui::Utils::TestUtils.instance.getForm(_form)
         _f.submitForm(my_driver)
 
-      elsif !_action.match(/type\(/).nil?
+      elsif !_action.match(/type\(/).nil?  && false
         _xpath = _action.match(/type\((.*),\s*/)[1].to_s
         _val   = _action.match(/type\(.*,\s*(.*)\)/)[1].to_s
 
@@ -50,7 +49,7 @@ module Scoutui::Base
 
         obj = Scoutui::Base::QBrowser.getObject(my_driver, _xpath)
 
-        if !obj.nil? && !obj.attribute('type').downcase.match(/(text|password)|email/).nil?
+        if !obj.nil? && !obj.attribute('type').downcase.match(/(text|password|email)/).nil?
           obj.send_keys(Scoutui::Base::UserVars.instance.get(_val))
         else
           puts __FILE__ + (__LINE__).to_s + " Unable to process command TYPE => #{obj.to_s}"
@@ -58,39 +57,6 @@ module Scoutui::Base
 
       end
 
-    #  if !_action.match(/click\(/).nil?
-
-      if Scoutui::Commands::Utils.instance.isClick?(_action)
-
-    #  if Scoutui::Commands::isClick?(_action)
-        _clickCmd = Scoutui::Commands::ClickObject.new(_action)
-        _clickCmd.execute(my_driver)
-
-
-        # _xpath = _action.match(/click\s*\((.*)\)/)[1].to_s.strip
-        # puts __FILE__ + (__LINE__).to_s + " click => #{_xpath}"  if Scoutui::Utils::TestUtils.instance.isDebug?
-        #
-        # _xpath = Scoutui::Base::UserVars.instance.get(_xpath)
-        #
-        # puts __FILE__ + (__LINE__).to_s + " | translate : #{_xpath}" if Scoutui::Utils::TestUtils.instance.isDebug?
-        #
-        # obj = Scoutui::Base::QBrowser.getObject(my_driver, _xpath)
-        # obj.click if obj
-
-
-    #  elsif isMouseOver(_action)
-
-      elsif  Scoutui::Commands::Utils.instance.isMouseOver?(_action)
-
-        _moCmd = Scoutui::Commands::MouseOver.new(_action)
-        _moCmd.execute(my_driver)
-
-   #     _c = Scoutui::Commands::MouseOver.new(_action)
-   #     _xpath = _action.match(/mouseover\s*\((.*)\)/)[1].to_s.strip
-   #     obj = Scoutui::Base::QBrowser.getObject(my_driver, _xpath)
-   #     my_driver.action.move_to(obj).perform
-
-      end
 
     end
 
@@ -249,7 +215,7 @@ module Scoutui::Base
     end
 
     # Scoutui::Base::VisualTestFramework.processFile(@drv, @eyes, @test_settings['host'], @test_settings['dut'])
-    def self.processFile(eyeScout, test_settings)
+    def self.processFile(eyeScout, test_settings, strategy=nil)
 
       my_driver = eyeScout.drv()
 
@@ -309,7 +275,12 @@ module Scoutui::Base
         end
 
         if !(_action.nil? || _action.empty?)
-          processCommand(_action, e, my_driver)
+
+       #  if !Scoutui::Commands::processCommand(_action, e, my_driver)
+          if !eyeScout.getStrategy().processCommand(_action, e)
+            processCommand(_action, e, my_driver)
+          end
+
           processExpected(my_driver, e)
           processAssertions(my_driver, e)
 
@@ -331,18 +302,9 @@ module Scoutui::Base
 
         if e[STEP_KEY].has_key?("url")
           url = e[STEP_KEY]["url"].to_s
-          _relativeUrl = _url.strip.start_with?('/')
 
 
-          if _relativeUrl
-            puts __FILE__ + (__LINE__).to_s + " [relative url]: #{baseUrl} with #{url}"  if Scoutui::Utils::TestUtils.instance.isDebug?
-            url = baseUrl + url
-          end
-
-  #        name = e["page"]["name"].to_s
-
-  #        Scoutui::Base::QHarMgr.instance.run('/tmp/url.har') { my_driver.navigate().to(url) }
-          my_driver.navigate().to(url)
+          eyeScout.getStrategy().processCommand('navigate(' + url + ')', e)
         end
 
 
