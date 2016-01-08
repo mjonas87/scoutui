@@ -4,7 +4,7 @@ page:
   url: http://www.carmax.com
   expected:
     wait: page(home).get(cars4sale)
-    wait: page(home).get(whyCarMax)
+    wait2: page(home).get(whyCarMax)
 ---
 page:
   name: Mouseover View Tickets
@@ -13,7 +13,7 @@ page:
 ---
 page:
   name: Click - specified by Alias
-  action: click(${whyCarMax})
+  action: click(${WhyCarMax})
   snapit: true
 ---
 page:
@@ -21,7 +21,7 @@ page:
   action: pause
 ---
 page:
-  skip: true
+  skip: false
   name: Click on Input
   action: click(page(main_nav).get(search_input))
   snapit: true
