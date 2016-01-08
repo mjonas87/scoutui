@@ -1,0 +1,45 @@
+page:
+  name: Home
+  url: http://www.elvis.com
+  expected:
+    wait: frame()
+---
+page:
+  action: click(//a[@class='ui-dialog-titlebar-close ui-corner-all' and @role='button']/i[@class='icon-cms-thinx')
+  snapit: false
+---
+page:
+  name: Mouseover Music
+  action: mouseover(//a[@class='ParentNav' and @title='Holidays'])
+  snapit: true
+---
+page:
+  name: Studio Albums
+  action: click(//a[@title='Holiday Decorations'])
+  snapit: true
+  expected:
+    wait: //*[@id='PagingViewAll']
+---
+page:
+  name: Hot Items
+  action: mouseover(//*[@id='NavList']//a[@title='Hot Items'])
+  snapit: true
+  expected:
+    wait: //div[@class='SubmenuContainer']/a[@title='New Arrivals']
+---
+page:
+  name: New Arrivals
+  action: click(//div[@class='SubmenuContainer']/a[@title='New Arrivals'])
+  snapit: true
+  expected:
+    wait: //*[@id='PagingViewAll']
+---
+page:
+  skip: true
+  action: type(//input[@id="password"], ${password})
+---
+page:
+  skip: true
+  action: click(//input[@id="btnSubmit"])
+  expected:
+    avatar: //img[@id="cnqr-profile-avatar"]
