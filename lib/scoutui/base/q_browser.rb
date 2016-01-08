@@ -1,7 +1,6 @@
 
 require 'eyes_selenium'
 require 'selenium-webdriver'
-#require 'testmgr'
 
 module Scoutui::Base
 
@@ -11,6 +10,17 @@ module Scoutui::Base
     attr_accessor :driver
 
     def initialize()
+    end
+
+    def self.wait_for_displayed(drv, locator, _timeout=30)
+      puts __FILE__ + (__LINE__).to_s + " wait_for_displayed(#{xpath}"
+      rc=nil
+      begin
+        Selenium::WebDriver::Wait.new(timeout: _timeout).until { rc=drv.find_element(:xpath => xpath).displayed? }
+      rescue => ex
+        ;
+      end
+      rc
     end
 
     def self.wait_for_exist(drv, xpath, _timeout=30)
@@ -36,11 +46,13 @@ module Scoutui::Base
       rc
     end
 
+    # http://stackoverflow.com/questions/15164742/combining-implicit-wait-and-explicit-wait-together-results-in-unexpected-wait-ti#answer-15174978
     def self.getObject(drv, obj, _timeout=30)
       puts __FILE__ + (__LINE__).to_s + " getObject(#{obj})  class:#{obj.class.to_s}   hash : #{obj.is_a?(Hash)}"
       rc=nil
       visible_when=nil
       locator=obj
+      locateBy=:xpath
 
       begin
 
@@ -69,11 +81,50 @@ module Scoutui::Base
 
         end
 
+        if !locator.match(/\$\{.*\}/).nil?
+          _x = Scoutui::Base::UserVars.instance.get(locator)
+          puts __FILE__ + (__LINE__).to_s + " User specified user var : #{locator} ==> #{_x}"
+          if !_x.nil?
+
+
+            if !_x.match(/^page\([\w\d]+\)/).nil?
+              elt = Scoutui::Utils::TestUtils.instance.getPageElement(_x)
+
+              if elt.is_a?(Hash)
+                puts __FILE__ + (__LINE__).to_s + " JSON or Hash => #{elt}"
+                locator = elt['locator'].to_s
+              else
+                locator=elt.to_s
+              end
+            end
+
+          end
+
+        elsif locator.match(/css\=/i)
+          locateBy = :css
+          locator = locator.match(/css\=(.*)/i)[1].to_s
+        elsif locator.match(/^#/i)
+          locateBy = :css
+        end
+
+
+        puts __FILE__ + (__LINE__).to_s + " By      => #{locateBy.to_s}"
         puts __FILE__ + (__LINE__).to_s + " Locator => #{locator}"
         puts __FILE__ + (__LINE__).to_s + " Visible_When => #{visible_when}"
 
-        Selenium::WebDriver::Wait.new(timeout: _timeout).until { drv.find_element(:xpath => locator).displayed? }
-        rc=drv.find_element(:xpath => locator)
+      #  Selenium::WebDriver::Wait.new(timeout: _timeout).until { drv.find_element(:xpath => locator).displayed? }
+        # rc=drv.find_element(:xpath => locator)
+        Selenium::WebDriver::Wait.new(timeout: _timeout).until { rc=drv.find_element( locateBy => locator) }
+
+
+      rescue Selenium::WebDriver::Error::TimeOutError
+          puts __FILE__  + (__LINE__).to_s + " #{locator} time out."
+          rc=nil
+
+      rescue Selenium::WebDriver::Error::NoSuchElementError
+        puts __FILE__ + (__LINE__).to_s + " #{locator} not found."
+        rc=nil
+
       rescue => ex
         puts "Error during processing: #{$!}"
         puts "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
