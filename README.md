@@ -25,6 +25,7 @@ This project is still in beta, but working - the version '1.0.0' will be the fir
        b. eyes_selenium
        c. yaml
        d. json
+       e. testmgr
 
 Add this line to your application's Gemfile:
 
@@ -43,6 +44,10 @@ Or install it yourself as:
 To run unit tests:
 
     $ bundle exec rake spec
+    
+To run a specific unit test:
+
+    $ rspec spec/json_spec.rb
 
 ## Running the examples
 
