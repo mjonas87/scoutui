@@ -28,9 +28,11 @@ TEST_CFG="./test.config.json"
 # layyout
 ##
 MATCH_TYPE="layout"
+EYES="--eyes"
+#EYES=
 
 # The following command line parameters will override provided title and appName (if provided in test config file)
-$SCOUTUI_BIN   --config $TEST_CFG  --browser $BUT --eyes --app $APP --title $TITLE  --match $MATCH_TYPE
+$SCOUTUI_BIN   --config $TEST_CFG  --browser $BUT $EYES --app $APP --title $TITLE  --match $MATCH_TYPE  --debug
 
 # The following
 # $SCOUTUI_BIN --config $TEST_CFG  --eyes  --match $MATCH_TYPE  --browser $BUT
