@@ -6,7 +6,7 @@ require 'scoutui/version'
 Gem::Specification.new do |spec|
   spec.name          = "scoutui"
   spec.version       = Scoutui::VERSION
-  spec.authors       = ["Peter Kim"]
+  spec.authors       = ["Peter Kim", 'Joshua Peeling']
   spec.email         = ["h20dragon@outlook.com"]
 
   spec.summary       = %q{Simple yet powerful application model based automation framework.}
