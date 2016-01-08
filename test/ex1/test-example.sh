@@ -16,7 +16,7 @@ TITLE=DEMO-ONE
 APP=Elvis
 
 # Specify the test configuration file
-TEST_CFG="./ex1.config.json"
+TEST_CFG="./ex6.config.json"
 
 ##
 # content
