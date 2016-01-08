@@ -79,11 +79,6 @@ module Scoutui::Base
     end
 
 
-
-    def goto(url=nil)
-      @eyeScout.navigate(url) if !url.nil?
-    end
-
     def snapPage(tag)
       @eyeScout.check_window(tag)
     end
@@ -94,10 +89,10 @@ module Scoutui::Base
 
       begin
 
-        @eyeScout=setup()    # Browser is created
+        @eyeScout = setup()    # Browser is created
 
         # Navigate to the specified host
-        goto(Scoutui::Base::UserVars.instance.get(:host))
+        @eyeScout.navigate(Scoutui::Base::UserVars.instance.get(:host))
 
     #    snapPage('Landing Page')
 
