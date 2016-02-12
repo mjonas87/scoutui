@@ -24,8 +24,11 @@ module Scoutui::Utils
         @options[o]=nil
       end
 
+      @options[:role]=nil
+      @options[:sauce_name]='unnamed'
       @options[:enable_eyes]=false
       @options[:enable_sauce]=false
+      @options[:log_level]=:info     # :debug, :info, :warn, :error, :fatal
       @options[:match_level]='layout'
       @options[:debug]=false
 
@@ -44,9 +47,10 @@ module Scoutui::Utils
         @app_model = Scoutui::ApplicationModel::QModel.new(f)
         @app_model.getAppModel()
       rescue => ex
-        raise "ErrorLoad"
+        raise "ErrorLoad : #{f.to_s}"
       end
 
+      @app_model
     end
 
 
@@ -78,7 +82,25 @@ module Scoutui::Utils
           jFile = File.read(o)
           @options[:capabilities]=jsonData=JSON.parse(jFile, :symbolize_names => true)
         }
+
+        opt.on('--loglevel Level') { |o|
+          if o.match(/error/i)
+            @options[:log_level] = :error
+          elsif o.match(/fatal/i)
+            @options[:log_level] = :fatal
+          elsif o.match(/info/i)
+            @options[:log_level] = :info
+          elsif o.match(/warn/i)
+            @options[:log_level] = :warn
+          elsif o.match(/debug/i)
+            @options[:log_level] = :debug
+          end
+
+          Scoutui::Logger::LogMgr.instance.setLevel(@options[:log_level])
+        }
+
         opt.on('-d', '--debug', 'Enable debug')  { |o| @options[:debug] = true }
+        opt.on('--dut DUT') { |o| @options[:dut]=o }
         opt.on('-h', '--host HOST')     { |o| @options[:host] = o }
         opt.on('-l', '--lang LOCAL')    { |o| @options[:loc] = o }
         opt.on('-k', '--key EyesLicense') { |o| options[:license_file] = o }
@@ -86,7 +108,7 @@ module Scoutui::Utils
         opt.on('--match [LEVEL]', [:layout2, :layout, :strict, :exact, :content], "Select match level (layout, strict, exact, content)") { |o| @options[:match_level] = o }
 
         opt.on("--pages a,b,c", Array, "List of page models") do |list|
-          puts __FILE__ + (__LINE__).to_s + " list => #{list}"
+          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " list => #{list}"
           @options[:pages]=list
 
           loadModel(@options[:pages])
@@ -106,28 +128,32 @@ module Scoutui::Utils
         opt.on('-e', '--eyes', "Toggle eyes") {
           @options[:enable_eyes]=true
         }
+
+        opt.on('--role ROLE') { |o| @options[:role]=o }
+
         opt.on('-s', '--sauce', "Toggle SauceLabs") {
           @options[:enable_sauce]=true
         }
+        opt.on('--sauce_name NAME') { |o| @options[:sauce_name] = o }
         opt.on('--viewport [resolution]') { |o| options[:viewport] = o }
       end.parse!
 
       if Scoutui::Utils::TestUtils.instance.isDebug?
-        puts __FILE__ + (__LINE__).to_s +  "   " + @options.to_s
-        puts "Test file => #{@options[:test_file]}"
-        puts "Host      => #{@options[:host]}"
-        puts "Loc       => #{@options[:loc]}"
-        puts "Title     => #{@options[:title]}"
-        puts "Browser   => #{@options[:browser]}"
-        puts "UserID    => #{@options[:userid]}"
-        puts "Password  => #{@options[:password]}"
-        puts "Eyes      => #{@options[:enable_eyes]}"
-        puts "Test Cfg  => #{@options[:json_config_file]}"
-        puts "Match Level => #{@options[:match_level]}"
-        puts "Accounts    => #{@options[:accounts]}"
-        puts "Viewport    => #{@options[:viewport]}"
-        puts "Viewport (Var) => #{Scoutui::Base::UserVars.instance.getViewPort().to_s}"
-        puts "PageModel file => #{@options[:page_model].to_s}"
+        Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s +  "   " + @options.to_s
+        Scoutui::Logger::LogMgr.instance.info "Test file => #{@options[:test_file]}"
+        Scoutui::Logger::LogMgr.instance.info "Host      => #{@options[:host]}"
+        Scoutui::Logger::LogMgr.instance.info "Loc       => #{@options[:loc]}"
+        Scoutui::Logger::LogMgr.instance.info "Title     => #{@options[:title]}"
+        Scoutui::Logger::LogMgr.instance.info "Browser   => #{@options[:browser]}"
+        Scoutui::Logger::LogMgr.instance.info "UserID    => #{@options[:userid]}"
+        Scoutui::Logger::LogMgr.instance.info "Password  => #{@options[:password]}"
+        Scoutui::Logger::LogMgr.instance.info "Eyes      => #{@options[:enable_eyes]}"
+        Scoutui::Logger::LogMgr.instance.info "Test Cfg  => #{@options[:json_config_file]}"
+        Scoutui::Logger::LogMgr.instance.info "Match Level => #{@options[:match_level]}"
+        Scoutui::Logger::LogMgr.instance.info "Accounts    => #{@options[:accounts]}"
+        Scoutui::Logger::LogMgr.instance.info "Viewport    => #{@options[:viewport]}"
+        Scoutui::Logger::LogMgr.instance.info "Viewport (Var) => #{Scoutui::Base::UserVars.instance.getViewPort().to_s}"
+        Scoutui::Logger::LogMgr.instance.info "PageModel file => #{@options[:page_model].to_s}"
       end
 
       @options
@@ -139,6 +165,10 @@ module Scoutui::Utils
 
     def getHost()
       @options[:host].to_s
+    end
+
+    def setDebug(b)
+      @options[:debug]=b
     end
 
     def isDebug?
@@ -155,6 +185,14 @@ module Scoutui::Utils
 
     def getLicenseFile()
       @options[:license_file].to_s
+    end
+
+    def getRole()
+      @options[:role]
+    end
+
+    def getSauceName()
+      @options[:sauce_name].to_s
     end
 
     def getBrowser()
@@ -175,19 +213,21 @@ module Scoutui::Utils
     # Returns JSON file contents/format
     def getTestSettings()
 
-      [:accounts, :browser, :host, :userid, :password].each do |k|
+      Scoutui::Logger::LogMgr.instance.setLevel(@options[:log_level])
 
-        puts __FILE__ + (__LINE__).to_s + " opt[test_config].has_key(#{k.to_s}) => #{@options[:test_config].has_key?(k.to_s)}" if Scoutui::Utils::TestUtils.instance.isDebug?
+      [:accounts, :browser, :dut, :host, :userid, :password].each do |k|
 
-        puts __FILE__ + (__LINE__).to_s + " options[#{k}] : #{@options[k].to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
+        Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " opt[test_config].has_key(#{k.to_s}) => #{@options[:test_config].has_key?(k.to_s)}" if Scoutui::Utils::TestUtils.instance.isDebug?
+
+        Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " options[#{k}] : #{@options[k].to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
         if @options.has_key?(k) && !@options[k].nil?
           Scoutui::Base::UserVars.instance.set(k, @options[k].to_s)
         elsif @options[:test_config].has_key?(k.to_s)
 
-          puts __FILE__ + (__LINE__).to_s + " opts[#{k}].nil => #{@options[k].nil?}" if Scoutui::Utils::TestUtils.instance.isDebug?
+          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " opts[#{k}].nil => #{@options[k].nil?}" if Scoutui::Utils::TestUtils.instance.isDebug?
           # Ensure commnand line takes precedence
           if !@options[k].nil?
-            puts __FILE__ + (__LINE__).to_s + " opt[#{k.to_s} => #{@options[k].to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+            Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " opt[#{k.to_s} => #{@options[k].to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
             Scoutui::Base::UserVars.instance.set(k, @options[k].to_s)
           else
             Scoutui::Base::UserVars.instance.set(k, @options[:test_config][k.to_s].to_s)
@@ -195,13 +235,16 @@ module Scoutui::Utils
 
         elsif @env_list.has_key?(k)
           # If an ENV is available, use it.
-          puts __FILE__ + (__LINE__).to_s + " #{k} => ENV(#{@env_list[k]}) = #{ENV[@env_list[k].to_s]}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+          Scoutui::Logger::LogMgr.instance.debug  __FILE__ + (__LINE__).to_s + " #{k} => ENV(#{@env_list[k]}) = #{ENV[@env_list[k].to_s]}"  if Scoutui::Utils::TestUtils.instance.isDebug?
           Scoutui::Base::UserVars.instance.set(k, ENV[@env_list[k].to_s])
         end
       end
 
-      puts __FILE__ + (__LINE__).to_s + " test_config => #{@options[:test_config]}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " test_config => #{@options[:test_config]}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
+      if @options[:test_config].has_key?('dut') && @options.has_key?(:dut)
+        @options[:test_config]['dut']=@options[:dut]
+      end
 
       # Applitools Eyes settings
       if @options[:test_config].has_key?('eyes')
@@ -219,13 +262,15 @@ module Scoutui::Utils
           end
 
           if Scoutui::Utils::TestUtils.instance.isDebug?
-            puts __FILE__ + (__LINE__).to_s + " #{k} => #{_v}"
+            Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " #{k} => #{_v}"
           end
 
           Scoutui::Base::UserVars.instance.set('eyes.' + k, _v) if !_v.nil?
 
         end
       end
+
+
 
       @options[:test_config]
     end
