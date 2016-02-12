@@ -11,12 +11,12 @@ module Scoutui::Base
     attr_accessor :drv
 
     def initialize(*p)
-      puts __FILE__ + (__LINE__).to_s + " size : #{p.size}"
+      Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " size : #{p.size}"
       @drv=nil
 
       if p.size==1 && p[0].is_a?(Hash)
 
-        puts __FILE__ + (__LINE__).to_s + " Hash was passed"
+        Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " Hash was passed"
         @elements = p[0]
       elsif p.size==1 && p[0].is_a?(String)
         # Load form from a JSON file
@@ -30,52 +30,72 @@ module Scoutui::Base
     end
 
     def dump()
-      puts __FILE__ + (__LINE__).to_s + " QForm.dump()"
-      puts __FILE__ + (__LINE__).to_s + " => #{@elements.to_s}"
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " QForm.dump()"
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " => #{@elements.to_s}"
     end
 
     def actionElement(drv, locator)
+
+      _action=nil
 
       obj = Scoutui::Base::QBrowser.getObject(drv, locator)
       _type = obj.attribute('type').to_s
       _tag = obj.tag_name.to_s
 
-      puts __FILE__ + (__LINE__).to_s + " obj => type:#{_type}  tag:#{_tag}"
+      Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " obj => type:#{_type}  tag:#{_tag}"
 
       # element.getAttribute("type").equalsIgnoreCase("text")
       if !_type.match(/(password|text|email)/i).nil? && !_tag.match(/(input|textarea)/i).nil?
 
         _v = Scoutui::Base::UserVars.instance.get(dut[k].to_s)
 
+        _action="send_keys"
         obj.send_keys(_v)
       elsif !_type.match(/(date|number|search|tel|time|url|week)/i).nil?
         _v = Scoutui::Base::UserVars.instance.get(dut[k].to_s)
+        _action="send_keys"
         obj.send_keys(_v)
       elsif !_type.match(/(button|checkbox|radio|submit)/i).nil?
+        _action="click"
         obj.click()
       else
+        _action="click"
         obj.click()
       end
+
+      Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " action : #{_action}"
+      _action
 
     end
 
     def submitForm(drv=nil)
-      puts __FILE__ + (__LINE__).to_s + " -- submit(#{drv.class.to_s} --"
+      Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " -- submit(#{drv.class.to_s} --"
+
+      rc=false
+
       if drv.nil?
         drv=@drv
       end
 
       action_obj = @elements.select { |key, e| e.is_a?(Hash) && e.has_key?('action_object') && e['action_object']==true }
-      # Find the submit action element
-      puts __FILE__ + (__LINE__).to_s + " -- submit => #{action_obj}"
-      actionElement(drv, action_obj[action_obj.keys[0]])
+
+      if !action_obj.nil?
+        # Find the submit action element
+        Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " -- submit => #{action_obj}"
+        actionElement(drv, action_obj[action_obj.keys[0]])
+        rc=true
+      else
+        Scoutui::Logger::LogMgr.instance.commands.warn __FILE__ + (__LINE__).to_s + " WARN: missing action object."
+      end
+
+      rc
     end
 
 
     def verifyForm(drv)
-      puts __FILE__ + (__LINE__).to_s + " verifyForm()"
+      Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " verifyForm()"
       @elements.each do |elt|
-        puts __FILE__ + (__LINE__).to_s + " => #{elt.to_s} : #{elt.class.to_s}"
+        Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " => #{elt.to_s} : #{elt.class.to_s}"
 
         if elt.is_a?(Array)
 
@@ -89,13 +109,15 @@ module Scoutui::Base
               obj = Scoutui::Base::QBrowser.getObject(drv, v['locator'])
 
               if !v[k].match(/always/i).nil?
+                _rc = !obj.nil? && obj.is_a?(Selenium::WebDriver::Element) && obj.displayed?
+                Scoutui::Logger::LogMgr.instance.asserts.info " Verify element #{n} with locator #{v['locator']} is always visible on form - #{_rc.to_s}"
                 Testmgr::TestReport.instance.getReq('UI').tc(k).add(!obj.nil? && obj.is_a?(Selenium::WebDriver::Element) && obj.displayed?, __FILE__ + (__LINE__).to_s + " Verify element #{n} with locator #{v['locator']} is always visible on form")
               elsif !v[k].match(/([!])*title\((.*)\)/i).nil?
                 _hit = v[k].match(/([!])*title\(\/(.*)\/\)/i)
                 _not = _hit[1]
                 _title = _hit[2]
 
-                puts __FILE__ + (__LINE__).to_s + " Verify title |#{drv.title}| matches #{_title}"
+                Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " Verify title |#{drv.title}| matches #{_title}"
 
                 _rc = !drv.title.match(Regexp.new(_title)).nil?
 
@@ -103,20 +125,21 @@ module Scoutui::Base
                   _rc=!_rc
                 end
 
+                Scoutui::Logger::LogMgr.instance.asserts.info " Verify expected title matches #{_not.to_s}#{_title} for form. - #{_rc.to_s}"
                 Testmgr::TestReport.instance.getReq('UI').tc(k).add(_rc, __FILE__ + (__LINE__).to_s + " Verify expected title matches #{_not.to_s}#{_title} for form.")
 
 
               elsif !v[k].match(/\s*(visible)\((.*)\)\=(.*)/).nil?
-                puts __FILE__ + (__LINE__).to_s + " ==> #{v[k].to_s}"
+                Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " ==> #{v[k].to_s}"
                 _match=v[k].match(/\s*(visible)\((.*)\)\=(.*)/)
                 _cond=_match[1]
                 _obj=_match[2]
                 _expected_val=_match[3]
 
-                puts __FILE__ + (__LINE__).to_s + " <cond, obj, when>::<#{_cond}, #{_obj}, #{_expected_val}"
+                Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " <cond, obj, when>::<#{_cond}, #{_obj}, #{_expected_val}"
 
                 depObj = Scoutui::Base::QBrowser.getObject(drv, _obj)
-                puts __FILE__ + (__LINE__).to_s + " hit => #{depObj.class.to_s} tag:#{depObj.tag_name}" if !depObj.nil?
+                Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " hit => #{depObj.class.to_s} tag:#{depObj.tag_name}" if !depObj.nil?
 
                 desc=nil
                 if _expected_val.match(/true/i)
@@ -133,7 +156,7 @@ module Scoutui::Base
                   _expected_val=_match[2]
 
                   obj = Scoutui::Base::QBrowser.getObject(drv, _obj)
-                  puts __FILE__ + (__LINE__).to_s + " hit => #{obj.class.to_s} tag:#{obj.tag_name}"
+                  Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " hit => #{obj.class.to_s} tag:#{obj.tag_name}"
 
 
 
@@ -149,14 +172,14 @@ module Scoutui::Base
                       _options=obj.find_elements(:tag_name=>"option")
 
                       _options.each do |_o|
-                        puts __FILE__ + (__LINE__).to_s + " | value : #{_o.attribute('value').to_s}"
-                        puts __FILE__ + (__LINE__).to_s + " |        text      : #{_o.text.to_s}"
-                        puts __FILE__ + (__LINE__).to_s + " |        displayed : #{_o.displayed?}"
-                        puts __FILE__ + (__LINE__).to_s + " |        enabled   : #{_o.enabled?}"
-                        puts __FILE__ + (__LINE__).to_s + " |        location  : #{_o.location}"
-                        puts __FILE__ + (__LINE__).to_s + " |        selected  :#{_o.selected?}"
-                        puts __FILE__ + (__LINE__).to_s + " |        methods:#{_o.methods.sort.to_s}" # ", #{_o.text.to_s}, selected: #{_o.to_s}"
-                        # puts __FILE__ + (__LINE__).to_s + " PAUSE"; gets()
+                        Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " | value : #{_o.attribute('value').to_s}"
+                        Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " |        text      : #{_o.text.to_s}"
+                        Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " |        displayed : #{_o.displayed?}"
+                        Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " |        enabled   : #{_o.enabled?}"
+                        Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " |        location  : #{_o.location}"
+                        Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " |        selected  :#{_o.selected?}"
+                        Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " |        methods:#{_o.methods.sort.to_s}" # ", #{_o.text.to_s}, selected: #{_o.to_s}"
+                        # Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " PAUSE"; gets()
                       end
                     end
 
@@ -173,8 +196,8 @@ module Scoutui::Base
 
     def fillForm(drv, dut)
 
-      puts __FILE__ + (__LINE__).to_s + " fillForm(#{drv.to_s}, #{dut.to_s})"
-      puts __FILE__ + (__LINE__).to_s + " | type => #{dut.class.to_s}"
+      Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " fillForm(#{drv.to_s}, #{dut.to_s})"
+      Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " | type => #{dut.class.to_s}"
 
       if dut.is_a?(Hash)
 
@@ -182,7 +205,7 @@ module Scoutui::Base
           if @elements.has_key?(k)
             _xpath = @elements[k]   # .to_s
 
-            puts __FILE__ + (__LINE__).to_s + " key(#{k}) : locator:#{_xpath} => #{dut[k].to_s}"
+            Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " key(#{k}) : locator:#{_xpath} => #{dut[k].to_s}"
 
             if !drv.nil?
               @drv=drv
@@ -191,7 +214,7 @@ module Scoutui::Base
               _type = obj.attribute('type').to_s
               _tag = obj.tag_name.to_s
 
-              puts __FILE__ + (__LINE__).to_s + " obj => type:#{_type}  tag:#{_tag}"
+              Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " obj => type:#{_type}  tag:#{_tag}"
 
               # element.getAttribute("type").equalsIgnoreCase("text")
               if !_type.match(/(password|text|email)/i).nil? && !_tag.match(/(input|textarea)/i).nil?
@@ -202,11 +225,13 @@ module Scoutui::Base
                 _v = Scoutui::Base::UserVars.instance.get(dut[k].to_s)
                 _opt = Selenium::WebDriver::Support::Select.new(obj)
                 _opt.select_by(:text, Scoutui::Base::UserVars.instance.get(_v))
+              else
+                Scoutui::Logger::LogMgr.instance.commands.warn " Unidentified attribute type : #{_type.to_s}"
               end
             end
 
           else
-            puts __FILE__ + (__LINE__).to_s + " ** key #{k} not part of form **"
+            Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " ** key #{k} not part of form **"
           end
 
         end

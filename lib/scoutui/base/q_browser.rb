@@ -13,7 +13,7 @@ module Scoutui::Base
     end
 
     def self.wait_for_displayed(drv, locator, _timeout=30)
-      puts __FILE__ + (__LINE__).to_s + " wait_for_displayed(#{xpath}"
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " wait_for_displayed(#{xpath}"
       rc=nil
       begin
         Selenium::WebDriver::Wait.new(timeout: _timeout).until { rc=drv.find_element(:xpath => xpath).displayed? }
@@ -24,7 +24,7 @@ module Scoutui::Base
     end
 
     def self.wait_for_exist(drv, xpath, _timeout=30)
-      puts __FILE__ + (__LINE__).to_s + " wait_for_exist(#{xpath}"
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " wait_for_exist(#{xpath}"
       rc=nil
       begin
         Selenium::WebDriver::Wait.new(timeout: _timeout).until { drv.find_element(:xpath => xpath) }
@@ -35,24 +35,41 @@ module Scoutui::Base
       rc
     end
 
-    def self.getFirstObject(drv, xpath, _timeout=30)
+    def self.getFirstObject(drv, _locator, _timeout=30)
+
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " getFirstObject(#{_locator})" if Scoutui::Utils::TestUtils.instance.isDebug?
       rc=nil
+      locator=_locator
+
       begin
-        Selenium::WebDriver::Wait.new(timeout: _timeout).until { drv.find_elements(:xpath => xpath).size > 0 }
-        rc=drv.find_elements(:xpath => xpath)[0]
+        locateBy=:xpath
+
+        if _locator.match(/^css\=/i)
+          locateBy = :css
+          locator = _locator.match(/css\=(.*)/i)[1].to_s
+        elsif _locator.match(/^#/i)
+          locateBy = :css
+        end
+
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " locator => #{locator.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+        Selenium::WebDriver::Wait.new(timeout: _timeout).until { drv.find_elements(locateBy => locator).size > 0 }
+        rc=drv.find_elements(locateBy => locator)[0]
       rescue => ex
         ;
       end
+
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " #{_locator} => #{rc}"  if Scoutui::Utils::TestUtils.instance.isDebug?
       rc
     end
 
     # http://stackoverflow.com/questions/15164742/combining-implicit-wait-and-explicit-wait-together-results-in-unexpected-wait-ti#answer-15174978
     def self.getObject(drv, obj, _timeout=30)
-      puts __FILE__ + (__LINE__).to_s + " getObject(#{obj})  class:#{obj.class.to_s}   hash : #{obj.is_a?(Hash)}"
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " getObject(#{obj})  class:#{obj.class.to_s}   hash : #{obj.is_a?(Hash)}" if Scoutui::Utils::TestUtils.instance.isDebug?
       rc=nil
       visible_when=nil
       locator=obj
       locateBy=:xpath
+      locator=nil
 
       begin
 
@@ -71,19 +88,21 @@ module Scoutui::Base
           elt = Scoutui::Utils::TestUtils.instance.getPageElement(obj)
 
           if elt.is_a?(Hash)
-            puts __FILE__ + (__LINE__).to_s + " JSON or Hash => #{elt}"
+            Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " JSON or Hash => #{elt}"  if Scoutui::Utils::TestUtils.instance.isDebug?
             locator = elt['locator'].to_s
           else
             locator=elt.to_s
           end
 
-          puts __FILE__ + (__LINE__).to_s + " Process page request #{obj} => #{locator}" if Scoutui::Utils::TestUtils.instance.isDebug?
+          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Process page request #{obj} => #{locator}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
+        else
+          locator=obj.to_s
         end
 
         if !locator.match(/\$\{.*\}/).nil?
           _x = Scoutui::Base::UserVars.instance.get(locator)
-          puts __FILE__ + (__LINE__).to_s + " User specified user var : #{locator} ==> #{_x}"
+          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " User specified user var : #{locator} ==> #{_x}"
           if !_x.nil?
 
 
@@ -91,7 +110,7 @@ module Scoutui::Base
               elt = Scoutui::Utils::TestUtils.instance.getPageElement(_x)
 
               if elt.is_a?(Hash)
-                puts __FILE__ + (__LINE__).to_s + " JSON or Hash => #{elt}"
+                Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " JSON or Hash => #{elt}" if Scoutui::Utils::TestUtils.instance.isDebug?
                 locator = elt['locator'].to_s
               else
                 locator=elt.to_s
@@ -100,17 +119,22 @@ module Scoutui::Base
 
           end
 
-        elsif locator.match(/css\=/i)
+        end
+
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " locator : #{locator}" if Scoutui::Utils::TestUtils.instance.isDebug?
+
+        if locator.match(/^\s*css\s*\=\s*/i)
           locateBy = :css
-          locator = locator.match(/css\=(.*)/i)[1].to_s
+          locator = locator.match(/css\s*\=\s*(.*)/i)[1].to_s
         elsif locator.match(/^#/i)
           locateBy = :css
+        #  locator = locator.match(/\#(.*)/)[1].to_s
         end
 
 
-        puts __FILE__ + (__LINE__).to_s + " By      => #{locateBy.to_s}"
-        puts __FILE__ + (__LINE__).to_s + " Locator => #{locator}"
-        puts __FILE__ + (__LINE__).to_s + " Visible_When => #{visible_when}"
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " By      => #{locateBy.to_s}"
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Locator => #{locator}"
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Visible_When => #{visible_when}"
 
       #  Selenium::WebDriver::Wait.new(timeout: _timeout).until { drv.find_element(:xpath => locator).displayed? }
         # rc=drv.find_element(:xpath => locator)
@@ -118,24 +142,24 @@ module Scoutui::Base
 
 
       rescue Selenium::WebDriver::Error::TimeOutError
-          puts __FILE__  + (__LINE__).to_s + " #{locator} time out."
+          Scoutui::Logger::LogMgr.instance.debug __FILE__  + (__LINE__).to_s + " #{locator} time out."
           rc=nil
 
       rescue Selenium::WebDriver::Error::NoSuchElementError
-        puts __FILE__ + (__LINE__).to_s + " #{locator} not found."
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " #{locator} not found."
         rc=nil
 
       rescue => ex
-        puts "Error during processing: #{$!}"
-        puts "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
+        Scoutui::Logger::LogMgr.instance.debug "Error during processing: #{$!}"
+        Scoutui::Logger::LogMgr.instance.debug "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
       end
 
-      puts __FILE__ + (__LINE__).to_s + " getObject(#{locator}) => #{rc.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " getObject(#{locator}) => #{rc.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
 #      if rc.kind_of?(Selenium::WebDriver::Element)
 #
 #        if visible_when
-#          puts __FILE__ + (__LINE__).to_s + " Displayed => #{rc.displayed?}"
+#          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Displayed => #{rc.displayed?}"
 #          Testmgr::TestReport.instance.getReq('UI').tc('visible_when').add(rc.displayed?, "Verify #{locator} is visible")
 #        end
 #

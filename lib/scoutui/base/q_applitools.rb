@@ -76,6 +76,8 @@ module Scoutui::Base
     end
 
     def download_diffs(results, view_key, destination)
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " download_diffs()"
+
       session_id = get_session_id(results.url)
       diff_urls = get_diff_urls(session_id, view_key)
       download_images(diff_urls, destination)
@@ -94,7 +96,7 @@ module Scoutui::Base
       diff_template = "https://eyes.applitools.com/api/sessions/#{session_id}/steps/%s/diff?ApiKey=#{view_key}"
       diff_urls = Hash.new
 
-      puts __FILE__ + (__LINE__).to_s + " info => #{info}"
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " info => #{info}"
       response = HTTParty.get(info)
 
       begin
