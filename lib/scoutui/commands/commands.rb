@@ -11,8 +11,8 @@ module Scoutui::Commands
       begin
         rc=processCommand(cmd[:command], cmd[:e], my_driver)
       rescue => ex
-        puts "Error during processing: #{$!}"
-        puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
+        Scoutui::Logger::LogMgr.instance.debug "Error during processing: #{$!}"
+        Scoutui::Logger::LogMgr.instance.debug "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
       end
 
     end
@@ -20,7 +20,7 @@ module Scoutui::Commands
   end
 
   def self.processCommand(_action, e, my_driver)
-    puts __FILE__ + (__LINE__).to_s + " ===  Process ACTION : #{_action}  ==="  if Scoutui::Utils::TestUtils.instance.isDebug?
+    Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " ===  Process ACTION : #{_action}  ==="  if Scoutui::Utils::TestUtils.instance.isDebug?
 
     rc=true
 
@@ -36,6 +36,14 @@ module Scoutui::Commands
         _c = Scoutui::Commands::ClickObject.new(_action)
         _c.execute(my_driver)
 
+      elsif Scoutui::Commands::Utils.instance.isExistsAlert?(_action)
+        _c = Scoutui::Commands::JsAlert::ExistsAlert.new(_action)
+        rc=_c.execute(my_driver)
+
+      elsif Scoutui::Commands::Utils.instance.isGetAlert?(_action)
+        _c = Scoutui::Commands::ExistsAlert.new(_action)
+        rc=_c.execute(my_driver)
+
       elsif  Scoutui::Commands::Utils.instance.isMouseOver?(_action)
 
         _c = Scoutui::Commands::MouseOver.new(_action)
@@ -47,18 +55,26 @@ module Scoutui::Commands
 
       elsif Scoutui::Commands::Utils.instance.isFillForm?(_action)
 
-        #   _c = Scoutui::Commands::FillForm.new(_action)
+         _c = Scoutui::Commands::FillForm.new(_action)
 
-        _form = _action.match(/fillform\((.*)\s*\)/)[1].to_s
-        #  _dut = _action.match(/fillform\(.*,\s*(.*)\)/)[1].to_s
+         _rc=false
+         begin
+          _form = _action.match(/fillform\((.*)\s*\)/)[1].to_s
+          #  _dut = _action.match(/fillform\(.*,\s*(.*)\)/)[1].to_s
 
-        dut = e[STEP_KEY]['dut']
+          dut = e[STEP_KEY]['dut']
 
-        puts __FILE__ + (__LINE__).to_s + " DUT => #{dut}"
-        _f = Scoutui::Utils::TestUtils.instance.getForm(_form)
-        _f.dump()
-        _f.verifyForm(my_driver)
-        _f.fillForm(my_driver, dut)
+          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " DUT => #{dut}"
+          _f = Scoutui::Utils::TestUtils.instance.getForm(_form)
+          _f.dump()
+          _f.verifyForm(my_driver)
+          _f.fillForm(my_driver, dut)
+           _rc=true
+         rescue
+           ;
+         end
+
+        _c.setResult(_rc)
 
       elsif Scoutui::Commands::Utils.instance.isSubmitForm?(_action)
         _c = Scoutui::Commands::SubmitForm.new(_action)
@@ -78,16 +94,17 @@ module Scoutui::Commands
         _c = Scoutui::Commands::Type.new(_action)
         _c.execute(my_driver)
       else
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Unknown command : #{_action}"
         rc=false
       end
 
     rescue => e
-      puts "Error during processing: #{$!}"
-      puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
+      Scoutui::Logger::LogMgr.instance.debug "Error during processing: #{$!}"
+      Scoutui::Logger::LogMgr.instance.debug "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
       rc=false
     end
 
-    rc
+    _c
   end
 
 

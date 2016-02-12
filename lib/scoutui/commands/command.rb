@@ -7,15 +7,32 @@ module Scoutui::Commands
     attr_accessor :cmd
     attr_accessor :rc
     attr_accessor :locator
+    attr_accessor :executed
+    attr_accessor :executed_result
 
     def initialize(_cmd, _drv=nil)
-      puts __FILE__ + (__LINE__).to_s + "  Command: #{_cmd.to_s}"
+      Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + "  Command.init: #{_cmd.to_s}"
       @cmd=_cmd
       @rc=nil
       @drv=_drv
       @locator=nil
+      @executed=false
+      @executed_result=nil
     end
 
+    def setResult(r)
+      Scoutui::Logger::LogMgr.instance.commands.debug " setResult(#{r.to_s})"
+      @executed=true
+      @executed_result=r
+    end
+
+    def executedResult
+      @executed_result
+    end
+
+    def wasExecuted?
+      @executed
+    end
 
     def setLocator(_locator)
       @locator=_locator
