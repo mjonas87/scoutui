@@ -30,24 +30,25 @@ module Scoutui::ApplicationModel
 
       jsonData={}
       json_list.each  { |f|
-        puts __FILE__ + (__LINE__).to_s + " JSON.parse(#{f})"
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " JSON.parse(#{f})"
 
         begin
           data_hash = JSON.parse File.read(f)
           jsonData.merge!(data_hash)
         rescue JSON::ParserError
+          Scoutui::Logger::LogMgr.instance.fatal "raise JSON::ParseError - #{f.to_s}"
           raise "JSONLoadError"
         end
 
       }
-      puts "merged jsonData => " + jsonData.to_json
+      Scoutui::Logger::LogMgr.instance.debug "merged jsonData => " + jsonData.to_json
       @app_model = jsonData
     end
 
 
     # getPageElement("page(login).get(login_form).get(button)")
     def getPageElement(s)
-      puts __FILE__ + (__LINE__).to_s + " getPageElement(#{s})"
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " getPageElement(#{s})"
       hit=@app_model
 
       nodes = s.split(/\./)
@@ -56,18 +57,18 @@ module Scoutui::ApplicationModel
         getter = elt.split(/\(/)[0]
         _obj = elt.match(/\((.*)\)/)[1]
 
-        puts __FILE__ + (__LINE__).to_s + " getter : #{getter}  obj: #{_obj}" if Scoutui::Utils::TestUtils.instance.isDebug?
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " getter : #{getter}  obj: #{_obj}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
         if getter.downcase.match(/(page|pg)/)
-          puts __FILE__ + (__LINE__).to_s + " -- process page --"  if Scoutui::Utils::TestUtils.instance.isDebug?
+          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " -- process page --"  if Scoutui::Utils::TestUtils.instance.isDebug?
           hit=@app_model[_obj]
         elsif getter.downcase=='get'
           hit=hit[_obj]
         else
-          puts __FILE__ + (__LINE__).to_s + " getter : #{getter} is unknown."
+          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " getter : #{getter} is unknown."
           return nil
         end
-        puts __FILE__ + (__LINE__).to_s + " HIT => #{hit}" if Scoutui::Utils::TestUtils.instance.isDebug?
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " HIT => #{hit}" if Scoutui::Utils::TestUtils.instance.isDebug?
       }
 
       hit
