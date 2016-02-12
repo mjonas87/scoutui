@@ -12,7 +12,7 @@ module Scoutui::Commands
 
       _form = @cmd.match(/verifyform\((.*)\s*\)/)[1].to_s
 
-      puts __FILE__ + (__LINE__).to_s + " form : #{_form}"
+      Scoutui::Logger::LogMgr.instance.debug  __FILE__ + (__LINE__).to_s + " VerifyForm.execute : #{_form}"
 
       _f = Scoutui::Utils::TestUtils.instance.getForm(_form)
       _f.dump()

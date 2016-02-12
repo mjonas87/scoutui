@@ -9,28 +9,41 @@ module Scoutui::Commands
     def execute(drv)
       @drv=drv if !drv.nil?
 
+      obj=nil
+      _rc=false
 
-      if !@cmd.match(/select\(/).nil?
+      begin
 
-        _xpath = @cmd.match(/select\((.*),\s*/)[1].to_s
-        _val   = @cmd.match(/select\(.*,\s*(.*)\)/)[1].to_s
+        if !@cmd.match(/select\(/).nil?
+
+          _xpath = @cmd.match(/select\((.*),\s*/)[1].to_s
+          _val   = @cmd.match(/select\(.*,\s*(.*)\)/)[1].to_s
 
 
-        puts __FILE__ + (__LINE__).to_s + "Process SELECT #{_val} into  #{_xpath}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + "Process SELECT #{_val} into  #{_xpath}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
-        obj = Scoutui::Base::QBrowser.getObject(@drv, _xpath)
+          obj = Scoutui::Base::QBrowser.getObject(@drv, _xpath)
 
-        if !obj.nil? && obj.tag_name.downcase.match(/(select)/)
+          if !obj.nil? && obj.tag_name.downcase.match(/(select)/)
 
-          _opt = Selenium::WebDriver::Support::Select.new(obj)
-          _opt.select_by(:text, Scoutui::Base::UserVars.instance.get(_val))
+            _opt = Selenium::WebDriver::Support::Select.new(obj)
+            _opt.select_by(:text, Scoutui::Base::UserVars.instance.get(_val))
 
-    #      obj.send_keys(Scoutui::Base::UserVars.instance.get(_val))
-        else
-          puts __FILE__ + (__LINE__).to_s + " Unable to process command SELECT => #{obj.to_s}"
+            _rc=true
+
+      #      obj.send_keys(Scoutui::Base::UserVars.instance.get(_val))
+          else
+            Scoutui::Logger::LogMgr.instance.debug  __FILE__ + (__LINE__).to_s + " Unable to process command SELECT => #{obj.to_s}"
+          end
         end
+
+      rescue
+        ;
       end
 
+      Testmgr::TestReport.instance.getReq('UI').testcase('select').add(!obj.nil?, "Verify object to select exists #{_xpath} : #{obj.class.to_s}")
+      Testmgr::TestReport.instance.getReq('UI').testcase('select').add(_rc, "Verify selected text #{_val}")
+      setResult(_rc)
 
     end
 

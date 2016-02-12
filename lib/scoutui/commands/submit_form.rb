@@ -13,11 +13,24 @@ module Scoutui::Commands
 
     def execute(drv=nil)
 
-      puts __FILE__ + (__LINE__).to_s + " Process SubmitForm #{@form_name}"  if Scoutui::Utils::TestUtils.instance.isDebug?
-      @drv=drv if !drv.nil?
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Process SubmitForm #{@form_name}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
-      obj = Scoutui::Utils::TestUtils.instance.getForm(@form_name)
-      obj.submitForm(@drv) if !obj.nil?
+      _rc=false
+
+      begin
+        @drv=drv if !drv.nil?
+
+        obj = Scoutui::Utils::TestUtils.instance.getForm(@form_name)
+        if !obj.nil?
+          obj.submitForm(@drv)
+          _rc=true
+        end
+
+      rescue
+        ;
+      end
+
+      setResult(_rc)
     end
 
 

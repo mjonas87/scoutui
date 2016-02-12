@@ -7,18 +7,31 @@ module Scoutui::Commands
 
     def execute(drv=nil)
       @drv=drv if !drv.nil?
-      _xpath = @cmd.match(/type\((.*),\s*/)[1].to_s
-      _val   = @cmd.match(/type\(.*,\s*(.*)\)/)[1].to_s
 
-      puts __FILE__ + (__LINE__).to_s + "Process TYPE #{_val} into  #{_xpath}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+      _rc=false
 
-      obj = Scoutui::Base::QBrowser.getObject(@drv, _xpath)
+      begin
+        _xpath = @cmd.match(/type\((.*),\s*/)[1].to_s
+        _val   = @cmd.match(/type\(.*,\s*(.*)\)/)[1].to_s
 
-      if !obj.nil? && !obj.attribute('type').downcase.match(/(text|password|email)/).nil?
-        obj.send_keys(Scoutui::Base::UserVars.instance.get(_val))
-      else
-        puts __FILE__ + (__LINE__).to_s + " Unable to process command TYPE => #{obj.to_s}"
+        Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + "Process TYPE #{_val} into  #{_xpath}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+
+        obj = Scoutui::Base::QBrowser.getObject(@drv, _xpath)
+
+        if !obj.nil? && !obj.attribute('type').downcase.match(/(text|password|email)/).nil?
+          obj.send_keys(Scoutui::Base::UserVars.instance.get(_val))
+          _rc=true
+        else
+          Scoutui::Logger::LogMgr.instance.commands.debug  __FILE__ + (__LINE__).to_s + " Unable to process command TYPE => #{obj.to_s}"
+        end
+
+      rescue
+        ;
       end
+
+      Testmgr::TestReport.instance.getReq('UI').testcase('type').add(!obj.nil?, "Verify object #{_xpath} to type #{_val} exists : #{obj.class.to_s}")
+      Testmgr::TestReport.instance.getReq('UI').testcase('type').add(_rc, "Verify typed data #{_rc}")
+      setResult(_rc)
 
     end
 

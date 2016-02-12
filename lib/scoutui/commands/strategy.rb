@@ -1,4 +1,4 @@
-
+require 'testmgr'
 
 
 module Scoutui::Commands
@@ -12,17 +12,32 @@ module Scoutui::Commands
       @drv
     end
 
+    def loadModel(f)
+      rc=true
+      begin
+        rc=Scoutui::Utils::TestUtils.instance.loadModel(f)
+      rescue => ex
+        rc=false
+      end
+
+      rc
+    end
+
     def navigate(url)
       rc = false
       begin
         processCommand('navigate(' + url + ')', nil)
         rc=true
       rescue => ex
-        puts "Error during processing: #{$!}"
-        puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
+        Scoutui::Logger::LogMgr.instance.warn "Error during processing: #{$!}"
+        Scoutui::Logger::LogMgr.instance.warn "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
       end
 
       rc
+    end
+
+    def report()
+      Testmgr::TestReport.instance.report()
     end
 
     def quit()
@@ -64,7 +79,7 @@ module Scoutui::Commands
           browserType='firefox'
         end
 
-        puts __FILE__ + (__LINE__).to_s + " profile => #{@profile}"
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " profile => #{@profile}"
       end
 
       if Scoutui::Utils::TestUtils.instance.sauceEnabled?
@@ -73,7 +88,7 @@ module Scoutui::Commands
         client=nil
         proxy=nil
 
-        puts __FILE__ + (__LINE__).to_s + " Capabilities => #{caps.to_s}"
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Capabilities => #{caps.to_s}"
 
         if caps.nil?
 
@@ -83,9 +98,38 @@ module Scoutui::Commands
               :version => "31",
               :full_description => 'Rover Test'
           }
+
+        elsif caps.has_key?(:platform) && caps[:platform].match(/os x/i)
+          tmpCaps = caps
+
+          if caps.has_key?(:deviceName) && caps[:deviceName].match(/iphone/i)
+            caps = Selenium::WebDriver::Remote::Capabilities.iphone()
+          elsif caps.has_key?(:browser) && caps[:browser].match(/chrome/i)
+            caps = Selenium::WebDriver::Remote::Capabilities.chrome()
+          elsif caps.has_key?(:browser) && caps[:browser].match(/firefox/i)
+            caps = Selenium::WebDriver::Remote::Capabilities.firefox()
+          elsif caps.has_key?(:browser) && caps[:browser].match(/safari/i)
+            caps = Selenium::WebDriver::Remote::Capabilities.safari()
+          end
+
+          tmpCaps.each_pair do |k, v|
+            caps[k.to_s]=v
+          end
+
+
         elsif caps.has_key?(:platform) && caps[:platform].match(/windows/i)
           tmpCaps = caps
-          caps = Selenium::WebDriver::Remote::Capabilities.internet_explorer()
+
+          if caps.has_key?(:browser) && caps[:browser].match(/edge/i)
+            caps = Selenium::WebDriver::Remote::Capabilities.edge()
+          elsif caps.has_key?(:browser) && caps[:browser].match(/chrome/i)
+            caps = Selenium::WebDriver::Remote::Capabilities.chrome()
+          elsif caps.has_key?(:browser) && caps[:browser].match(/firefox/i)
+            caps = Selenium::WebDriver::Remote::Capabilities.firefox()
+          else
+            caps = Selenium::WebDriver::Remote::Capabilities.internet_explorer()
+          end
+
           tmpCaps.each_pair do |k, v|
             caps[k.to_s]=v
           end
@@ -125,9 +169,12 @@ module Scoutui::Commands
 
         end
 
-        puts __FILE__ + (__LINE__).to_s + " Capabilities => #{caps.to_s}"
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Capabilities => #{caps.to_s}"
 
         sauce_endpoint = "http://#{ENV['SAUCE_USERNAME']}:#{ENV['SAUCE_ACCESS_KEY']}@ondemand.saucelabs.com:80/wd/hub"
+
+        caps[:name]=Scoutui::Utils::TestUtils.instance.getSauceName()
+        caps[:tags]=["Concur QE", "ScoutUI"]
 
         begin
           if client.nil?
@@ -137,8 +184,8 @@ module Scoutui::Commands
           end
 
         rescue => e
-          puts "Error during processing: #{$!}"
-          puts "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
+          Scoutui::Logger::LogMgr.instance.debug "Error during processing: #{$!}"
+          Scoutui::Logger::LogMgr.instance.debug "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
         end
 
 

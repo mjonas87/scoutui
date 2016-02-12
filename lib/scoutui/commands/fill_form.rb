@@ -12,10 +12,10 @@ module Scoutui::Commands
 
       @dut=nil
 
-      puts __FILE__ + (__LINE__).to_s + " form => #{@cmd}"
+      Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " form => #{@cmd}"
       @formLocator = @cmd.match(/fillform\((.*)\s*\)/)[1].to_s
       @form = Scoutui::Utils::TestUtils.instance.getForm(@formLocator)
-      puts __FILE__ + (__LINE__).to_s + " Form => #{@form}"
+      Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " Form => #{@form}"
       @form.dump()
     end
 
@@ -34,12 +34,20 @@ module Scoutui::Commands
 
       # dut = e['page']['dut']
 
-      #  puts __FILE__ + (__LINE__).to_s + " _dut => #{_dut}"
-      puts __FILE__ + (__LINE__).to_s + " DUT => #{@dut}"
-      _f = Scoutui::Utils::TestUtils.instance.getForm(@formLocator)
-      _f.dump()
-      _f.verifyForm(@drv)
-      _f.fillForm(@drv, dut)
+      #  Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " _dut => #{_dut}"
+      Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " DUT => #{@dut}"
+      _rc=false
+      begin
+        _f = Scoutui::Utils::TestUtils.instance.getForm(@formLocator)
+        _f.dump()
+        _f.verifyForm(@drv)
+        _f.fillForm(@drv, dut)
+        _rc=true
+      rescue
+        ;
+      end
+
+      setResult(_rc)
     end
 
   end

@@ -10,23 +10,42 @@ module Scoutui::Commands
     attr_accessor :totalCommands
 
     def initialize
-      @command_list=['pause', 'fillform', 'submitform', 'type', 'click', 'mouseover', 'navigate', 'select', 'verifyelt', 'verifyform']
+      @command_list=['pause',
+                     'existsAlert',
+                     'fillform',
+                     'submitform',
+                     'type',
+                     'click',
+                     'mouseover',
+                     'navigate',
+                     'select',
+                     'verifyelt',
+                     'verifyelement',
+                     'verifyform']
       @totalCommands={}
       @command_list.each do |c|
         @totalCommands[c]=0
       end
     end
 
+    def isExistsAlert?(_action)
+      !_action.match(/(exist[s]*_*alert|existAlert|existsAlert|existsJsAlert|existsJsConfirm|existsJsPrompt)\(/i).nil?
+    end
+
     def isVerifyElt?(_action)
-      !_action.match(/verifyelt\(/).nil?
+      !_action.match(/(verifyelt|verifyelement)\(/i).nil?
     end
 
     def isClick?(_action)
-      !_action.match(/click\(/).nil?
+      !_action.match(/click\(/i).nil?
+    end
+
+    def isGetAlert?(_action)
+      !_action.match(/(get_*alert|clickjsconfirm|clickjsprompt|clickjsalert)/i).nil?
     end
 
     def isFillForm?(_action)
-      !_action.match(/fillform\(/).nil?
+      !_action.match(/fillform\(/i).nil?
     end
 
     def isMouseOver?(_action)
@@ -63,6 +82,8 @@ module Scoutui::Commands
 
       if isPause?(cmd)
         @totalCommands['pause']+=1
+      elsif isExistsAlert?(cmd)
+        @totalCommands['existsAlert']+=1
       elsif isVerifyElt?(cmd)
         @totalCommands['verifyelt']+=1
       elsif isVerifyForm?(cmd)

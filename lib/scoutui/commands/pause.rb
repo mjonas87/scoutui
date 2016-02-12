@@ -14,7 +14,7 @@ module Scoutui::Commands
         puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
         rc=false
       end
-      rc
+      setResult(rc)
     end
   end
 
