@@ -21,7 +21,7 @@ module Scoutui::Base
 
     def dump()
       @globals.each_pair do |k, v|
-        puts __FILE__ + (__LINE__).to_s + " #{k} => #{v}"
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " #{k} => #{v}"
       end
     end
 
@@ -62,7 +62,7 @@ module Scoutui::Base
         return Faker::Internet.email
       elsif !_rc.nil?
         k=_rc[1].to_s
-        puts __FILE__ + (__LINE__).to_s + " User Var found => #{k}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " User Var found => #{k}"  if Scoutui::Utils::TestUtils.instance.isDebug?
         if Scoutui::Utils::TestUtils.instance.getTestConfig().has_key?("user_vars")
 
           if Scoutui::Utils::TestUtils.instance.getTestConfig()["user_vars"].has_key?(k)
@@ -75,13 +75,13 @@ module Scoutui::Base
         foundKey=false
       end
 
-      puts __FILE__ + (__LINE__).to_s + " get(#{k}) => #{@globals.has_key?(k)}" if Scoutui::Utils::TestUtils.instance.isDebug?
+      Scoutui::Logger::LogMgr.instance.debug  __FILE__ + (__LINE__).to_s + " get(#{k}) => #{@globals.has_key?(k)}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
       if @globals.has_key?(k) && foundKey
         v=@globals[k]
       end
 
-      puts __FILE__ + (__LINE__).to_s + " get(#{k} => #{@globals.has_key?(k)} ==> #{v.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " get(#{k} => #{@globals.has_key?(k)} ==> #{v.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
       v
     end
