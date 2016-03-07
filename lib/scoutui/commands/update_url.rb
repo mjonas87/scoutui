@@ -6,6 +6,8 @@ module Scoutui::Commands
     def execute(drv)
       @drv=drv if !drv.nil?
 
+      _req = Scoutui::Utils::TestUtils.instance.getReq()
+
       baseUrl = Scoutui::Base::UserVars.instance.getHost()
 
       url = @cmd.match(/navigate\s*\((.*)\)/)[1].to_s.strip
@@ -30,6 +32,7 @@ module Scoutui::Commands
       rescue
         ;
       end
+
 
       setResult(_rc)
 

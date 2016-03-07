@@ -23,7 +23,7 @@ module Scoutui::Eyes
 
       use_eyes = Scoutui::Utils::TestUtils.instance.eyesEnabled?
 
-      puts __FILE__ + (__LINE__).to_s + " create(#{use_eyes})" if Scoutui::Utils::TestUtils.instance.isDebug?
+      Scoutui::Logger::LogMgr.instance.info  __FILE__ + (__LINE__).to_s + " create(#{use_eyes})" if Scoutui::Utils::TestUtils.instance.isDebug?
       eyes=nil
 
 

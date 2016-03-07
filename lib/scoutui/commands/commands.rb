@@ -22,39 +22,50 @@ module Scoutui::Commands
   def self.processCommand(_action, e, my_driver)
     Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " ===  Process ACTION : #{_action}  ==="  if Scoutui::Utils::TestUtils.instance.isDebug?
 
+    _aborted=false
+    _cmd=nil
+    _totalWindows = my_driver.window_handles.length
+
     rc=true
+    _req = Scoutui::Utils::TestUtils.instance.getReq()
 
     begin
 
       _c=nil
 
       if Scoutui::Commands::Utils.instance.isPause?(_action)
+        _cmd='pause'
         _c = Scoutui::Commands::Pause.new(nil)
-        _c.execute();
+        _c.execute(e);
 
       elsif Scoutui::Commands::Utils.instance.isClick?(_action)
+        _cmd='Click'
         _c = Scoutui::Commands::ClickObject.new(_action)
         _c.execute(my_driver)
 
       elsif Scoutui::Commands::Utils.instance.isExistsAlert?(_action)
+        _cmd='ExistsAlert'
         _c = Scoutui::Commands::JsAlert::ExistsAlert.new(_action)
         rc=_c.execute(my_driver)
 
       elsif Scoutui::Commands::Utils.instance.isGetAlert?(_action)
+        _cmd='GetAlert'
         _c = Scoutui::Commands::ExistsAlert.new(_action)
         rc=_c.execute(my_driver)
 
       elsif  Scoutui::Commands::Utils.instance.isMouseOver?(_action)
-
+        _cmd='MouseOver'
         _c = Scoutui::Commands::MouseOver.new(_action)
         _c.execute(my_driver)
 
       elsif Scoutui::Commands::Utils.instance.isSelect?(_action)
+        _cmd='Select'
         _c = Scoutui::Commands::SelectObject.new(_action)
         _c.execute(my_driver)
 
       elsif Scoutui::Commands::Utils.instance.isFillForm?(_action)
 
+        _cmd='FillForm'
          _c = Scoutui::Commands::FillForm.new(_action)
 
          _rc=false
@@ -77,20 +88,24 @@ module Scoutui::Commands
         _c.setResult(_rc)
 
       elsif Scoutui::Commands::Utils.instance.isSubmitForm?(_action)
+        _cmd='SubmitForm'
         _c = Scoutui::Commands::SubmitForm.new(_action)
         _c.execute(my_driver)
 
 
       elsif Scoutui::Commands::Utils.instance.isNavigate?(_action)
+        _cmd='Navigate'
         _c = Scoutui::Commands::UpdateUrl.new(_action)
         _c.execute(my_driver)
 
       elsif Scoutui::Commands::Utils.instance.isVerifyElt?(_action)
+        _cmd='VerifyElement'
 
         _c = Scoutui::Commands::VerifyElement.new(_action)
         _c.execute(my_driver)
 
       elsif Scoutui::Commands::Utils.instance.isType?(_action)
+        _cmd='Type'
         _c = Scoutui::Commands::Type.new(_action)
         _c.execute(my_driver)
       else
@@ -101,14 +116,18 @@ module Scoutui::Commands
     rescue => e
       Scoutui::Logger::LogMgr.instance.debug "Error during processing: #{$!}"
       Scoutui::Logger::LogMgr.instance.debug "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
+      puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
+      _aborted=true
       rc=false
     end
 
+    if my_driver.window_handles.length > _totalWindows
+      Scoutui::Logger::LogMgr.instance.info " New Window generated"
+    end
+
+    Testmgr::TestReport.instance.getReq(_req).get_child(_cmd.downcase).add(!_aborted, "Verify command did not abort")
     _c
   end
-
-
-
 
 
 end

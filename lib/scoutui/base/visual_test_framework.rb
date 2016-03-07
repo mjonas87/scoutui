@@ -5,6 +5,7 @@ module Scoutui::Base
   class VisualTestFramework
 
     STEP_KEY='page'
+    CMD_KEY='dut'   # Used to indicate the command file (YML) to execute
 
     def initialize()
 
@@ -12,6 +13,7 @@ module Scoutui::Base
 
 
     def self.processCommand(_action, e, my_driver)
+      _req = Scoutui::Utils::TestUtils.instance.getReq()
       Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " ===  Process ACTION : #{_action}  ==="  if Scoutui::Utils::TestUtils.instance.isDebug?
 
       if Scoutui::Commands::Utils.instance.isExistsAlert?(_action)
@@ -19,8 +21,8 @@ module Scoutui::Base
         _rc = _c.execute(my_driver)
         Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " existsAlert => #{_rc}"
 
-        Scoutui::Logger::LogMgr.instance.info "Verify alert is present - #{!_rc.nil?.to_s}"
-        Testmgr::TestReport.instance.getReq('UI').get_child('expectJsAlert').add(!_rc.nil?, "Verify alert is present")
+        Scoutui::Logger::LogMgr.instance.asserts.info "Verify alert is present - #{!_rc.nil?.to_s}"
+        Testmgr::TestReport.instance.getReq(_req).get_child('expectJsAlert').add(!_rc.nil?, "Verify alert is present")
 
       elsif Scoutui::Commands::Utils.instance.isVerifyForm?(_action)
         _c = Scoutui::Commands::VerifyForm.new(_action)
@@ -58,9 +60,10 @@ module Scoutui::Base
         obj = Scoutui::Base::QBrowser.getObject(my_driver, _xpath)
 
         if !obj.nil? && !obj.attribute('type').downcase.match(/(text|password|email)/).nil?
+          Scoutui::Logger::LogMgr.instance.commands.info "send_keys(#{_val})"
           obj.send_keys(Scoutui::Base::UserVars.instance.get(_val))
         else
-          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Unable to process command TYPE => #{obj.to_s}"
+          Scoutui::Logger::LogMgr.instance.warn __FILE__ + (__LINE__).to_s + " Unable to process command TYPE => #{obj.to_s}"
         end
 
       end
@@ -136,8 +139,72 @@ module Scoutui::Base
         return
       end
 
-      e[STEP_KEY]['assertions'].each do |a|
-        Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Assert => #{a.to_s}"
+      _req = Scoutui::Utils::TestUtils.instance.getReq()
+
+      puts __FILE__ + (__LINE__).to_s + "======= #{e[STEP_KEY]['assertions']} ========="
+
+
+      e[STEP_KEY]['assertions'].each do |elt|
+
+        begin
+
+
+        _k = elt.keys[0].to_s
+        a = elt[_k]
+
+        Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Assert => #{_k} :  #{a.to_s}"
+
+    #    _k = 'generic-assertion'
+        _v={}
+
+        if a.is_a?(Hash)
+          _v=a
+
+
+          if _v.has_key?('locator')
+            _locator = _v['locator'].to_s
+            Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " " + _k.to_s + " => " + _locator if Scoutui::Utils::TestUtils.instance.isDebug?
+
+            #  _locator = Scoutui::Utils::TestUtils.instance.getPageElement(_v['locator'])
+
+            _obj = Scoutui::Base::QBrowser.getFirstObject(my_driver, _locator, Scoutui::Commands::Utils.instance.getTimeout())
+
+            Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " HIT #{_locator} => #{!_obj.nil?}" if Scoutui::Utils::TestUtils.instance.isDebug?
+          end
+
+          if _v.has_key?('visible_when')
+
+            if _v['visible_when'].match(/always/i)
+              Scoutui::Logger::LogMgr.instance.asserts.info __FILE__ + (__LINE__).to_s + " Verify assertion #{_k} - #{_locator} visible - #{!_obj.nil?.to_s}"
+              Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(!_obj.nil?, "Verify assertion #{_k} - #{_locator} visible")
+            elsif _v['visible_when'].match(/never/i)
+              Scoutui::Logger::LogMgr.instance.asserts.info "Verify assertion #{_k} #{_locator} not visible - #{obj.nil?.to_s}"
+              Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(obj.nil?, "Verify assertion #{_k} #{_locator} not visible")
+            elsif _v['visible_when'].match(/role\=/i)
+              _role = _v['visible_when'].match(/role\=(.*)/i)[1].to_s
+              _expected_role = Scoutui::Utils::TestUtils.instance.getRole()
+
+              Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Verify assertion object exists if the role #{_role} matches expected role #{_expected_role.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
+
+              if _role==_expected_role.to_s
+                Scoutui::Logger::LogMgr.instance.asserts.info "Verify assertion #{_k} #{_locator}  visible when role #{_role} - #{!_obj.nil?.to_s}"
+                Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(!_obj.nil?, "Verify assertion #{_k} #{_locator}  visible when role #{_role}")
+              end
+
+            end
+          end
+
+
+        end
+
+        rescue => ex
+
+          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " abort processing."
+          Scoutui::Logger::LogMgr.instance.debug "Error during processing: #{ex}"
+          puts __FILE__ + (__LINE__).to_s +  "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
+        end
+
+
       end
 
 
@@ -145,13 +212,15 @@ module Scoutui::Base
 
 
     def self.processExpected(my_driver, e)
+
+      _req = Scoutui::Utils::TestUtils.instance.getReq()
+
       Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + "\to Expected:  #{e[STEP_KEY]['expected'].class.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
       Scoutui::Base::Assertions.instance.setDriver(my_driver)
 
       if e[STEP_KEY].has_key?('expected')
         expected_list=e[STEP_KEY]['expected']
-
 
         if expected_list.is_a?(Array)
           expected_list.each do |_condition|
@@ -175,7 +244,6 @@ module Scoutui::Base
 
               # Check if this is a form
 
-
               page_elt = Scoutui::Utils::TestUtils.instance.getPageElement(xpath)
               Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Process page request #{page_elt} => #{page_elt.class.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
@@ -185,9 +253,6 @@ module Scoutui::Base
               end
 
               Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " SubElts => #{sub_elts}" if Scoutui::Utils::TestUtils.instance.isDebug?
-
-
-
 
               if page_elt.is_a?(Hash) && page_elt.has_key?('locator')
 
@@ -201,70 +266,82 @@ module Scoutui::Base
                 Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Validate form" if Scoutui::Utils::TestUtils.instance.isDebug?
 
                 page_elt.each_pair do |_k, _v|
-                  Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " k,v :: #{_k.to_s}, #{_v.to_s}  (#{_v.class.to_s})" if Scoutui::Utils::TestUtils.instance.isDebug?
 
-                  _obj=nil
+                  begin
 
-                  if _v.is_a?(String)
-                    next
-                  end
+                    Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " k,v :: #{_k.to_s}, #{_v.to_s}  (#{_v.class.to_s})" if Scoutui::Utils::TestUtils.instance.isDebug?
 
-                  if _v.has_key?('assert_when') && _v['assert_when'].match(/role\s*\=/i)
-                    _role = _v['assert_when'].match(/role\s*\=(.*)/i)[1].to_s
-                    _expected_role = Scoutui::Utils::TestUtils.instance.getRole()
+                    _obj=nil
 
-                    Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Trigger: expected : #{_expected_role.to_s}, actual: #{_role.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
-                    if !_expected_role.nil? && !_role.match(/#{_expected_role}/i)
-                      Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Skip assertion since conditional assertion #{_v['assert_when']} not met" if Scoutui::Utils::TestUtils.instance.isDebug?
-                      next
-                    elsif _expected_role.nil?
-                      Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Skip role based assertion since role was not provided" if Scoutui::Utils::TestUtils.instance.isDebug?
+                    if _v.is_a?(String)
+                      puts __FILE__ + (__LINE__).to_s + " #{_v} is a string - next"
                       next
                     end
-                    Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Verify object exists since the role #{_role} matches expected role #{_expected_role.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
-                  end
 
-
-                  if Scoutui::Base::Assertions.instance.visible_when_skip(_k, _v)
-                    Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " SKIP #{_k.to_s} - #{_v.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
-                    next
-                  end
-
-                  if _v.has_key?('locator')
-                    _locator = _v['locator'].to_s
-                    Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " " + _k.to_s + " => " + _locator if Scoutui::Utils::TestUtils.instance.isDebug?
-
-                    #  _locator = Scoutui::Utils::TestUtils.instance.getPageElement(_v['locator'])
-
-                    _obj = Scoutui::Base::QBrowser.getFirstObject(my_driver, _locator)
-
-                    Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " HIT #{_locator} => #{!_obj.nil?}" if Scoutui::Utils::TestUtils.instance.isDebug?
-                  end
-
-                  if Scoutui::Base::Assertions.instance.visible_when_always(_k, _v, _obj)
-                    next
-                  elsif _v.has_key?('visible_when')
-
-                    if _v['visible_when'].match(/always/i)
-                      Scoutui::Logger::LogMgr.instance.asserts.info __FILE__ + (__LINE__).to_s + " Verify #{_k} - #{_locator} visible - #{!_obj.nil?.to_s}"
-                      Testmgr::TestReport.instance.getReq('UI').get_child('visible_when').add(!_obj.nil?, "Verify #{_k} - #{_locator} visible")
-                    elsif _v['visible_when'].match(/never/i)
-                      Scoutui::Logger::LogMgr.instance.info "Verify #{_k} #{_locator} not visible - #{obj.nil?.to_s}"
-                      Testmgr::TestReport.instance.getReq('UI').get_child('visible_when').add(obj.nil?, "Verify #{_k} #{_locator} not visible")
-                    elsif _v['visible_when'].match(/role\=/i)
-                      _role = _v['visible_when'].match(/role\=(.*)/i)[1].to_s
+                    if _v.has_key?('assert_when') && _v['assert_when'].match(/role\s*\=/i)
+                      _role = _v['assert_when'].match(/role\s*\=(.*)/i)[1].to_s
                       _expected_role = Scoutui::Utils::TestUtils.instance.getRole()
 
-                      Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Verify object exists if the role #{_role} matches expected role #{_expected_role.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
+                      Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Trigger: expected : #{_expected_role.to_s}, actual: #{_role.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
-                      if _role==_expected_role.to_s
-                        Scoutui::Logger::LogMgr.instance.asserts.info "Verify #{_k} #{_locator}  visible when role #{_role} - #{!_obj.nil?.to_s}"
-                        Testmgr::TestReport.instance.getReq('UI').get_child('visible_when').add(!_obj.nil?, "Verify #{_k} #{_locator}  visible when role #{_role}")
+                      if !_expected_role.nil? && !_role.match(/#{_expected_role}/i)
+                        Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Skip assertion since conditional assertion #{_v['assert_when']} not met" if Scoutui::Utils::TestUtils.instance.isDebug?
+                        next
+                      elsif _expected_role.nil?
+                        Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Skip role based assertion since role was not provided" if Scoutui::Utils::TestUtils.instance.isDebug?
+                        next
                       end
-
+                      Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Verify object exists since the role #{_role} matches expected role #{_expected_role.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
                     end
+
+
+                    if Scoutui::Base::Assertions.instance.visible_when_skip(_k, _v)
+                      Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " SKIP #{_k.to_s} - #{_v.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
+                      next
+                    end
+
+                    if _v.has_key?('locator')
+                      _locator = _v['locator'].to_s
+                      Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " " + _k.to_s + " => " + _locator if Scoutui::Utils::TestUtils.instance.isDebug?
+
+                      #  _locator = Scoutui::Utils::TestUtils.instance.getPageElement(_v['locator'])
+
+                      _obj = Scoutui::Base::QBrowser.getFirstObject(my_driver, _locator, Scoutui::Commands::Utils.instance.getTimeout())
+
+                      Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " HIT #{_locator} => #{!_obj.nil?}" if Scoutui::Utils::TestUtils.instance.isDebug?
+                    end
+
+                    if Scoutui::Base::Assertions.instance.visible_when_always(_k, _v, _obj)
+                      next
+                    elsif _v.has_key?('visible_when')
+
+                      if _v['visible_when'].match(/always/i)
+                        Scoutui::Logger::LogMgr.instance.asserts.info __FILE__ + (__LINE__).to_s + " Verify #{_k} - #{_locator} visible - #{!_obj.nil?.to_s}"
+                        Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(!_obj.nil?, "Verify #{_k} - #{_locator} visible")
+                      elsif _v['visible_when'].match(/never/i)
+                        Scoutui::Logger::LogMgr.instance.asserts.info "Verify #{_k} #{_locator} not visible - #{obj.nil?.to_s}"
+                        Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(obj.nil?, "Verify #{_k} #{_locator} not visible")
+                      elsif _v['visible_when'].match(/role\=/i)
+                        _role = _v['visible_when'].match(/role\=(.*)/i)[1].to_s
+                        _expected_role = Scoutui::Utils::TestUtils.instance.getRole()
+
+                        Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Verify object exists if the role #{_role} matches expected role #{_expected_role.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
+
+                        if _role==_expected_role.to_s
+                          Scoutui::Logger::LogMgr.instance.asserts.info "Verify #{_k} #{_locator}  visible when role #{_role} - #{!_obj.nil?.to_s}"
+                          Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(!_obj.nil?, "Verify #{_k} #{_locator}  visible when role #{_role}")
+                        end
+
+                      end
+                    end
+
+
+                  rescue => ex
+                    Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Invalid file: #{datafile} - abort processing."
+                    puts __FILE__ + (__LINE__).to_s +  "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
                   end
+
 
                 end
 
@@ -295,29 +372,31 @@ module Scoutui::Base
 
             end
 
-          obj = Scoutui::Base::QBrowser.getFirstObject(my_driver, xpath)
+            obj = Scoutui::Base::QBrowser.getFirstObject(my_driver, xpath)
 
-          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " obj : #{obj}"
+            Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " obj : #{obj}"
 
-          Scoutui::Logger::LogMgr.instance.asserts.info __FILE__ + (__LINE__).to_s + " Verify #{xpath} visible - #{obj.kind_of?(Selenium::WebDriver::Element).to_s}"
+            Scoutui::Logger::LogMgr.instance.asserts.info __FILE__ + (__LINE__).to_s + " Verify #{xpath} visible - #{obj.kind_of?(Selenium::WebDriver::Element).to_s}"
 
-          Testmgr::TestReport.instance.getReq('UI').get_child('visible_when').add(!obj.nil?, __FILE__ + (__LINE__).to_s + " Verify #{xpath} visible")
+            Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(!obj.nil?, __FILE__ + (__LINE__).to_s + " Verify #{xpath} visible")
 
-          if obj.nil?
-            Scoutui::Logger::LogMgr.instance.warn " NOT FOUND : #{link_name} with xpath #{xpath}" if Scoutui::Utils::TestUtils.instance.isDebug?
-          else
-            Scoutui::Logger::LogMgr.instance.warn " link object(#{link_name} with xpath #{xpath}=> #{obj.displayed?}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+            if obj.nil?
+              Scoutui::Logger::LogMgr.instance.warn " NOT FOUND : #{link_name} with xpath #{xpath}" if Scoutui::Utils::TestUtils.instance.isDebug?
+            else
+              Scoutui::Logger::LogMgr.instance.warn " link object(#{link_name} with xpath #{xpath}=> #{obj.displayed?}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+            end
+
           end
-
-        end
         end
       end
 
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " [end]: processExpected()"
     end
 
     # Scoutui::Base::VisualTestFramework.processFile(@drv, @eyes, @test_settings['host'], @test_settings['dut'])
     def self.processFile(eyeScout, test_settings, strategy=nil)
 
+      puts __FILE__ + (__LINE__).to_s + " [enter]:processFile(#{test_settings['dut']})"
       my_driver = eyeScout.drv()
 
       baseUrl = Scoutui::Base::UserVars.instance.getHost()
@@ -338,15 +417,30 @@ module Scoutui::Base
       return if !valid_file
 
       dut_dupes.each do |e|
+
+        totalWindows = my_driver.window_handles.length
+
         Scoutui::Logger::LogMgr.instance.info '-' * 72 if Scoutui::Utils::TestUtils.instance.isDebug?
+        Scoutui::Logger::LogMgr.instance.info " [Pre-cmd]: Total Windows : #{totalWindows.to_s}"
         Scoutui::Logger::LogMgr.instance.info "#{i.to_s}. Processing #{e.inspect}" if Scoutui::Utils::TestUtils.instance.isDebug?
         i+=1
+
+        Scoutui::Utils::TestUtils.instance.setReq('UI')
+        Scoutui::Commands::Utils.instance.resetTimeout()
 
         _action = e[STEP_KEY]["action"]
         _name   = e[STEP_KEY]["name"]
         _url    = e[STEP_KEY]["url"]
         _skip   = e[STEP_KEY]["skip"]
         _region = e[STEP_KEY]["region"]
+        _reqid  = e[STEP_KEY]["reqid"]
+
+        if e[STEP_KEY].has_key?("timeout")
+         Scoutui::Commands::Utils.instance.setTimeout(e[STEP_KEY]["timeout"])
+        end
+
+
+
 
         if Scoutui::Utils::TestUtils.instance.isDebug?
           Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " action: #{_action}"
@@ -354,6 +448,14 @@ module Scoutui::Base
           Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " url : #{_url}"
           Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " skip: #{_skip}"
           Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " region: #{_region}"
+          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " reqid: #{_reqid}"
+        end
+
+        if !_reqid.nil? && !_reqid.to_s.empty?
+          Testmgr::TestReport.instance.getReq(_reqid)
+          Scoutui::Utils::TestUtils.instance.setReq(_reqid)
+        else
+          puts __FILE__ + (__LINE__).to_s + "  REQID was not provided"
         end
 
         skipIt = (!_skip.nil?) && (_skip.to_s.strip.downcase=='true')
@@ -367,41 +469,53 @@ module Scoutui::Base
 
         if !isRun(e).nil?
 
+          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " ========> RUN <================="
           tmpSettings=test_settings.dup
           tmpSettings["dut"]=e[STEP_KEY]["run"].to_s
 
-          processFile(eyeScout, tmpSettings)
-          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Completed execution of subfile"  if Scoutui::Utils::TestUtils.instance.isDebug?
+          Scoutui::Logger::LogMgr.instance.info " RUN Command file : #{tmpSettings["dut"]}"
+          processFile(eyeScout, tmpSettings, strategy)
+          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Completed execution of subfile"
           next
+
         end
 
-        if !(_action.nil? || _action.empty?)
+        if !(_action.nil? || _action.to_s.empty?)
 
        #  if !Scoutui::Commands::processCommand(_action, e, my_driver)
 
           Scoutui::Logger::LogMgr.instance.asserts.info "Verify #{_action} is valid - #{Scoutui::Commands::Utils.instance.isValid?(_action).to_s}"
           Testmgr::TestReport.instance.getReq('Command').get_child('isValid').add(Scoutui::Commands::Utils.instance.isValid?(_action), "Verify #{_action} is valid")
 
+          begin
 
 
-          _command = eyeScout.getStrategy().processCommand(_action, e)
+            _command = eyeScout.getStrategy().processCommand(_action, e)
 
-
-        #  if !eyeScout.getStrategy().processCommand(_action, e)
-          if !_command.wasExecuted?
-            processCommand(_action, e, my_driver)
-          end
-
-          processExpected(my_driver, e)
-          processAssertions(my_driver, e)
-
-          if isSnapIt(e)
-            if !_region.nil?
-              eyeScout.check_window(_name, _region)
-            else
-              eyeScout.check_window(_name)
+            if my_driver.window_handles.length > totalWindows
+              Scoutui::Logger::LogMgr.instance.info "[post-cmd] Total Windows : #{my_driver.window_handles.length.to_s}"
             end
 
+
+          #  if !eyeScout.getStrategy().processCommand(_action, e)
+            if !_command.wasExecuted?
+              processCommand(_action, e, my_driver)
+            end
+
+            processExpected(my_driver, e)
+            processAssertions(my_driver, e)
+
+
+            if isSnapIt(e)
+              if !_region.nil?
+                eyeScout.check_window(_name, _region)
+              else
+                eyeScout.check_window(_name)
+              end
+            end
+
+          rescue => ex
+            "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
           end
 
           next

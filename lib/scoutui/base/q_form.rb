@@ -94,6 +94,11 @@ module Scoutui::Base
 
     def verifyForm(drv)
       Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " verifyForm()"
+
+      _req = Scoutui::Utils::TestUtils.instance.getReq()
+
+      puts __FILE__ + (__LINE__).to_s + " req => #{_req}"
+
       @elements.each do |elt|
         Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " => #{elt.to_s} : #{elt.class.to_s}"
 
@@ -111,7 +116,7 @@ module Scoutui::Base
               if !v[k].match(/always/i).nil?
                 _rc = !obj.nil? && obj.is_a?(Selenium::WebDriver::Element) && obj.displayed?
                 Scoutui::Logger::LogMgr.instance.asserts.info " Verify element #{n} with locator #{v['locator']} is always visible on form - #{_rc.to_s}"
-                Testmgr::TestReport.instance.getReq('UI').tc(k).add(!obj.nil? && obj.is_a?(Selenium::WebDriver::Element) && obj.displayed?, __FILE__ + (__LINE__).to_s + " Verify element #{n} with locator #{v['locator']} is always visible on form")
+                Testmgr::TestReport.instance.getReq(_req).tc(k).add(_rc, __FILE__ + (__LINE__).to_s + " Verify element #{n} with locator #{v['locator']} is always visible on form")
               elsif !v[k].match(/([!])*title\((.*)\)/i).nil?
                 _hit = v[k].match(/([!])*title\(\/(.*)\/\)/i)
                 _not = _hit[1]
@@ -126,7 +131,7 @@ module Scoutui::Base
                 end
 
                 Scoutui::Logger::LogMgr.instance.asserts.info " Verify expected title matches #{_not.to_s}#{_title} for form. - #{_rc.to_s}"
-                Testmgr::TestReport.instance.getReq('UI').tc(k).add(_rc, __FILE__ + (__LINE__).to_s + " Verify expected title matches #{_not.to_s}#{_title} for form.")
+                Testmgr::TestReport.instance.getReq(_req).tc(k).add(_rc, __FILE__ + (__LINE__).to_s + " Verify expected title matches #{_not.to_s}#{_title} for form.")
 
 
               elsif !v[k].match(/\s*(visible)\((.*)\)\=(.*)/).nil?
@@ -144,10 +149,16 @@ module Scoutui::Base
                 desc=nil
                 if _expected_val.match(/true/i)
                   obj = Scoutui::Base::QBrowser.getObject(drv, v['locator'])
-                  Testmgr::TestReport.instance.getReq('UI').tc(k).add(!depObj.nil? && depObj.displayed? && !obj.nil? && obj.displayed?, "Verify #{v['locator']} is displayed since #{_obj} is displayed")
+
+                  _rc = !depObj.nil? && depObj.displayed? && !obj.nil? && obj.displayed?
+                  Scoutui::Logger::LogMgr.instance.asserts.info "Verify #{v['locator']} is displayed since #{_obj} is displayed - #{_rc.to_s}"
+                  Testmgr::TestReport.instance.getReq(_req).tc(k).add(_rc, "Verify #{v['locator']} is displayed since #{_obj} is displayed")
                 elsif _expected_val.match(/false/i)
                   obj = Scoutui::Base::QBrowser.getObject(drv, v['locator'])
-                  Testmgr::TestReport.instance.getReq('UI').tc(k).add( depObj.nil? && !obj.nil? && obj.displayed?, "Verify #{v['locator']} is displayed since #{_obj} is not visible.")
+
+                  _rc =  depObj.nil? && !obj.nil? && obj.displayed?
+                  Scoutui::Logger::LogMgr.instance.asserts.info "Verify #{v['locator']} is displayed since #{_obj} is not visible. - #{_rc.to_s}"
+                  Testmgr::TestReport.instance.getReq(_req).tc(k).add(_rc, "Verify #{v['locator']} is displayed since #{_obj} is not visible.")
                 end
 
               elsif !v[k].match(/value\((.*)\)\=(.*)/).nil?
@@ -165,7 +176,7 @@ module Scoutui::Base
                     _options=Selenium::WebDriver::Support::Select.new(obj)
                     _val = _options.first_selected_option.text
 
-                    Testmgr::TestReport.instance.getReq('UI').tc(k).add(!_val.match(/#{_expected_val}/).nil?, __FILE__ + (__LINE__).to_s + " Verify obj #{n} displayed when #{v.to_s}")
+                    Testmgr::TestReport.instance.getReq(_req).tc(k).add(!_val.match(/#{_expected_val}/).nil?, __FILE__ + (__LINE__).to_s + " Verify obj #{n} displayed when #{v.to_s}")
 
                     if false
 

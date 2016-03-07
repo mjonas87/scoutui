@@ -5,6 +5,7 @@ module Scoutui::Commands
 
     def execute(drv=nil)
       _rc=false
+      _req = Scoutui::Utils::TestUtils.instance.getReq()
 
       @drv=drv if !drv.nil?
 
@@ -17,8 +18,8 @@ module Scoutui::Commands
         ;
       end
 
-      Testmgr::TestReport.instance.getReq('UI').testcase('mouseover').add(!obj.nil?, "Verify object #{_xpath} to mouseover exists : #{obj.class.to_s}")
-      Testmgr::TestReport.instance.getReq('UI').testcase('mousseover').add(_rc, "Verify mouseover #{_rc}")
+      Testmgr::TestReport.instance.getReq(_req).testcase('mouseover').add(!obj.nil?, "Verify object #{_xpath} to mouseover exists : #{obj.class.to_s}")
+      Testmgr::TestReport.instance.getReq(_req).testcase('mousseover').add(_rc, "Verify mouseover #{_rc}")
       setResult(_rc)
     end
 

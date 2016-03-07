@@ -55,10 +55,11 @@ module Scoutui::Base
         Selenium::WebDriver::Wait.new(timeout: _timeout).until { drv.find_elements(locateBy => locator).size > 0 }
         rc=drv.find_elements(locateBy => locator)[0]
       rescue => ex
+        Scoutui::Logger::LogMgr.instance.debug "getFirstObject.Exception: #{locator.to_s} - #{ex}"
         ;
       end
 
-      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " #{_locator} => #{rc}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " #{_locator} => #{rc}"
       rc
     end
 

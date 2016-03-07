@@ -8,6 +8,7 @@ module Scoutui::Commands
     include Singleton
 
     attr_accessor :totalCommands
+    attr_accessor :timeout
 
     def initialize
       @command_list=['pause',
@@ -23,9 +24,21 @@ module Scoutui::Commands
                      'verifyelement',
                      'verifyform']
       @totalCommands={}
+      @timeout=30
       @command_list.each do |c|
         @totalCommands[c]=0
       end
+    end
+
+    def resetTimeout()
+      setTimeout(30)
+    end
+
+    def setTimeout(_t)
+      @timeout=_t
+    end
+    def getTimeout()
+      @timeout
     end
 
     def isExistsAlert?(_action)

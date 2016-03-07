@@ -25,9 +25,12 @@ module Scoutui::Logger
 
       @asserts = Logging.logger['Assertions']
       @asserts.add_appenders(
-                  Logging.appenders.stdout,
+                  Logging.appenders.stdout
+      )
+      @asserts.add_appenders(
                   Logging.appenders.file("assertions.log")
       )
+
       @asserts.level = :debug
 
       @commands = Logging.logger['Commands']

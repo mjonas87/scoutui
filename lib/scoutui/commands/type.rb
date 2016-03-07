@@ -9,6 +9,7 @@ module Scoutui::Commands
       @drv=drv if !drv.nil?
 
       _rc=false
+      _req = Scoutui::Utils::TestUtils.instance.getReq()
 
       begin
         _xpath = @cmd.match(/type\((.*),\s*/)[1].to_s
@@ -29,8 +30,8 @@ module Scoutui::Commands
         ;
       end
 
-      Testmgr::TestReport.instance.getReq('UI').testcase('type').add(!obj.nil?, "Verify object #{_xpath} to type #{_val} exists : #{obj.class.to_s}")
-      Testmgr::TestReport.instance.getReq('UI').testcase('type').add(_rc, "Verify typed data #{_rc}")
+      Testmgr::TestReport.instance.getReq(_req).testcase('type').add(!obj.nil?, "Verify object #{_xpath} to type #{_val} exists : #{obj.class.to_s}")
+      Testmgr::TestReport.instance.getReq(_req).testcase('type').add(_rc, "Verify typed data #{_rc}")
       setResult(_rc)
 
     end

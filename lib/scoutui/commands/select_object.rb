@@ -9,6 +9,7 @@ module Scoutui::Commands
     def execute(drv)
       @drv=drv if !drv.nil?
 
+      _req = Scoutui::Utils::TestUtils.instance.getReq()
       obj=nil
       _rc=false
 
@@ -41,8 +42,8 @@ module Scoutui::Commands
         ;
       end
 
-      Testmgr::TestReport.instance.getReq('UI').testcase('select').add(!obj.nil?, "Verify object to select exists #{_xpath} : #{obj.class.to_s}")
-      Testmgr::TestReport.instance.getReq('UI').testcase('select').add(_rc, "Verify selected text #{_val}")
+      Testmgr::TestReport.instance.getReq(_req).testcase('select').add(!obj.nil?, "Verify object to select exists #{_xpath} : #{obj.class.to_s}")
+      Testmgr::TestReport.instance.getReq(_req).testcase('select').add(_rc, "Verify selected text #{_val}")
       setResult(_rc)
 
     end

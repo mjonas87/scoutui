@@ -94,8 +94,8 @@ module Scoutui::Eyes
       end
     end
 
-    def saveDiffs(_eyes, results, f, view_key)
-      Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s +  "  saveDiffs()"
+    def saveDiffs(_eyes, results, outdir, view_key)
+      Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s +  "  saveDiffs(#{outdir.to_s})"
 
       Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " | steps : #{results.steps.to_s}"
       session_id = get_session_id(results.url)
@@ -107,7 +107,7 @@ module Scoutui::Eyes
         Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " #{d.to_s}"
       end
 
-      download_images(diffs, '/tmp/vt')
+      download_images(diffs, outdir)
 
     end
     #---- END 5150
@@ -120,11 +120,23 @@ module Scoutui::Eyes
       return if !Scoutui::Utils::TestUtils.instance.eyesEnabled?
       @testResults = eyes().close(false)
 
+      Testmgr::TestReport.instance.getReq("EYES").testcase('Images').add(@testResults.steps.to_i > 0, "Verify at least 1 shot taken (#{@testResults.steps.to_s} shots)")
+      Testmgr::TestReport.instance.getReq("EYES").testcase('Images').add(@testResults.missing.to_i==0, "Verify Eyes did not miss any screens (#{@testResults.missing.to_s} screens)")
+
       # 5150
+      _diffdir=Scoutui::Utils::TestUtils.instance.getDiffDir()
+      if ENV.has_key?('APPLITOOLS_VIEW_KEY') && !_diffdir.nil?
 
-      view_key=ENV['APPLITOOLS_VIEW_KEY']
+        if Dir.exists?(_diffdir)
+          saveDiffs(eyes(), @testResults, _diffdir, ENV['APPLITOOLS_VIEW_KEY'])
+        else
+          Scoutui::Logger::LogMgr.instance.warn " Specified Visual Diff folder does not exist - #{_diffdir.to_s}.  Unable to download diffs"
+        end
 
-      saveDiffs(eyes(), @testResults, '/tmp', view_key)
+      else
+        Scoutui::Logger::LogMgr.instance.info " Unable to download diff images - APPLITOOLS_VIEW_KEY not defined"
+      end
+
 
       eyes().abort_if_not_closed if !eyes().nil?
     end
@@ -145,6 +157,16 @@ module Scoutui::Eyes
     end
 
     def generateReport()
+
+      if Scoutui::Utils::TestUtils.instance.eyesEnabled?
+        Scoutui::Logger::LogMgr.instance.debug " testResults.methods = #{@testResults.methods.sort.to_s}"
+        Scoutui::Logger::LogMgr.instance.info " Eyes.TestResults.Missing    : #{@testResults.missing.to_s}"
+        Scoutui::Logger::LogMgr.instance.info " Eyes.TestResults.Matches    : #{@testResults.matches.to_s}"
+        Scoutui::Logger::LogMgr.instance.info " Eyes.TestResults.Mismatches : #{@testResults.mismatches.to_s}"
+        Scoutui::Logger::LogMgr.instance.info " Eyes.TestResults.Passed     : #{@testResults.passed?.to_s}"
+        Scoutui::Logger::LogMgr.instance.info " Eyes.TestResults.Steps      : #{@testResults.steps.to_s}"
+      end
+
       Scoutui::Logger::LogMgr.instance.info " TestReport => #{@testResults}"
    #  Testmgr::TestReport.instance.generateReport()
       Testmgr::TestReport.instance.report()

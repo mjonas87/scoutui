@@ -13,13 +13,15 @@ module Scoutui::Utils
 
     attr_accessor :options
     attr_accessor :app_model
+    attr_accessor :currentTest
 
     def initialize
 
       @env_list={:accounts => 'SCOUTUI_ACCOUNTS', :browser => 'SCOUTUI_BROWSER', :applitools_api_key => 'APPLITOOLS_API_KEY'}
       @options={}
+      @currentTest={:reqid => 'UI', :testcase => '00' }
 
-      [:accounts, :browser, :capabilities, :test_file, :host, :loc, :title, :viewport,
+      [:accounts, :browser, :capabilities, :diffs_dir, :test_file, :host, :loc, :title, :viewport,
        :userid, :password, :json_config_file, :page_model, :test_config, :debug].each do |o|
         @options[o]=nil
       end
@@ -36,6 +38,14 @@ module Scoutui::Utils
 
       Scoutui::Base::UserVars.instance.set('eyes.viewport', '1024x768')
 
+    end
+
+    def getReq()
+      @currentTest[:reqid]
+    end
+
+    def setReq(_r='UI')
+      @currentTest[:reqid]=_r
     end
 
     def loadModel(f=nil)
@@ -99,7 +109,14 @@ module Scoutui::Utils
           Scoutui::Logger::LogMgr.instance.setLevel(@options[:log_level])
         }
 
-        opt.on('-d', '--debug', 'Enable debug')  { |o| @options[:debug] = true }
+        opt.on('--diffs Full Path') { |o|
+          @options[:diffs_dir] = o
+        }
+
+        opt.on('-d', '--debug', 'Enable debug')  { |o|
+          @options[:debug] = true
+          @options[:log_level] = :debug
+        }
         opt.on('--dut DUT') { |o| @options[:dut]=o }
         opt.on('-h', '--host HOST')     { |o| @options[:host] = o }
         opt.on('-l', '--lang LOCAL')    { |o| @options[:loc] = o }
@@ -282,6 +299,10 @@ module Scoutui::Utils
 
     def match_level()
       @options[:match_level]
+    end
+
+    def getDiffDir()
+      @options[:diffs_dir]
     end
 
     def getUserId()

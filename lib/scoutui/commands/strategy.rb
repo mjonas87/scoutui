@@ -188,9 +188,9 @@ module Scoutui::Commands
           Scoutui::Logger::LogMgr.instance.debug "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
         end
 
-
-
+        
       else
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Create WebDriver: #{browserType.to_s}"
         @drv=Selenium::WebDriver.for browserType.to_sym, :profile => @profile
       end
 

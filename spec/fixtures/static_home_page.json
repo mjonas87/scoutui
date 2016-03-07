@@ -1,0 +1,16 @@
+{
+  "home": {
+    "wiki_link": "//a[text()='Wiki']",
+    "login_form": {
+      "userid": "//input[@id='userid']",
+      "password": "//input[@id='password']",
+      "submitButton": "//input[@id='btnSubmit']"
+    },
+
+    "choose_language": {
+      "set_lang_button": "//input[contains(@onclick, 'SetLanguage')]"
+    }
+  }
+
+}
+

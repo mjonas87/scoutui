@@ -4,6 +4,70 @@ module Scoutui::Commands
 
   class VerifyElement < Command
 
+    def _verify(elt)
+      begin
+
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " VerifyElement._verify(#{elt})"
+
+        _k = elt.keys[0].to_s
+        a = elt[_k]
+
+        Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Assert => #{_k} :  #{a.to_s}"
+
+        #    _k = 'generic-assertion'
+        _v={}
+
+        if a.is_a?(Hash)
+          _v=a
+
+          _req = Scoutui::Utils::TestUtils.instance.getReq()
+
+          if _v.has_key?('locator')
+            _locator = _v['locator'].to_s
+            Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " " + _k.to_s + " => " + _locator
+
+            #  _locator = Scoutui::Utils::TestUtils.instance.getPageElement(_v['locator'])
+
+            _obj = Scoutui::Base::QBrowser.getFirstObject(@drv, _locator, Scoutui::Commands::Utils.instance.getTimeout())
+
+            Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " HIT #{_locator} => #{!_obj.nil?}"
+          end
+
+          if _v.has_key?('visible_when')
+
+            if _v['visible_when'].match(/always/i)
+              Scoutui::Logger::LogMgr.instance.asserts.info __FILE__ + (__LINE__).to_s + " Verify assertion #{_k} - #{_locator} visible - #{!_obj.nil?.to_s}"
+              Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(!_obj.nil?, "Verify assertion #{_k} - #{_locator} visible")
+            elsif _v['visible_when'].match(/never/i)
+              Scoutui::Logger::LogMgr.instance.asserts.info "Verify assertion #{_k} #{_locator} not visible - #{obj.nil?.to_s}"
+              Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(obj.nil?, "Verify assertion #{_k} #{_locator} not visible")
+            elsif _v['visible_when'].match(/role\=/i)
+              _role = _v['visible_when'].match(/role\=(.*)/i)[1].to_s
+              _expected_role = Scoutui::Utils::TestUtils.instance.getRole()
+
+              Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Verify assertion object exists if the role #{_role} matches expected role #{_expected_role.to_s}"
+
+              if _role==_expected_role.to_s
+                Scoutui::Logger::LogMgr.instance.asserts.info "Verify assertion #{_k} #{_locator}  visible when role #{_role} - #{!_obj.nil?.to_s}"
+                Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(!_obj.nil?, "Verify assertion #{_k} #{_locator}  visible when role #{_role}")
+              end
+
+            end
+          end
+
+
+        end
+
+      rescue => ex
+
+        Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " abort processing."
+        Scoutui::Logger::LogMgr.instance.debug "Error during processing: #{ex}"
+        puts __FILE__ + (__LINE__).to_s +  "\nBacktrace:\n\t#{ex.backtrace.join("\n\t")}"
+      end
+
+    end
+
+
     def execute(drv)
       @drv=drv if !drv.nil?
       _e=getLocator()
@@ -102,6 +166,23 @@ module Scoutui::Commands
 
 
         end
+
+      elsif page_elt.is_a?(Hash)
+
+        page_elt.each do |elt|
+
+          puts __FILE__ + (__LINE__).to_s + " ELT => #{elt} : #{elt.to_s}"
+          puts __FILE__ + (__LINE__).to_s + "     ELT[0] : #{elt[0]}"
+          puts __FILE__ + (__LINE__).to_s + "     ELT[1] : #{elt[1]}"
+
+          if elt.is_a?(Array)
+            _h={ elt[0] => elt[1] }
+
+            _verify(_h)
+          end
+
+        end
+
 
       end
 

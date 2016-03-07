@@ -4,14 +4,18 @@ module Scoutui::Commands
 
   class Pause < Command
 
-    def execute(drv=nil)
+    def execute(e=nil)
       rc=true
-        begin
-        puts "====== PAUSE - HIT ENTER ========="
+      h=""
+      begin
+        if e.is_a?(Hash) && e.has_key?('page')
+          h=e['page']['name'].to_s
+        end
+        puts "====== PAUSE - HIT ENTER #{h} ========="
         gets()
-      rescue => e
+      rescue => ex
         puts "Error during processing: #{$!}"
-        puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
+        puts "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
         rc=false
       end
       setResult(rc)
