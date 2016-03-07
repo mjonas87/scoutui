@@ -5,6 +5,6 @@
 /coverage/
 /doc/
 /spec/reports/
+/test/gateway
 /tmp/
-/test/travel/
-/test/gateway/
+/test/travel

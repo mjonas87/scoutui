@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
 
 
  # spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
-  spec.files         = ["pkg/scoutui-1.0.0.pre.gem"]
+  spec.files         = ["pkg/scoutui-2.0.0.gem"]
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
