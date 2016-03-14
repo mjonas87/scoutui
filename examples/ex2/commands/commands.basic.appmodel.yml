@@ -1,0 +1,8 @@
+page:
+  skip: false
+  name: Home
+  description: Navigate to a specified URL and wait until the expected elements are present
+  url: http://www.carmax.com
+  expected:
+    wait: page(main_nav).get(search_input)
+    wait2: page(main_nav).get(search_btn)

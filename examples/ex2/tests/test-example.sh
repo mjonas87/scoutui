@@ -7,7 +7,7 @@
 #
 #          export APPLITOOLS_API_KEY="__YOUR_KEY_HERE__"
 ##
-SCOUTUI_BIN=../../bin/scoutui_driver.rb
+SCOUTUI_BIN=../../../bin/scoutui_driver.rb
 # Specify browser under test  (chrome, firefox, ie, safari)
 BUT=firefox
 
@@ -18,7 +18,7 @@ TITLE=DEMO-CarMax
 APP=Oct2015
 
 # Specify the test configuration file
-TEST_CFG="./test.config.json"
+TEST_CFG="../test-configs/test.config.json"
 
 ##
 # content
@@ -33,7 +33,7 @@ EYES=
 
 
 # The following command line parameters will override provided title and appName (if provided in test config file)
-$SCOUTUI_BIN  --config $TEST_CFG  --browser $BUT $EYES --app $APP --title $TITLE  --match $MATCH_TYPE --pagemodel ./page_model.json  --debug
+$SCOUTUI_BIN  --config $TEST_CFG  --browser $BUT $EYES --app $APP --title $TITLE  --match $MATCH_TYPE --pagemodel ../appmodel/page_model.json  --debug
 
 # The following
 # $SCOUTUI_BIN --config $TEST_CFG  --eyes  --match $MATCH_TYPE  --browser $BUT

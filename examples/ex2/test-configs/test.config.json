@@ -12,13 +12,17 @@
   },
 
   "host": "http://www.carmax.com",
-  "dut": "./commands.yml",
+  "dut": "../commands/home.command.yml",
+  "dut2": "../commands/commands.yml",
 
 
   "user_vars": {
     "Search_Me": "BMW M3",
     "View_Tickets_Link": "page(main_nav).get(ViewTicketsLink)",
-    "WhyCarMax": "page(home).get(whyCarMax)"
+    "WhyCarMax": "page(home).get(whyCarMax)",
+
+    "MyMake": "Porsche",
+    "make_aut": "file(porsche.json)"
   }
 
 }
