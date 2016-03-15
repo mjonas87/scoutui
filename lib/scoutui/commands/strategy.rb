@@ -24,6 +24,7 @@ module Scoutui::Commands
     end
 
     def navigate(url)
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " [enter]:navigate(#{url})"
       rc = false
       begin
         processCommand('navigate(' + url + ')', nil)
@@ -49,6 +50,7 @@ module Scoutui::Commands
     end
 
     def processCommand(_action, e=nil)
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " [enter]:processCommand(#{_action})"
       Scoutui::Commands::processCommand(_action, e, getDriver())
     end
 
@@ -188,7 +190,7 @@ module Scoutui::Commands
           Scoutui::Logger::LogMgr.instance.debug "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
         end
 
-        
+
       else
         Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Create WebDriver: #{browserType.to_s}"
         @drv=Selenium::WebDriver.for browserType.to_sym, :profile => @profile

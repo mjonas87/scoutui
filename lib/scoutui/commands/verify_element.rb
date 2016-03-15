@@ -162,9 +162,6 @@ module Scoutui::Commands
             Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " value : #{obj.attribute('value').to_s}"
           end
 
-
-
-
         end
 
       elsif page_elt.is_a?(Hash)

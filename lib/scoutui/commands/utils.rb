@@ -9,6 +9,7 @@ module Scoutui::Commands
 
     attr_accessor :totalCommands
     attr_accessor :timeout
+    attr_accessor :hwnds
 
     def initialize
       @command_list=['pause',
@@ -20,6 +21,7 @@ module Scoutui::Commands
                      'mouseover',
                      'navigate',
                      'select',
+                     'select_window',
                      'verifyelt',
                      'verifyelement',
                      'verifyform']
@@ -28,6 +30,20 @@ module Scoutui::Commands
       @command_list.each do |c|
         @totalCommands[c]=0
       end
+
+      @hwnds = { :current => nil, :previous => nil, :handles => [] }
+    end
+
+
+
+    def setCurrentWindow(_w)
+      if @hwnds[:previous].nil?
+        @hwnds[:previous]=_w
+      else
+        @hwnds[:previous]=@hwnds[:current]
+      end
+
+      @hwnds[:current]=_w
     end
 
     def resetTimeout()
@@ -39,6 +55,11 @@ module Scoutui::Commands
     end
     def getTimeout()
       @timeout
+    end
+
+    def isSelectWindow?(_action)
+      puts __FILE__ + (__LINE__).to_s + " isSelectWindow?(#{_action})"
+      !_action.match(/select_window/i).nil?
     end
 
     def isExistsAlert?(_action)
@@ -66,7 +87,7 @@ module Scoutui::Commands
     end
 
     def isType?(_action)
-      !_action.match(/type\(/).nil?
+      !_action.match(/type[\!]*\(/).nil?
     end
 
     def isSubmitForm?(_action)
@@ -115,6 +136,8 @@ module Scoutui::Commands
         @totalCommands['select']+=1
       elsif isNavigate?(cmd)
         @totalCommands['navigate']+=1
+      elsif isSelectWindow?(cmd)
+        @totalCommands['select_window']+=1
       else
         rc=false
       end

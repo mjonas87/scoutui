@@ -11,7 +11,21 @@ module Scoutui::Commands
       _xpath = @cmd.match(/click\s*\((.*)\)/)[1].to_s.strip
       Scoutui::Logger::LogMgr.instance.command.info __FILE__ + (__LINE__).to_s + " clickObject => #{_xpath}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
-      _xpath = Scoutui::Base::UserVars.instance.get(_xpath)
+      # _vars = _xpath.scan(/(\$\{.*?\})/)
+      # _vars.each do | _v|
+      #   if _v.length==1
+      #
+      #     _u = Scoutui::Base::UserVars.instance.get(_v[0].to_s)
+      #     puts __FILE__ + (__LINE__).to_s + " Normalize(#{_v}) => #{_u}"
+      #
+      #     _xpath.gsub!(_v[0].to_s, _u)
+      #   end
+      #
+      # end
+
+
+      # _xpath = Scoutui::Base::UserVars.instance.get(_xpath)
+      _xpath = Scoutui::Base::UserVars.instance.normalize(_xpath)
 
       Scoutui::Logger::LogMgr.instance.command.info __FILE__ + (__LINE__).to_s + " | translate : #{_xpath}" if Scoutui::Utils::TestUtils.instance.isDebug?
 

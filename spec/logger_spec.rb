@@ -33,4 +33,8 @@ describe 'ScoutUI Logger' do
 
   end
 
+  it 'should log to assertions.log' do
+    Scoutui::Logger::LogMgr.instance.asserts.info("My assertion")
+  end
+
 end

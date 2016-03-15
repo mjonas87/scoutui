@@ -119,7 +119,10 @@ module Scoutui::Utils
         }
         opt.on('--dut DUT') { |o| @options[:dut]=o }
         opt.on('-h', '--host HOST')     { |o| @options[:host] = o }
-        opt.on('-l', '--lang LOCAL')    { |o| @options[:loc] = o }
+        opt.on('-l', '--lang LOCAL')    { |o|
+          @options[:loc] = o
+          Scoutui::Base::UserVars.instance.setVar(:lang, @options[:loc].to_s)
+        }
         opt.on('-k', '--key EyesLicense') { |o| options[:license_file] = o }
         opt.on('-a', '--app AppName')   { |o| @options[:app] = o }
         opt.on('--match [LEVEL]', [:layout2, :layout, :strict, :exact, :content], "Select match level (layout, strict, exact, content)") { |o| @options[:match_level] = o }

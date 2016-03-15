@@ -20,16 +20,21 @@ module Scoutui::Commands
   end
 
   def self.processCommand(_action, e, my_driver)
-    Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " ===  Process ACTION : #{_action}  ==="  if Scoutui::Utils::TestUtils.instance.isDebug?
+    Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " ===  Process ACTION : #{_action}  ==="
 
     _aborted=false
     _cmd=nil
-    _totalWindows = my_driver.window_handles.length
+
+
+
 
     rc=true
     _req = Scoutui::Utils::TestUtils.instance.getReq()
 
     begin
+
+      _totalWindows = my_driver.window_handles.length
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Total Windows : #{_totalWindows}"
 
       _c=nil
 
@@ -37,7 +42,10 @@ module Scoutui::Commands
         _cmd='pause'
         _c = Scoutui::Commands::Pause.new(nil)
         _c.execute(e);
-
+      elsif Scoutui::Commands::Utils.instance.isSelectWindow?(_action)
+        _cmd='SelectWindow'
+        _c = Scoutui::Commands::SelectWindow.new(_action)
+        _c.execute(my_driver)
       elsif Scoutui::Commands::Utils.instance.isClick?(_action)
         _cmd='Click'
         _c = Scoutui::Commands::ClickObject.new(_action)

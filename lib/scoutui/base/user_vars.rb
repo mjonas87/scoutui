@@ -42,8 +42,33 @@ module Scoutui::Base
       @globals[:host].to_s
     end
 
-    def get(k)
+    def normalize(s)
+      _vars = s.scan(/(\$\{.*?\})/)
+      _vars.each do | _v|
+        if _v.length==1
+
+          _u = Scoutui::Base::UserVars.instance.get(_v[0].to_s)
+          puts __FILE__ + (__LINE__).to_s + " Normalize(#{_v}) => #{_u}"
+
+          s.gsub!(_v[0].to_s, _u)
+        end
+
+      end
+
+      s
+    end
+
+    def get(_k)
+
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " get(#{_k})"
       foundKey=true
+
+      k=_k
+
+      if _k.is_a?(Array)
+        k=_k[0].to_s
+      end
+
 
       v=k
 
@@ -56,13 +81,15 @@ module Scoutui::Base
         k=:password
       elsif k=='${host}'
         k=:host
+      elsif k=='${lang}'
+        k=:lang
       elsif k.is_a?(Symbol)
         foundKey=true
       elsif k=='__random_email__'
         return Faker::Internet.email
       elsif !_rc.nil?
         k=_rc[1].to_s
-        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " User Var found => #{k}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " User Var found => #{k}"
         if Scoutui::Utils::TestUtils.instance.getTestConfig().has_key?("user_vars")
 
           if Scoutui::Utils::TestUtils.instance.getTestConfig()["user_vars"].has_key?(k)

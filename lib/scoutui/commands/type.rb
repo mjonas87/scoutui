@@ -12,14 +12,20 @@ module Scoutui::Commands
       _req = Scoutui::Utils::TestUtils.instance.getReq()
 
       begin
-        _xpath = @cmd.match(/type\((.*),\s*/)[1].to_s
-        _val   = @cmd.match(/type\(.*,\s*(.*)\)/)[1].to_s
+        _xpath = @cmd.match(/type[\!]*\((.*),\s*/)[1].to_s
+        _val   = @cmd.match(/type[\!]*\(.*,\s*(.*)\)/)[1].to_s
 
         Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + "Process TYPE #{_val} into  #{_xpath}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
         obj = Scoutui::Base::QBrowser.getObject(@drv, _xpath)
 
         if !obj.nil? && !obj.attribute('type').downcase.match(/(text|password|email)/).nil?
+
+
+          if @cmd.match(/type\!/i)
+            obj.clear
+          end
+
           obj.send_keys(Scoutui::Base::UserVars.instance.get(_val))
           _rc=true
         else
