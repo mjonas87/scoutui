@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-#!/bin/bash
 
 
 VIEWPORT="--viewport 800x600"
