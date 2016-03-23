@@ -38,4 +38,4 @@ EYES=
 # The following
 # $SCOUTUI_BIN --config $TEST_CFG  --eyes  --match $MATCH_TYPE  --browser $BUT
 
-./run-test.sh -b chrome -i -d ../commands/home.command.yml -P ../appmodel/page_model.json -t ../test-configs/test.config.json -v
+./run-test.sh -b chrome -d ../commands/commands.yml -P ../appmodel/page_model.json -t ../test-configs/test.config.json  -v

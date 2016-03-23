@@ -10,7 +10,7 @@ module Scoutui::Commands
 
       baseUrl = Scoutui::Base::UserVars.instance.getHost()
 
-      url = @cmd.match(/navigate\s*\((.*)\)/)[1].to_s.strip
+      url = @cmd.match(/navigate\s*\((.*)\)/i)[1].to_s.strip
       Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " url => #{url}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
       _relativeUrl = url.strip.start_with?('/')

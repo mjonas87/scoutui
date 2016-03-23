@@ -1,5 +1,5 @@
 require 'testmgr'
-
+require 'sauce_whisk'
 
 module Scoutui::Commands
 
@@ -42,6 +42,12 @@ module Scoutui::Commands
     end
 
     def quit()
+
+      if Scoutui::Utils::TestUtils.instance.sauceEnabled?
+        job_id = @drv.session_id
+        SauceWhisk::Jobs.change_status job_id, true
+      end
+
       @drv.quit()
     end
 

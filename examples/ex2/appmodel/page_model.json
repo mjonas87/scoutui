@@ -7,19 +7,27 @@
         },
         "whyCarMax": {
             "locator": "//*[@id='header']//a[text()='Why CarMax']",
-            "visible_when": "always",
+            "visible_when": "text(page(home).get(cars4sale))=Find Cars for Sale",
             "reqid": "REQ-Home"
         },
 
         "sign_in": {
             "locator": "//input[text()='Sign in']",
-            "visible_when": "always",
+            "visible_when": "title(/Carmax.*online/)",
             "reqid": "REQ-Home"
+        },
+
+        "register": {
+            "locator": "//*[@id='register']",
+            "visible_when": [
+                { "visible_when": "visible(page(home).get(sign_in))=true"}
+            ]
         },
 
         "mycarmax": {
             "locator": "//*[@id='mycarmax']",
-            "visible_when": "title(CarMax - Browse used cars and new cars online)"
+            "visible_when": "title(CarMax - Browse used cars and new cars online)",
+            "reqid": "REQ-Home"
         },
 
         "logoff": {

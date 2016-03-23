@@ -11,8 +11,12 @@ page:
     assert1: {
       "locator": "page(find_cars_by).get(make)",
       "visible_when": "never",
+      "reqid": "REQ-MAKE"
+      },
+    assert2: {
+      "locator": "page(home)",
       "reqid": "REQ-HOME"
-      }
+    }
   ]
 ---
 page:

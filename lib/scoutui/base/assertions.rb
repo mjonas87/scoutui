@@ -20,12 +20,18 @@ module Scoutui::Base
 
       _locator=nil
       rc=false
+
+      if _v.has_key?('visible_when') && _v['visible_when'].is_a?(Array)
+        Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " visible_when_always (array) - TBD"
+        return rc
+      end
+
       if _v.has_key?('locator')
         _locator = _v['locator'].to_s
       end
 
       if !_locator.nil? &&  _v.has_key?('visible_when') && _v['visible_when'].match(/always/i)
-          Scoutui::Logger::LogMgr.instance.info "Verify #{_k} - #{_locator} always visible - #{!_obj.nil?.to_s}"
+          Scoutui::Logger::LogMgr.instance.asserts.info "Verify #{_k} - #{_locator} always visible - #{(!_obj.nil?).to_s}"
           Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(!_obj.nil?, "Verify #{_k} - #{_locator} always visible")
           rc=true
       end
@@ -35,9 +41,10 @@ module Scoutui::Base
     def visible_when_title(_k, page_elt, _obj, my_driver, _req='UI')
       _processed=false
 
+      Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " visible_when_title(#{page_elt})"
       _req='UI' if _req.nil? || _req.empty?
 
-      if page_elt.has_key?('visible_when') && page_elt['visible_when'].match(/title\(/i)
+      if page_elt.has_key?('visible_when') && !page_elt['visible_when'].is_a?(Array)  && page_elt['visible_when'].match(/title\(/i)
         _processed=true
 
         current_title = my_driver.title.strip
@@ -48,7 +55,8 @@ module Scoutui::Base
         rc=!current_title.match(expected_title).nil?
 
 
-          Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(!_obj.nil? == rc, "Verify object exists when expected title, #{expected_title}, matches actual title(#{current_title})")
+        Scoutui::Logger::LogMgr.instance.asserts.info "Verify #{_k} - object exists when expected title, #{expected_title}, matches actual title(#{current_title})"
+        Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(!_obj.nil? == rc, "Verify #{_k} - object exists when expected title, #{expected_title}, matches actual title(#{current_title})")
 
 
       end
@@ -66,10 +74,17 @@ module Scoutui::Base
         _locator=_v['locator']
       end
 
-      if !_locator.nil? &&  _v.has_key?('visible_when') && _v['visible_when'].match(/never/i)
-        Scoutui::Logger::LogMgr.instance.asserts.info "Verify #{_k} #{_locator} not visible - #{_obj.nil?.to_s}"
-        Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(_obj.nil?, "Verify #{_k} #{_locator} not visible")
-        rc=true
+      if !_locator.nil? &&  _v.has_key?('visible_when')
+
+        if _v['visible_when'].is_a?(Array)
+          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " visible_when_never (array) - TBD"
+
+        elsif  _v['visible_when'].match(/never/i)
+          Scoutui::Logger::LogMgr.instance.asserts.info "Verify #{_k} #{_locator} never visible - #{_obj.nil?.to_s}"
+          Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(_obj.nil?, "Verify #{_k} #{_locator} never visible")
+          rc=true
+        end
+
       end
 
       rc
@@ -82,11 +97,18 @@ module Scoutui::Base
       Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " visible_when_skip : #{_v.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
       rc=false
 
-      if _v.is_a?(Hash) && _v.has_key?('visible_when') && _v['visible_when'].match(/skip/i)
-        rc=true
+      if _v.is_a?(Hash) && _v.has_key?('visible_when')
 
-        Scoutui::Logger::LogMgr.instance.asserts.info "Skip verify #{_k.to_s} - skipped"
-        Testmgr::TestReport.instance.getReq('UI').get_child('visible_when').add(nil, "Skip verify #{_k.to_s}")
+        if _v['visible_when'].is_a?(Array)
+          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " visible_when_skip (array) - TBD"
+
+        elsif _v['visible_when'].match(/skip/i)
+          rc=true
+
+          Scoutui::Logger::LogMgr.instance.asserts.info "Skip verify #{_k.to_s} - skipped"
+          Testmgr::TestReport.instance.getReq('UI').get_child('visible_when').add(nil, "Skip verify #{_k.to_s}")
+        end
+
       end
 
       rc
@@ -96,64 +118,115 @@ module Scoutui::Base
 
     def visible_when_value(_k, page_elt, my_driver, _req='UI')
 
+      Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " visible_when_value(#{_k}, #{page_elt})"
+
       _processed=false
 
-      if page_elt.has_key?('visible_when') && page_elt['visible_when'].match(/(text|value)\s*\(/)
-
-        _processed=true
-        rc=nil
 
 
-        condition = page_elt['visible_when'].match(/(value|text)\((.*)\)/)[1].to_s
-        tmpObj = page_elt['visible_when'].match(/(value|text)\((.*)\)/)[2].to_s
-        expectedVal = page_elt['visible_when'].match(/(value|text)\s*\(.*\)\s*\=\s*(.*)/)[2].to_s
-        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " tmpObj => #{tmpObj} with expected value #{expectedVal}"
+      if page_elt.has_key?('visible_when') && !page_elt['visible_when'].is_a?(Array) && page_elt['visible_when'].match(/\s*(text|value)\s*\(/)
 
-        xpath = Scoutui::Base::UserVars.instance.get(tmpObj)
+        begin
+          puts __FILE__ + (__LINE__).to_s + " ==> #{page_elt['visible_when'].match(/\s*(text|value)\s*\(/)[1]}"
 
-        obj = Scoutui::Base::QBrowser.getObject(my_driver, xpath)
+          _processed=true
+          rc=nil
 
-        if !obj.nil?
-          #  Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " value : #{obj.value.to_s}"
-          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " text  : #{obj.text.to_s}"
-
-          if obj.tag_name.downcase.match(/(select)/)
-            _opt = Selenium::WebDriver::Support::Select.new(obj)
-            opts = _opt.selected_options
-            Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " selected => #{opts.to_s}"
+          condition = page_elt['visible_when'].match(/(value|text)\((.*)\)/)[1].to_s
 
 
 
-            opts.each do |o|
-              Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + "| <v, t>::<#{o.attribute('value').to_s},  #{o.text.to_s}>"
+
+          tmpObj = page_elt['visible_when'].match(/(value|text)\((.*)\)/)[2].to_s
+
+
+
+          expectedVal = page_elt['visible_when'].match(/(value|text)\s*\(.*\)\s*\=\s*(.*)/)[2].to_s
+
+
+
+          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " #{condition} => #{tmpObj} with expected value #{expectedVal}"
+
+          xpath = Scoutui::Base::UserVars.instance.get(tmpObj)
+
+          obj = Scoutui::Base::QBrowser.getObject(my_driver, xpath)
+
+          if !obj.nil?
+            #  Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " value : #{obj.value.to_s}"
+            Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " text  : #{obj.text.to_s}"
+
+            if obj.tag_name.downcase.match(/(select)/)
+              _opt = Selenium::WebDriver::Support::Select.new(obj)
+              opts = _opt.selected_options
+              Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " selected => #{opts.to_s}"
+
+
+
+              opts.each do |o|
+                Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + "| <v, t>::<#{o.attribute('value').to_s},  #{o.text.to_s}>"
+
+                desc=nil
+
+
+                if condition=='text' && o.text==expectedVal
+                  desc=" Verify #{locator} is visible since condition (#{condition} #{xpath} is met."
+                elsif condition=='value' && o.attribute('value').to_s==expectedVal
+                  desc=" Verify #{locator} is visible since #{condition} of #{xpath} is #{expectedVal}"
+                end
+
+                if !desc.nil?
+                  locatorObj = Scoutui::Base::QBrowser.getObject(my_driver, locator)
+
+                  Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " LocatorObj : #{locatorObj} : #{!locatorObj.nil? && locatorObj.displayed?}"
+
+
+                  Testmgr::TestReport.instance.getReq('UI').tc('visible_when').add(!locatorObj.nil? && locatorObj.displayed?, desc)
+                end
+
+              end
+
+            else
 
               desc=nil
 
+              locator = page_elt['locator']
 
-              if condition=='text' && o.text==expectedVal
-                desc=" Verify #{locator} is visible since condition (#{condition} #{xpath} is met."
-              elsif condition=='value' && o.attribute('value').to_s==expectedVal
-                desc=" Verify #{locator} is visible since #{condition} of #{xpath} is #{expectedVal}"
+              _rc=false
+
+              if condition=='text'
+                _rc=obj.text==expectedVal
+                desc=" Verify #{_k}, #{locator} is visible since condition '#{condition}' of #{xpath} is #{expectedVal}."
+              elsif condition=='value'
+                _rc=o.attribute('value').to_s==expectedVal
+                desc=" Verify #{_k}, #{locator}, is visible since condition '#{condition}' of #{xpath} is #{expectedVal}"
               end
 
               if !desc.nil?
                 locatorObj = Scoutui::Base::QBrowser.getObject(my_driver, locator)
 
-                Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " LocatorObj : #{locatorObj} : #{!locatorObj.nil? && locatorObj.displayed?}"
+                Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + "#{desc} : #{locatorObj} : #{!locatorObj.nil? && locatorObj.displayed? && _rc}"
 
 
-                Testmgr::TestReport.instance.getReq('UI').tc('visible_when').add(!locatorObj.nil? && locatorObj.displayed?, desc)
+                Testmgr::TestReport.instance.getReq(_req).tc('visible_when').add(!locatorObj.nil? && locatorObj.displayed? && _rc, desc)
               end
+
 
             end
 
+            Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " value : #{obj.attribute('value').to_s}"
           end
 
-          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " value : #{obj.attribute('value').to_s}"
+
+        rescue => ex
+          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Error during processing: #{ex}"
+          puts __FILE__ + (__LINE__).to_s +  "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
+
         end
 
 
-        puts __FILE__ + (__LINE__).to_s + " Pause for text()"
+      elsif page_elt.has_key?('visible_when') &&  page_elt['visible_when'].match(/\s*(text|value)\s*\(/)
+        Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Unknown => #{page_elt}"
+
       end
 
       _processed
@@ -172,7 +245,7 @@ module Scoutui::Base
         ;
       elsif Scoutui::Base::Assertions.instance.visible_when_title(_k, _v, _obj, my_driver, _req)
         ;
-      elsif Scoutui::Base::Assertions.instance.visible_when_value(_k, page_elt, my_driver, _req)
+      elsif Scoutui::Base::Assertions.instance.visible_when_value(_k, _v, my_driver, _req)
         ;
       else
         _processed = false

@@ -25,9 +25,6 @@ module Scoutui::Commands
     _aborted=false
     _cmd=nil
 
-
-
-
     rc=true
     _req = Scoutui::Utils::TestUtils.instance.getReq()
 
@@ -50,6 +47,10 @@ module Scoutui::Commands
         _cmd='Click'
         _c = Scoutui::Commands::ClickObject.new(_action)
         _c.execute(my_driver)
+
+        if e["page"].has_key?('then')
+          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " then => #{e['page']['then]']}"
+        end
 
       elsif Scoutui::Commands::Utils.instance.isExistsAlert?(_action)
         _cmd='ExistsAlert'
@@ -130,10 +131,10 @@ module Scoutui::Commands
     end
 
     if my_driver.window_handles.length > _totalWindows
-      Scoutui::Logger::LogMgr.instance.info " New Window generated"
+      Scoutui::Logger::LogMgr.instance.info " New Window generated from command #{_cmd}."
     end
 
-    Testmgr::TestReport.instance.getReq(_req).get_child(_cmd.downcase).add(!_aborted, "Verify command did not abort")
+    Testmgr::TestReport.instance.getReq(_req).get_child(_cmd.downcase).add(!_aborted, "Verify command #{_cmd} did not abort")
     _c
   end
 

@@ -26,6 +26,7 @@ module Scoutui::Utils
         @options[o]=nil
       end
 
+      @options[:include_expected_as_asserts]=false
       @options[:role]=nil
       @options[:sauce_name]='unnamed'
       @options[:enable_eyes]=false
@@ -119,6 +120,7 @@ module Scoutui::Utils
         }
         opt.on('--dut DUT') { |o| @options[:dut]=o }
         opt.on('-h', '--host HOST')     { |o| @options[:host] = o }
+        opt.on('-i', '--include_expectations') { |o| @options[:include_expected_as_asserts] = true}
         opt.on('-l', '--lang LOCAL')    { |o|
           @options[:loc] = o
           Scoutui::Base::UserVars.instance.setVar(:lang, @options[:loc].to_s)
@@ -220,6 +222,10 @@ module Scoutui::Utils
     end
     def getBrowserType()
       @options[:browser]
+    end
+
+    def assertExpected?
+      @options[:include_expected_as_asserts]
     end
 
     def hasTestConfig?

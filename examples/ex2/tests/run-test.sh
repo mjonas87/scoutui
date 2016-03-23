@@ -4,7 +4,7 @@
 
 VIEWPORT="--viewport 800x600"
 
-while getopts ":a:b:c:d:eh:l:m:p:r:st:u:A:P:O:S:T:V:v" opt; do
+while getopts ":a:b:c:d:eh:il:m:p:r:st:u:A:P:O:S:T:V:v" opt; do
   case $opt in
     a)
       echo "-a was triggered, Parameter: $OPTARG" >&2
@@ -34,6 +34,9 @@ while getopts ":a:b:c:d:eh:l:m:p:r:st:u:A:P:O:S:T:V:v" opt; do
           ;;
     h)
       HOST="--host \"$OPTARG\""
+      ;;
+    i)
+      INC_EXP="--include_expectations"
       ;;
     l)
       LEVEL="--loglevel $OPTARG"
@@ -108,7 +111,7 @@ echo "VIEWPORT: ${VIEWPORT}"
 
 if [[ -f $TEST_CFG ]]; then
 
-  CMD="$SCOUTUI_BIN --config ${TEST_CFG} ${DIFF_DIR}  ${LEVEL} ${USERID} ${PASSWORD} ${DUT} ${VIEWPORT} ${ROLE} ${EYES} ${SAUCE} ${SAUCE_NAME} $TITLE ${APP} ${CAPS} ${MATCH_LEVEL} ${BROWSER} ${HOST}  ${PAGE_MODEL} ${VERBOSE}"
+  CMD="$SCOUTUI_BIN --config ${TEST_CFG} ${INC_EXP} ${DIFF_DIR}  ${LEVEL} ${USERID} ${PASSWORD} ${DUT} ${VIEWPORT} ${ROLE} ${EYES} ${SAUCE} ${SAUCE_NAME} $TITLE ${APP} ${CAPS} ${MATCH_LEVEL} ${BROWSER} ${HOST}  ${PAGE_MODEL} ${VERBOSE}"
 
   echo $CMD
   eval $CMD

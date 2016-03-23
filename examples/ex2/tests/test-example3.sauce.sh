@@ -32,10 +32,20 @@ EYES=--eyes
 EYES=
 
 
+sauce() {
+
+./run-test.sh  -b chrome -d ../commands/commands.yml \
+               -P ../appmodel/page_model.json \
+               -t ../test-configs/test.config.json  \
+               -v  \
+               -s \
+               -S Carmax_Ex3 \
+               -c ../../capabilities/win10.chrome46.json
+}
 # The following command line parameters will override provided title and appName (if provided in test config file)
 #$SCOUTUI_BIN  --config $TEST_CFG  --browser $BUT $EYES --app $APP --title $TITLE  --match $MATCH_TYPE --pagemodel ../appmodel/page_model.json  --debug
 
 # The following
 # $SCOUTUI_BIN --config $TEST_CFG  --eyes  --match $MATCH_TYPE  --browser $BUT
 
-./run-test.sh -b chrome -i -d ../commands/home.command.yml -P ../appmodel/page_model.json -t ../test-configs/test.config.json -v
+sauce
