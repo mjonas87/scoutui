@@ -1,5 +1,5 @@
 require 'testmgr'
-require 'sauce_whisk'
+#require 'sauce_whisk'
 
 module Scoutui::Commands
 
@@ -39,14 +39,29 @@ module Scoutui::Commands
 
     def report()
       Testmgr::TestReport.instance.report()
+#      Testmgr::TestReport.instance.generateReport()
     end
 
     def quit()
 
-      if Scoutui::Utils::TestUtils.instance.sauceEnabled?
-        job_id = @drv.session_id
-        SauceWhisk::Jobs.change_status job_id, true
+      begin
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " quit()"
+
+        metrics=Testmgr::TestReport.instance.getMetrics()
+        Scoutui::Logger::LogMgr.instance.info "Metrics => #{metrics}"
+
+        if Scoutui::Utils::TestUtils.instance.sauceEnabled?
+          job_id = @drv.session_id
+          SauceWhisk::Jobs.change_status job_id, metrics[:rc]
+
+          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Update Sauce tests with job_id #{job_id} to #{metris[:rc]}"
+        end
+
+      rescue => ex
+        Scoutui::Logger::LogMgr.instance.warn "Error during processing: #{$!}"
+        Scoutui::Logger::LogMgr.instance.warn "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
       end
+
 
       @drv.quit()
     end

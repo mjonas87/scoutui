@@ -144,6 +144,14 @@ module Scoutui::Base
                 end
               elsif _v.has_key?('visible_when') && _v['visible_when'].is_a?(Array)
                 Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " visible_when : (Array) - TBD  #{_v['visible_when']}"
+
+                _v['visible_when'].each do |_vwhen|
+                  puts __FILE__ + (__LINE__).to_s + " #{_vwhen}  #{_vwhen.class}"
+
+                  Scoutui::Base::Assertions.instance.assertPageElement(_k, _vwhen, _obj, my_driver, _req)
+
+
+                end
               end
 
 

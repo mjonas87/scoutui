@@ -35,6 +35,18 @@ module Scoutui::Commands
     end
 
 
+    def isCSS(_locator)
+      rc=nil
+
+      if _locator.match(/^css\=/i)
+        rc = _locator.match(/\s*(css\=.*)/i)[1].to_s.strip
+      elsif _locator.match(/^#/i)
+        rc=_locator.strip
+      end
+
+      rc
+    end
+
 
     def setCurrentWindow(_w)
       if @hwnds[:previous].nil?

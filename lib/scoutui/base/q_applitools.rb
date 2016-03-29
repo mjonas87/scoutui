@@ -1,6 +1,6 @@
 
-require 'eyes_selenium'
-require 'httparty'
+#require 'eyes_selenium'
+#require 'httparty'
 
 
 module Scoutui::Base

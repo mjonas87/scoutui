@@ -1,5 +1,5 @@
-require 'eyes_selenium'
-require 'testmgr'
+#require 'eyes_selenium'
+#require 'testmgr'
 
 module Scoutui::Eyes
 
@@ -168,8 +168,15 @@ module Scoutui::Eyes
       end
 
       Scoutui::Logger::LogMgr.instance.info " TestReport => #{@testResults}"
-   #  Testmgr::TestReport.instance.generateReport()
+
       Testmgr::TestReport.instance.report()
+
+#     Testmgr::TestReport.instance.generateReport()
+
+      metrics=Testmgr::TestReport.instance.getMetrics()
+      Scoutui::Logger::LogMgr.instance.info "Metrics => #{metrics}"
+
+      Scoutui::Utils::TestUtils.instance.setMetrics(metrics)
     end
 
     def getResults()

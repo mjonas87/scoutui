@@ -64,7 +64,7 @@ page:
 ---
 page:
   action: pause
-  skip: false
+  skip: true
 ---
 page:
   name: Mouseover View Tickets
@@ -91,7 +91,7 @@ page:
 ---
 page:
   action: pause
-  skip: false
+  skip: true
 ---
 page:
   action: click(page(main_nav).get(search_btn))

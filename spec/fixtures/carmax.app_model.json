@@ -11,6 +11,11 @@
             "reqid": "REQ-Home"
         },
 
+        "hoverhit00": {
+            "locator": "//abc",
+            "visible_when": "hover(page(home).get(cars4sale))"
+        },
+
         "sign_in": {
             "locator": "//input[text()='Sign in']",
             "visible_when": "title(/Carmax.*online/)",
@@ -20,16 +25,6 @@
         "register": {
             "locator": "//*[@id='register']",
             "reqid": "REQ-register",
-            "when_clicked": [
-                { "req-XYZ": "page(register_pg).get(firstname)" },
-                { "req-XYZ": "visible(page(register_pg).get(firstname))"},
-                {
-                    "REGIS-002": [
-                        "title(Register for MyCarMax)",
-                        "visible(css=#signInLink)"
-                    ]
-                }
-            ],
             "visible_when": [
                 { "visible_when": "visible(page(home).get(sign_in))=true"},
                 { "visible_when": "visible(page(home).get(cars4sale))=true"},
@@ -46,16 +41,8 @@
 
         "logoff": {
           "locator": "//*[text()='Log off']",
-          "visible_when": "never",
+          "visible_when": "click(page(research).get(fuel_economy))",
           "reqid": "REQ-Home"
-        }
-    },
-
-
-    "register_pg": {
-        "firstname": {
-            "locator": "css=input#FirstName",
-            "visible_when": "title(Register for MyCarMax)"
         }
     },
 

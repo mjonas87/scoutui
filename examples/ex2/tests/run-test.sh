@@ -2,7 +2,7 @@
 
 
 
-VIEWPORT="--viewport 800x600"
+#VIEXPORT="--viewport 800x600"
 
 while getopts ":a:b:c:d:eh:il:m:p:r:st:u:A:P:O:S:T:V:v" opt; do
   case $opt in
@@ -111,7 +111,7 @@ echo "VIEWPORT: ${VIEWPORT}"
 
 if [[ -f $TEST_CFG ]]; then
 
-  CMD="$SCOUTUI_BIN --config ${TEST_CFG} ${INC_EXP} ${DIFF_DIR}  ${LEVEL} ${USERID} ${PASSWORD} ${DUT} ${VIEWPORT} ${ROLE} ${EYES} ${SAUCE} ${SAUCE_NAME} $TITLE ${APP} ${CAPS} ${MATCH_LEVEL} ${BROWSER} ${HOST}  ${PAGE_MODEL} ${VERBOSE}"
+  CMD="ruby  $SCOUTUI_BIN --config ${TEST_CFG} ${INC_EXP} ${DIFF_DIR}  ${LEVEL} ${USERID} ${PASSWORD} ${DUT} ${VIEWPORT} ${ROLE} ${EYES} ${SAUCE} ${SAUCE_NAME} $TITLE ${APP} ${CAPS} ${MATCH_LEVEL} ${BROWSER} ${HOST}  ${PAGE_MODEL} ${VERBOSE}"
 
   echo $CMD
   eval $CMD

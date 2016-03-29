@@ -15,7 +15,13 @@ module Scoutui::Utils
     attr_accessor :app_model
     attr_accessor :currentTest
 
+    attr_accessor :metrics
+    attr_accessor :final_rc
+
     def initialize
+
+      @final_rc=false
+      @metrics=nil
 
       @env_list={:accounts => 'SCOUTUI_ACCOUNTS', :browser => 'SCOUTUI_BROWSER', :applitools_api_key => 'APPLITOOLS_API_KEY'}
       @options={}
@@ -39,6 +45,22 @@ module Scoutui::Utils
 
       Scoutui::Base::UserVars.instance.set('eyes.viewport', '1024x768')
 
+    end
+
+    def getFinalRc()
+      @final_rc
+    end
+
+    def setFinalRc(b)
+      @final_rc=b
+    end
+
+    def getMetrics()
+      @metrics
+    end
+
+    def setMetrics(_m)
+      @metrics=_m
     end
 
     def getReq()
@@ -72,6 +94,10 @@ module Scoutui::Utils
 
     def getPageElement(s)
       @app_model.getPageElement(s)
+    end
+
+    def getAppModel()
+      @app_model
     end
 
     def parseCommandLine()

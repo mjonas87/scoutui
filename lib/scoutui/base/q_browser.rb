@@ -1,6 +1,6 @@
 
-require 'eyes_selenium'
-require 'selenium-webdriver'
+#require 'eyes_selenium'
+#require 'selenium-webdriver'
 
 module Scoutui::Base
 
