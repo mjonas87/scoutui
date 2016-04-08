@@ -1,0 +1,99 @@
+page:
+  skip: false
+  name: Home
+  description: Navigate to a specified URL and wait until the expected elements are present
+  url: http://www.carmax.com
+  expected:
+    wait: page(home).get(cars4sale)
+    wait2: page(home).get(whyCarMax)
+    wait3: page(find_cars_by).get(make)
+  assertions: [
+    assert1: {
+      "locator": "page(find_cars_by).get(make)",
+      "visible_when": "always",
+      "reqid": "REQ-HOME"
+      },
+    assert2: {
+      "locator": "page(home).get(whyCarMax)",
+      "visible_when": "always"
+      },
+    assert3: {
+      "locator": "page(home)",
+      "reqid": "REQ-HOME2"
+    }
+  ]
+---
+page:
+  name: Click on Make
+  action: click(page(find_cars_by).get(make))
+  expected:
+    wait: //div[contains(@class, 'open')]//a[text()='Porsche']
+---
+page:
+  name: Select Porsche
+  action: click(//div[contains(@class, 'open')]//a[text()='${MyMake}'])
+  expected:
+    wait: //*[@id='Model']//*[text()='${MyMake}']
+  assertions: [
+    assert1: {
+      "locator": "page(find_cars_by).get(price_list)",
+
+    }
+  ]
+---
+page:
+  name: Select the within Mileage List
+  action: click(//div[@id='selectedDistanceDesc'])
+  expected:
+    wait: //*[@id='distance']//a[text()='any distance']
+---
+page:
+  name: Select Any Distance
+  action: click(//*[@id='distance']//a[text()='any distance'])
+---
+page:
+  name: Enter Zipcode
+  action: type!(//*[@id='zip'], 94030)
+---
+page:
+  name: Update Distance
+  action: click(//*[@id='distanceSubmit'])
+  expected:
+    wait: //*[@id='distance']//a[text()='any distance']
+    wait2: //*[@id='zip' and @value='94030']
+---
+page:
+  action: pause
+  skip: true
+---
+page:
+  name: Mouseover View Tickets
+  action: mouseover(page(home).get(whyCarMax))
+  snapit: true
+---
+page:
+  name: Click - specified by Alias
+  action: click(${WhyCarMax})
+  snapit: true
+---
+page:
+  skip: true
+  action: pause
+---
+page:
+  skip: false
+  name: Click on Input
+  action: click(page(main_nav).get(search_input))
+  snapit: true
+---
+page:
+  action: type(page(main_nav).get(search_input), ${Search_Me})
+---
+page:
+  action: pause
+  skip: true
+---
+page:
+  action: click(page(main_nav).get(search_btn))
+  expected:
+    wait: //input[@id='zip']

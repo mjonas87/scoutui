@@ -1,0 +1,12 @@
+{
+  "Project": "Example",
+  "Version": "1.00",
+  "Description": "Example - CarMax",
+
+  "browser": "chrome",
+
+  "host": "http://www.carmax.com",
+
+  "dut": ""
+}
+
