@@ -8,3 +8,5 @@
 /test/gateway
 /tmp/
 /test/travel
+/examples/**/*.log
+/.idea
