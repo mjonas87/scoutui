@@ -14,7 +14,7 @@ while getopts ":a:b:c:d:eh:il:m:p:r:st:u:A:P:O:S:T:V:v" opt; do
 
        if [[ $BROWSER=="chrome" ]];
        then
-          rc=`/usr/local/bin/which chromedriver`
+          rc=`which chromedriver`
           if [ $? -ne 0 ]
           then
             echo "-- Error: unable to find chromedriver. --"
