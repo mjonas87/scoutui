@@ -33,4 +33,9 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "logging"
   spec.add_development_dependency "sauce_whisk"
   spec.add_development_dependency "testmgr", "0.3.1.pre"
+  spec.add_development_dependency "dotenv-rails"
+  spec.add_development_dependency "colorize"
+  spec.add_development_dependency "pry"
+  spec.add_development_dependency "pry-remote"
+  spec.add_development_dependency "pry-byebug"
 end

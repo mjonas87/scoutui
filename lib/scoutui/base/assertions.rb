@@ -3,23 +3,15 @@ require 'singleton'
 
 
 module Scoutui::Base
-
-
   class Assertions
     include Singleton
-
     attr_accessor :drv
-
 
     def setDriver(_drv)
       @drv=_drv
     end
 
-
-    #
-    # { reqid : <pageElt> }
     def isVisible(my_driver, page_elt, _req=nil)
-
       puts __FILE__ + (__LINE__).to_s + " [isVisible]: #{page_elt}"
 
       rc=false
@@ -52,14 +44,13 @@ module Scoutui::Base
 
       if cmd=='visible' && page_elt.is_a?(String) && page_elt.match(/^\s*page\s*\(/)
         pageObject = Scoutui::Utils::TestUtils.instance.getPageElement(page_elt)
-
       elsif !Scoutui::Commands::Utils.instance.isCSS(page_elt).nil?
         pageObject={ 'locator' => Scoutui::Commands::Utils.instance.isCSS(page_elt) }
       elsif cmd=='visible' && page_elt.is_a?(String) && page_elt.match(/^\s*\//)
         pageObject={ 'locator' => page_elt }
       end
 
-      if cmd=='visible' && pageObject.is_a?(Hash) && pageObject.has_key?('locator')
+      if cmd == 'visible' && pageObject.is_a?(Hash) && pageObject.has_key?('locator')
 
         ##
         # expected:
@@ -374,9 +365,5 @@ module Scoutui::Base
 
       _processed
     end
-
   end
-
-
-
 end

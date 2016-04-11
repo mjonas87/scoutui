@@ -1,10 +1,9 @@
 
 module Scoutui::Commands
-
   class MouseOver < Command
-
-
     def _whenHovered(page_elt)
+      puts 'LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL'
+      binding.pry
 
       if page_elt.is_a?(Hash) && page_elt.has_key?('when_hovered')
         Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Verify #{page_elt['when_hovered']}"
@@ -32,13 +31,9 @@ module Scoutui::Commands
           end
 
           puts __FILE__ + (__LINE__).to_s + " IsVisible #{isVisible} - PAUSE"; gets
-
         end
-
       end
-
     end
-
 
     def execute(drv=nil)
       _rc=false

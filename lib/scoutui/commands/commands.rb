@@ -6,6 +6,7 @@ module Scoutui::Commands
 
 
   def self.processCommands(commandList, my_driver)
+    binding.pry
 
     commandList.each do |cmd|
       begin

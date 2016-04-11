@@ -1,37 +1,13 @@
-
-
 require 'singleton'
-require 'logging'
 
-module Scoutui::Logger
-  class LogMgr
+module Scoutui::Reporters
+  class AssertionReporter
     include Singleton
 
     attr_accessor :root
     attr_accessor :commands
 
-    def initialize
-      @root = Logging.logger(STDOUT)
-      @root.level = :debug
-
-      Logging.appenders.stderr('Standard Error', :level => :error)
-
-      # Logging.appenders.file('Command File', :filename => 'command.log')
-      # Logging.logger['Commands'].appenders = 'Command File'
-
-      @asserts = Logging.logger['Assertions']
-      @asserts.level = :debug
-      @asserts.add_appenders(Logging.appenders.stdout,
-                             Logging.appenders.file("assertions.log"))
-
-
-      @commands = Logging.logger['Commands']
-      @commands.level = :debug
-      @commands.add_appenders(Logging.appenders.stdout,
-                              Logging.appenders.file('commands.log'))
-
-      #Logging.logger.root.level = :warn
-    end
+    def
 
     def asserts
       @asserts

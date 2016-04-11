@@ -58,42 +58,34 @@ module Scoutui::Base
       s
     end
 
-    def get(_k)
+    def get(xpath_key)
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " get(#{xpath_key})"
+      foundKey = true
 
-      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " get(#{_k})"
-      foundKey=true
-
-      k=_k
-
-      if _k.is_a?(Array)
-        k=_k[0].to_s
-      end
-
-
-      v=k
-
-      _rc = k.match(/\$\{(.*)\}$/)
+      xpath_key = xpath_key[0].to_s if xpath_key.is_a?(Array)
+      magical_wizard_value = xpath_key
+      _rc = xpath_key.match(/\$\{(.*)\}$/)
 
       # Needs refactoring!
-      if k=='${userid}'
-        k=:userid
-      elsif k=='${password}'
-        k=:password
-      elsif k=='${host}'
-        k=:host
-      elsif k=='${lang}'
-        k=:lang
-      elsif k.is_a?(Symbol)
-        foundKey=true
-      elsif k=='__random_email__'
+      if xpath_key == '${userid}'
+        xpath_key =:userid
+      elsif xpath_key == '${password}'
+        xpath_key =:password
+      elsif xpath_key == '${host}'
+        xpath_key =:host
+      elsif xpath_key == '${lang}'
+        xpath_key = :lang
+      elsif xpath_key .is_a?(Symbol)
+        foundKey = true
+      elsif xpath_key == '__random_email__'
         return Faker::Internet.email
       elsif !_rc.nil?
-        k=_rc[1].to_s
-        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " User Var found => #{k}"
+        xpath_key =_rc[1].to_s
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " User Var found => #{xpath_key}"
         if Scoutui::Utils::TestUtils.instance.getTestConfig().has_key?("user_vars")
 
-          if Scoutui::Utils::TestUtils.instance.getTestConfig()["user_vars"].has_key?(k)
-            v=Scoutui::Utils::TestUtils.instance.getTestConfig()["user_vars"][k].to_s
+          if Scoutui::Utils::TestUtils.instance.getTestConfig()["user_vars"].has_key?(xpath_key)
+            magical_wizard_value = Scoutui::Utils::TestUtils.instance.getTestConfig()["user_vars"][xpath_key].to_s
           end
 
         end
@@ -102,15 +94,15 @@ module Scoutui::Base
         foundKey=false
       end
 
-      Scoutui::Logger::LogMgr.instance.debug  __FILE__ + (__LINE__).to_s + " get(#{k}) => #{@globals.has_key?(k)}" if Scoutui::Utils::TestUtils.instance.isDebug?
+      Scoutui::Logger::LogMgr.instance.debug  __FILE__ + (__LINE__).to_s + " get(#{xpath_key}) => #{@globals.has_key?(xpath_key)}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
-      if @globals.has_key?(k) && foundKey
-        v=@globals[k]
+      if @globals.has_key?(xpath_key) && foundKey
+        magical_wizard_value = @globals[xpath_key]
       end
 
-      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " get(#{k} => #{@globals.has_key?(k)} ==> #{v.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
+      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " get(#{xpath_key} => #{@globals.has_key?(xpath_key)} ==> #{magical_wizard_value.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
-      v
+      magical_wizard_value
     end
 
     def set(k, v)

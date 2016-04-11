@@ -10,3 +10,4 @@
 /test/travel
 /examples/**/*.log
 /.idea
+.env

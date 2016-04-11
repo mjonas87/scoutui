@@ -5,13 +5,14 @@ module Scoutui::Commands
   class ClickObject < Command
 
     def _whenClicked(page_elt)
-
       if page_elt.is_a?(Hash) && page_elt.has_key?('when_clicked')
         Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Verify #{page_elt['when_clicked']}"
 
         page_elt['when_clicked'].each do |_elt|
 
           _r = _elt.keys[0].to_s
+          puts 'KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK'
+          binding.pry
 
           _pg = _elt[_r]
 
@@ -23,20 +24,16 @@ module Scoutui::Commands
 
           if _pg.is_a?(Array)
             _pg.each do |_pg2|
-              isVisible=Scoutui::Base::Assertions.instance.isVisible(@drv, _pg2, _r)
+              # Scoutui::Base::Assertions.instance.isVisible(@drv, _pg2, _r)
+              Scoutui::Assertions::IsVisible.new(@drv, conditions, _r)
             end
           elsif _pg.is_a?(String)
             isVisible=Scoutui::Base::Assertions.instance.isVisible(@drv, _pg, _r)
           else
             puts __FILE__ + (__LINE__).to_s + " => #{_pg}"
           end
-
-          puts __FILE__ + (__LINE__).to_s + " IsVisible #{isVisible} - PAUSE"; gets
-
         end
-
       end
-
     end
 
     def execute(drv)

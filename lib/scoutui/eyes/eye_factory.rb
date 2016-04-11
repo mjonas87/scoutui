@@ -1,10 +1,7 @@
-
+require 'eyes_selenium'
 require 'singleton'
 
-
 module Scoutui::Eyes
-
-
   class EyeFactory
     include Singleton
 
@@ -20,20 +17,17 @@ module Scoutui::Eyes
     end
 
     def createEyes()
-
       use_eyes = Scoutui::Utils::TestUtils.instance.eyesEnabled?
+      puts "XXXXXXXXXXXXX: #{use_eyes}"
+      binding.pry
 
       Scoutui::Logger::LogMgr.instance.info  __FILE__ + (__LINE__).to_s + " create(#{use_eyes})" if Scoutui::Utils::TestUtils.instance.isDebug?
       eyes=nil
 
-
       if use_eyes
         license_key=nil
-
         licFile=Scoutui::Utils::TestUtils.instance.getLicenseFile()
-
         if !licFile.empty?
-
           valid_json=false
           begin
             jFile = File.read(licFile)
@@ -43,14 +37,14 @@ module Scoutui::Eyes
           rescue => ex
             ;
           end
-
         elsif ENV.has_key?('APPLITOOLS_API_KEY')
           license_key=ENV['APPLITOOLS_API_KEY'].to_s
         end
 
 
+        binding.pry
         if !license_key.nil?
-          eyes=Applitools::Eyes.new()
+          eyes = Applitools::Eyes.new()
           eyes.api_key = license_key
           eyes.force_fullpage_screenshot = true
 
@@ -60,17 +54,11 @@ module Scoutui::Eyes
         end
 
         ## TBD - eyes.open()
-
-
       end
 
-    #  eyes
       @eyesList << eyes
-      @eyesList.last()
+      binding.pry
+      @eyesList.last
     end
-
   end
-
-
-
 end
