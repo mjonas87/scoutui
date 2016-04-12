@@ -51,9 +51,7 @@ module Scoutui::Base
 
         Scoutui::Logger::LogMgr.instance.info "Waiting for element: #{locator}".blue
         Selenium::WebDriver::Wait.new(timeout: _timeout).until { drv.find_elements(locateBy => locator).size > 0 }
-        rc=drv.find_elements(locateBy => locator)[0]
-      # rescue => ex
-      #   Scoutui::Logger::LogMgr.instance.debug "getFirstObject.Exception: #{locator.to_s} - #{ex}"
+        rc = drv.find_elements(locateBy => locator)[0]
       end
 
       rc

@@ -6,3 +6,4 @@ page:
   expected:
     wait: page(main_nav).get(search_input)
     wait2: page(main_nav).get(search_btn)
+

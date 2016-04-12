@@ -11,4 +11,4 @@ TEST_CFG="../test-configs/test.config.json"
 APP_MODEL="../appmodel/page_model.json"
 
 
-./run-test.sh -b chrome -d ../commands/commands.basic.appmodel.yml -P $APP_MODEL  -t $TEST_CFG -v -e
+./run-test.sh -b chrome -d ../commands/commands.basic.appmodel.yml -P $APP_MODEL  -t $TEST_CFG -v -e -i
