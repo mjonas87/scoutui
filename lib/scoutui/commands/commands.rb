@@ -6,8 +6,6 @@ module Scoutui::Commands
 
 
   def self.processCommands(commandList, my_driver)
-    binding.pry
-
     commandList.each do |cmd|
       begin
         rc=processCommand(cmd[:command], cmd[:e], my_driver)
@@ -21,7 +19,7 @@ module Scoutui::Commands
   end
 
   def self.processCommand(_action, e, my_driver)
-    Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " ===  Process ACTION : #{_action}  ==="
+    Scoutui::Logger::LogMgr.instance.info "Command: ".yellow + "#{_action}".green
 
     _aborted=false
     _cmd=nil
@@ -32,7 +30,7 @@ module Scoutui::Commands
     begin
 
       _totalWindows = my_driver.window_handles.length
-      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Total Windows : #{_totalWindows}"
+      Scoutui::Logger::LogMgr.instance.info "Total Windows: #{_totalWindows}".blue
 
       _c=nil
 

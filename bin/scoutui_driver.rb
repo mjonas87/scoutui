@@ -4,6 +4,10 @@ require_relative '../lib/scoutui'
 require 'dotenv'
 require 'logger'
 require 'pry'
+require 'awesome_print'
+require 'colorize'
+
+Dotenv.load
 
 ##
 # --file <Yaml>
@@ -12,12 +16,13 @@ require 'pry'
 # --title <Applitools Title>
 # --browser <chrome|firefox|ie>
 
-Dotenv.load()
-binding.pry
-
-nav = Scoutui::Navigator.new(Scoutui::Utils::TestUtils.instance.parseCommandLine())
-runner = Scoutui::Base::TestScout.new(nav)
-runner.start
-runner.report
-
+begin
+  nav = Scoutui::Navigator.new(Scoutui::Utils::TestUtils.instance.parseCommandLine())
+  runner = Scoutui::Base::TestScout.new(nav)
+  runner.start
+  runner.report
+rescue Exception => ex
+  Scoutui::Logger::LogMgr.instance.debug ex.inspect.red
+  Scoutui::Logger::LogMgr.instance.debug ex.backtrace.join("\n")
+end
 

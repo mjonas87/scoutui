@@ -18,31 +18,25 @@ module Scoutui::Eyes
 
     def createEyes()
       use_eyes = Scoutui::Utils::TestUtils.instance.eyesEnabled?
-      puts "XXXXXXXXXXXXX: #{use_eyes}"
-      binding.pry
-
-      Scoutui::Logger::LogMgr.instance.info  __FILE__ + (__LINE__).to_s + " create(#{use_eyes})" if Scoutui::Utils::TestUtils.instance.isDebug?
-      eyes=nil
+      eyes = nil
 
       if use_eyes
-        license_key=nil
-        licFile=Scoutui::Utils::TestUtils.instance.getLicenseFile()
+        license_key = nil
+        licFile = Scoutui::Utils::TestUtils.instance.getLicenseFile()
         if !licFile.empty?
-          valid_json=false
+          valid_json = false
           begin
             jFile = File.read(licFile)
-            jLicense=jsonData=JSON.parse(jFile)
-            license_key=jLicense['api_key'].to_s
-            valid_json=true
+            jLicense = jsonData = JSON.parse(jFile)
+            license_key = jLicense['api_key'].to_s
+            valid_json = true
           rescue => ex
             ;
           end
         elsif ENV.has_key?('APPLITOOLS_API_KEY')
-          license_key=ENV['APPLITOOLS_API_KEY'].to_s
+          license_key = ENV['APPLITOOLS_API_KEY'].to_s
         end
 
-
-        binding.pry
         if !license_key.nil?
           eyes = Applitools::Eyes.new()
           eyes.api_key = license_key
@@ -56,8 +50,10 @@ module Scoutui::Eyes
         ## TBD - eyes.open()
       end
 
+      Scoutui::Logger::LogMgr.instance.info 'Using Applitools'.blue unless eyes.nil?
+      Scoutui::Logger::LogMgr.instance.info 'Not using Applitools'.red if eyes.nil?
+
       @eyesList << eyes
-      binding.pry
       @eyesList.last
     end
   end

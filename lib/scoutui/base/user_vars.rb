@@ -19,13 +19,13 @@ module Scoutui::Base
       }
     end
 
-    def dump()
+    def dump
       @globals.each_pair do |k, v|
         Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " #{k} => #{v}"
       end
     end
 
-    def getViewPort()
+    def getViewPort
       arr=Scoutui::Base::UserVars.instance.getVar('eyes.viewport').match(/(\d+)\s*x\s*(\d+)$/i)
       if arr.size==3
         _sz = {:width => arr[1].to_i, :height => arr[2].to_i }
@@ -34,11 +34,11 @@ module Scoutui::Base
       _sz
     end
 
-    def getBrowserType()
+    def getBrowserType
       @globals[:browser].to_sym
     end
 
-    def getHost()
+    def getHost
       @globals[:host].to_s
     end
 
@@ -59,7 +59,6 @@ module Scoutui::Base
     end
 
     def get(xpath_key)
-      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " get(#{xpath_key})"
       foundKey = true
 
       xpath_key = xpath_key[0].to_s if xpath_key.is_a?(Array)
@@ -81,26 +80,17 @@ module Scoutui::Base
         return Faker::Internet.email
       elsif !_rc.nil?
         xpath_key =_rc[1].to_s
-        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " User Var found => #{xpath_key}"
-        if Scoutui::Utils::TestUtils.instance.getTestConfig().has_key?("user_vars")
-
-          if Scoutui::Utils::TestUtils.instance.getTestConfig()["user_vars"].has_key?(xpath_key)
-            magical_wizard_value = Scoutui::Utils::TestUtils.instance.getTestConfig()["user_vars"][xpath_key].to_s
-          end
-
+        if Scoutui::Utils::TestUtils.instance.getTestConfig.has_key?("user_vars") &&
+            Scoutui::Utils::TestUtils.instance.getTestConfig["user_vars"].has_key?(xpath_key)
+            magical_wizard_value = Scoutui::Utils::TestUtils.instance.getTestConfig["user_vars"][xpath_key].to_s
         end
-
       else
         foundKey=false
       end
 
-      Scoutui::Logger::LogMgr.instance.debug  __FILE__ + (__LINE__).to_s + " get(#{xpath_key}) => #{@globals.has_key?(xpath_key)}" if Scoutui::Utils::TestUtils.instance.isDebug?
-
       if @globals.has_key?(xpath_key) && foundKey
         magical_wizard_value = @globals[xpath_key]
       end
-
-      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " get(#{xpath_key} => #{@globals.has_key?(xpath_key)} ==> #{magical_wizard_value.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
       magical_wizard_value
     end
@@ -118,10 +108,6 @@ module Scoutui::Base
       @globals[k]=v
       v
     end
-
-
   end
-
-
-
 end
+

@@ -69,11 +69,11 @@
 
     "main_nav": {
         "search_input": {
-            "locator": "//input[@id='search']",
+            "locator": "css=.search-box--input",
             "visible_when": "always"
         },
         "search_btn": {
-            "locator": "//a[@id='search-btn']",
+            "locator": "css=.search-box--wrap--btn",
             "visible_when": "always"
         }
     },

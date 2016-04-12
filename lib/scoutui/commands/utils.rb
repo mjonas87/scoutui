@@ -70,7 +70,6 @@ module Scoutui::Commands
     end
 
     def isSelectWindow?(_action)
-      puts __FILE__ + (__LINE__).to_s + " isSelectWindow?(#{_action})"
       !_action.match(/select_window/i).nil?
     end
 

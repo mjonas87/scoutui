@@ -30,8 +30,6 @@ module Scoutui::ApplicationModel
 
       jsonData={}
       json_list.each  { |f|
-        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " JSON.parse(#{f})"
-
         begin
           data_hash = JSON.parse File.read(f)
           jsonData.merge!(data_hash)
@@ -41,15 +39,12 @@ module Scoutui::ApplicationModel
         end
 
       }
-      Scoutui::Logger::LogMgr.instance.debug "merged jsonData => " + jsonData.to_json
       @app_model = jsonData
     end
 
 
     # getPageElement("page(login).get(login_form).get(button)")
     def getPageElement(s)
-      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " getPageElement(#{s})"
-
       if s.match(/^\s*\//) || s.match(/^\s*css\s*=/i)
         return nil
       end
@@ -62,18 +57,13 @@ module Scoutui::ApplicationModel
         getter = elt.split(/\(/)[0]
         _obj = elt.match(/\((.*)\)/)[1]
 
-        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " getter : #{getter}  obj: #{_obj}" if Scoutui::Utils::TestUtils.instance.isDebug?
-
         if getter.downcase.match(/(page|pg)/)
-          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " -- process page --"  if Scoutui::Utils::TestUtils.instance.isDebug?
           hit=@app_model[_obj]
         elsif getter.downcase=='get'
           hit=hit[_obj]
         else
-          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " getter : #{getter} is unknown."
           return nil
         end
-        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " HIT => #{hit}" if Scoutui::Utils::TestUtils.instance.isDebug?
       }
 
       hit

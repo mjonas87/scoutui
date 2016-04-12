@@ -8,7 +8,7 @@ module Scoutui::Commands
     attr_accessor :drv
     attr_accessor :profile
 
-    def getDriver()
+    def getDriver
       @drv
     end
 
@@ -24,7 +24,6 @@ module Scoutui::Commands
     end
 
     def navigate(url)
-      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " [enter]:navigate(#{url})"
       rc = false
       begin
         processCommand('navigate(' + url + ')', nil)
@@ -37,42 +36,35 @@ module Scoutui::Commands
       rc
     end
 
-    def report()
-      Testmgr::TestReport.instance.report()
-#      Testmgr::TestReport.instance.generateReport()
+    def report
+      Testmgr::TestReport.instance.report
+#      Testmgr::TestReport.instance.generateReport
     end
 
-    def quit()
-
+    def quit
       begin
-        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " quit()"
-
-        metrics=Testmgr::TestReport.instance.getMetrics()
-        Scoutui::Logger::LogMgr.instance.info "Metrics => #{metrics}"
+        metrics=Testmgr::TestReport.instance.getMetrics
+        Scoutui::Logger::LogMgr.instance.info "Metrics => ".blue
+        ap(metrics)
 
         if Scoutui::Utils::TestUtils.instance.sauceEnabled?
           job_id = @drv.session_id
           SauceWhisk::Jobs.change_status job_id, metrics[:rc]
-
-          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Update Sauce tests with job_id #{job_id} to #{metris[:rc]}"
         end
-
       rescue => ex
         Scoutui::Logger::LogMgr.instance.warn "Error during processing: #{$!}"
         Scoutui::Logger::LogMgr.instance.warn "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
       end
 
-
-      @drv.quit()
+      @drv.quit
     end
 
     def processCommands(cmds)
-      Scoutui::Commands::processCommands(cmds, getDriver())
+      Scoutui::Commands::processCommands(cmds, getDriver)
     end
 
     def processCommand(_action, e=nil)
-      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " [enter]:processCommand(#{_action})"
-      Scoutui::Commands::processCommand(_action, e, getDriver())
+      Scoutui::Commands::processCommand(_action, e, getDriver)
     end
 
     def setup(dut)
@@ -83,10 +75,10 @@ module Scoutui::Commands
       caps
     end
 
-    def initialize()
+    def initialize
 
       @profile=nil
-      browserType = Scoutui::Base::UserVars.instance.getBrowserType()
+      browserType = Scoutui::Base::UserVars.instance.getBrowserType
 
       if false
         if !browserType.to_s.match(/chrome/i).nil?
@@ -107,7 +99,7 @@ module Scoutui::Commands
 
       if Scoutui::Utils::TestUtils.instance.sauceEnabled?
 
-        caps = Scoutui::Utils::TestUtils.instance.getCapabilities()
+        caps = Scoutui::Utils::TestUtils.instance.getCapabilities
         client=nil
         proxy=nil
 
@@ -126,13 +118,13 @@ module Scoutui::Commands
           tmpCaps = caps
 
           if caps.has_key?(:deviceName) && caps[:deviceName].match(/iphone/i)
-            caps = Selenium::WebDriver::Remote::Capabilities.iphone()
+            caps = Selenium::WebDriver::Remote::Capabilities.iphone
           elsif caps.has_key?(:browser) && caps[:browser].match(/chrome/i)
-            caps = Selenium::WebDriver::Remote::Capabilities.chrome()
+            caps = Selenium::WebDriver::Remote::Capabilities.chrome
           elsif caps.has_key?(:browser) && caps[:browser].match(/firefox/i)
-            caps = Selenium::WebDriver::Remote::Capabilities.firefox()
+            caps = Selenium::WebDriver::Remote::Capabilities.firefox
           elsif caps.has_key?(:browser) && caps[:browser].match(/safari/i)
-            caps = Selenium::WebDriver::Remote::Capabilities.safari()
+            caps = Selenium::WebDriver::Remote::Capabilities.safari
           end
 
           tmpCaps.each_pair do |k, v|
@@ -144,13 +136,13 @@ module Scoutui::Commands
           tmpCaps = caps
 
           if caps.has_key?(:browser) && caps[:browser].match(/edge/i)
-            caps = Selenium::WebDriver::Remote::Capabilities.edge()
+            caps = Selenium::WebDriver::Remote::Capabilities.edge
           elsif caps.has_key?(:browser) && caps[:browser].match(/chrome/i)
-            caps = Selenium::WebDriver::Remote::Capabilities.chrome()
+            caps = Selenium::WebDriver::Remote::Capabilities.chrome
           elsif caps.has_key?(:browser) && caps[:browser].match(/firefox/i)
-            caps = Selenium::WebDriver::Remote::Capabilities.firefox()
+            caps = Selenium::WebDriver::Remote::Capabilities.firefox
           else
-            caps = Selenium::WebDriver::Remote::Capabilities.internet_explorer()
+            caps = Selenium::WebDriver::Remote::Capabilities.internet_explorer
           end
 
           tmpCaps.each_pair do |k, v|
@@ -158,7 +150,7 @@ module Scoutui::Commands
           end
 
         elsif caps.has_key?(:deviceName) && caps[:deviceName].match(/(iphone|ipad)/i) && !caps[:deviceName].match(/simulator/i)
-          caps = Selenium::WebDriver::Remote::Capabilities.iphone()
+          caps = Selenium::WebDriver::Remote::Capabilities.iphone
           caps['platform'] = 'OS X 10.10'
           caps['version'] = '9.1'
           caps['deviceName'] = 'iPhone 6 Plus'
@@ -196,7 +188,7 @@ module Scoutui::Commands
 
         sauce_endpoint = "http://#{ENV['SAUCE_USERNAME']}:#{ENV['SAUCE_ACCESS_KEY']}@ondemand.saucelabs.com:80/wd/hub"
 
-        caps[:name]=Scoutui::Utils::TestUtils.instance.getSauceName()
+        caps[:name]=Scoutui::Utils::TestUtils.instance.getSauceName
         caps[:tags]=["Concur QE", "ScoutUI"]
 
         begin
@@ -205,20 +197,15 @@ module Scoutui::Commands
           else
             @drv=Selenium::WebDriver.for :remote, :url => sauce_endpoint, :http_client => client, :desired_capabilities => caps # setup(caps)
           end
-
         rescue => e
           Scoutui::Logger::LogMgr.instance.debug "Error during processing: #{$!}"
           Scoutui::Logger::LogMgr.instance.debug "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
         end
-
-
       else
-        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Create WebDriver: #{browserType.to_s}"
+        Scoutui::Logger::LogMgr.instance.info "Create WebDriver: #{browserType.to_s}".blue
         @drv=Selenium::WebDriver.for browserType.to_sym, :profile => @profile
       end
-
     end
-
   end
 
 

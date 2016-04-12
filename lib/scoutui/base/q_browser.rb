@@ -36,8 +36,6 @@ module Scoutui::Base
     end
 
     def self.getFirstObject(drv, _locator, _timeout=30)
-
-      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " getFirstObject(#{_locator})" if Scoutui::Utils::TestUtils.instance.isDebug?
       rc=nil
       locator=_locator
 
@@ -51,21 +49,18 @@ module Scoutui::Base
           locateBy = :css
         end
 
-        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " locator => #{locator.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+        Scoutui::Logger::LogMgr.instance.info "Waiting for element: #{locator}".blue
         Selenium::WebDriver::Wait.new(timeout: _timeout).until { drv.find_elements(locateBy => locator).size > 0 }
         rc=drv.find_elements(locateBy => locator)[0]
-      rescue => ex
-        Scoutui::Logger::LogMgr.instance.debug "getFirstObject.Exception: #{locator.to_s} - #{ex}"
-        ;
+      # rescue => ex
+      #   Scoutui::Logger::LogMgr.instance.debug "getFirstObject.Exception: #{locator.to_s} - #{ex}"
       end
 
-      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " #{_locator} => #{rc}"
       rc
     end
 
     # http://stackoverflow.com/questions/15164742/combining-implicit-wait-and-explicit-wait-together-results-in-unexpected-wait-ti#answer-15174978
     def self.getObject(drv, obj, _timeout=30)
-      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " getObject(#{obj})  class:#{obj.class.to_s}   hash : #{obj.is_a?(Hash)}" if Scoutui::Utils::TestUtils.instance.isDebug?
       rc=nil
       visible_when=nil
       locator=obj

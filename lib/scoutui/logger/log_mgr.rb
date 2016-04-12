@@ -72,7 +72,6 @@ module Scoutui::Logger
       log('debug', txt)
     end
 
-
     def log(level, txt)
       if level.match(/info/i)
         @root.info txt
@@ -85,10 +84,6 @@ module Scoutui::Logger
       elsif level.match(/fatal/i)
         @root.fatal txt
       end
-
     end
-
   end
-
-
 end

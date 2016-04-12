@@ -13,8 +13,6 @@ module Scoutui::Base
 
 
     def self.processPageElement(my_driver, k, xpath)
-
-      puts __FILE__ + (__LINE__).to_s + " processPageElement(#{xpath})"
       processed=false
       _obj=nil
 
@@ -25,15 +23,13 @@ module Scoutui::Base
         # Check if this is a form
 
         page_elt = Scoutui::Utils::TestUtils.instance.getPageElement(xpath)
-        Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Process page request #{page_elt} => #{page_elt.class.to_s}"
 
+        Scoutui::Logger::LogMgr.instance.info "Locate Element: #{page_elt}".blue
 
         sub_elts=0
         if page_elt.is_a?(Hash)
           sub_elts = page_elt.select { |_s| page_elt[_s].has_key?("locator") if page_elt[_s].is_a?(Hash) &&  !page_elt[_s].nil?  }.size
         end
-
-        Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " SubElts => #{sub_elts}"
 
         if page_elt.is_a?(Hash) && page_elt.has_key?('locator')
 
@@ -42,12 +38,7 @@ module Scoutui::Base
           #   wait: page(abc).get(def)    where this page_elt has "locator"
 
           xpath = page_elt['locator'].to_s
-
           _obj = Scoutui::Base::QBrowser.getFirstObject(my_driver, xpath)
-
-
-
-
           _req = nil
 
           if page_elt.has_key?('reqid')
@@ -55,14 +46,8 @@ module Scoutui::Base
           end
 
           Scoutui::Base::Assertions.instance.assertPageElement(k, page_elt, _obj, my_driver, _req)
-
-
-
         elsif sub_elts > 0
           Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Validate form"
-
-
-
           page_elt.each_pair do |_k, _v|
 
             begin
@@ -316,7 +301,7 @@ module Scoutui::Base
 
 
     def self.processAssertions(my_driver, e)
-      Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " === ProcessAssertions(#{e.to_s} ====" if Scoutui::Utils::TestUtils.instance.isDebug?
+      Scoutui::Logger::LogMgr.instance.info 'Process Assertions'.yellow
 
       if !e[STEP_KEY].has_key?('assertions')
         return
@@ -402,19 +387,13 @@ module Scoutui::Base
           Scoutui::Logger::LogMgr.instance.debug "Error during processing: #{ex}"
           puts __FILE__ + (__LINE__).to_s +  "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
         end
-
-
       end
-
-
     end
 
 
     def self.processExpected(my_driver, e)
 
       _req = Scoutui::Utils::TestUtils.instance.getReq()
-
-      Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + "\to Expected:  #{e[STEP_KEY]['expected'].class.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
       Scoutui::Base::Assertions.instance.setDriver(my_driver)
 
@@ -428,12 +407,7 @@ module Scoutui::Base
         end
 
         if expected_list.is_a?(Hash)
-
           expected_list.each_pair do |link_name, xpath|
-
-            Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s +  "\t\t#{link_name} => #{xpath}"  if Scoutui::Utils::TestUtils.instance.isDebug?
-
-
             # Check if the verification is a "windows.*" verification
 
             if !xpath.match(/window[s]\.length\s*\(\d+\)/).nil?
@@ -467,14 +441,11 @@ module Scoutui::Base
               # Check if this is a form
 
               page_elt = Scoutui::Utils::TestUtils.instance.getPageElement(xpath)
-              Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Process page request #{page_elt} => #{page_elt.class.to_s}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
               sub_elts=0
               if page_elt.is_a?(Hash)
                 sub_elts = page_elt.select { |_s| page_elt[_s].has_key?("locator") if page_elt[_s].is_a?(Hash) &&  !page_elt[_s].nil?  }.size
               end
-
-              Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " SubElts => #{sub_elts}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
               if page_elt.is_a?(Hash) && page_elt.has_key?('locator')
 
@@ -608,38 +579,22 @@ module Scoutui::Base
 
             obj = Scoutui::Base::QBrowser.getFirstObject(my_driver, xpath)
 
-            Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " obj : #{obj}"
-
-            Scoutui::Logger::LogMgr.instance.asserts.info __FILE__ + (__LINE__).to_s + " Verify #{xpath} visible - #{obj.kind_of?(Selenium::WebDriver::Element).to_s}"
-
-
             if Scoutui::Utils::TestUtils.instance.assertExpected?
               Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(!obj.nil?, __FILE__ + (__LINE__).to_s + " Verify #{xpath} visible")
             end
 
-            if obj.nil?
-              Scoutui::Logger::LogMgr.instance.warn " NOT FOUND : #{link_name} with xpath #{xpath}" if Scoutui::Utils::TestUtils.instance.isDebug?
-            else
-              Scoutui::Logger::LogMgr.instance.warn " link object(#{link_name} with xpath #{xpath}=> #{obj.displayed?}"  if Scoutui::Utils::TestUtils.instance.isDebug?
-            end
-
+            raise Exception, "NOT FOUND : #{link_name} with xpath #{xpath}".red if obj.nil?
           end
         end
       end
-
-      Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " [end]: processExpected()"
     end
 
     # Scoutui::Base::VisualTestFramework.processFile(@drv, @eyes, @test_settings['host'], @test_settings['dut'])
     def self.processFile(eyeScout, test_settings, strategy=nil)
-
-      puts __FILE__ + (__LINE__).to_s + " [enter]:processFile(#{test_settings['dut']})"
       my_driver = eyeScout.drv()
 
       baseUrl = Scoutui::Base::UserVars.instance.getHost()
       datafile = test_settings['dut']
-
-      Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " processFile(#{eyeScout}, #{baseUrl}, #{datafile})" if Scoutui::Utils::TestUtils.instance.isDebug?
 
       valid_file=false
       i=0
@@ -657,10 +612,8 @@ module Scoutui::Base
 
         totalWindows = my_driver.window_handles.length
 
-        Scoutui::Logger::LogMgr.instance.info '-' * 72 if Scoutui::Utils::TestUtils.instance.isDebug?
-        Scoutui::Logger::LogMgr.instance.info " [Pre-cmd]: Total Windows : #{totalWindows.to_s}"
-        Scoutui::Logger::LogMgr.instance.info "#{i.to_s}. Processing #{e.inspect}" if Scoutui::Utils::TestUtils.instance.isDebug?
-        i+=1
+        ap(e)
+        i += 1
 
         Scoutui::Utils::TestUtils.instance.setReq('UI')
         Scoutui::Commands::Utils.instance.resetTimeout()
@@ -676,27 +629,14 @@ module Scoutui::Base
          Scoutui::Commands::Utils.instance.setTimeout(e[STEP_KEY]["timeout"])
         end
 
-
-
-
-        if Scoutui::Utils::TestUtils.instance.isDebug?
-          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " action: #{_action}"
-          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " name: #{_name}"
-          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " url : #{_url}"
-          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " skip: #{_skip}"
-          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " region: #{_region}"
-          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " reqid: #{_reqid}"
-        end
-
         if !_reqid.nil? && !_reqid.to_s.empty?
           Testmgr::TestReport.instance.getReq(_reqid)
           Scoutui::Utils::TestUtils.instance.setReq(_reqid)
         else
-          puts __FILE__ + (__LINE__).to_s + "  REQID was not provided"
+          Scoutui::Logger::LogMgr.instance.debug 'REQID was not provided'.red
         end
 
         skipIt = (!_skip.nil?) && (_skip.to_s.strip.downcase=='true')
-        Scoutui::Logger::LogMgr.instance.info "\to skip : #{skipIt}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
         if skipIt
           Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " SKIP - #{_name}" if Scoutui::Utils::TestUtils.instance.isDebug?
@@ -761,13 +701,8 @@ module Scoutui::Base
 
         if e[STEP_KEY].has_key?("url")
           url = e[STEP_KEY]["url"].to_s
-
-
           eyeScout.getStrategy().processCommand('navigate(' + url + ')', e)
         end
-
-
-        Scoutui::Logger::LogMgr.instance.info "\to Expected:  #{e[STEP_KEY]['expected'].class.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
         processExpected(my_driver, e)
         processAssertions(my_driver, e)
@@ -778,14 +713,12 @@ module Scoutui::Base
           eyeScout.check_window(_name)
         end
 
-        Scoutui::Logger::LogMgr.instance.info "\to links : #{e[STEP_KEY]['links'].class.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
 
         if e[STEP_KEY].has_key?('links')
           links=e[STEP_KEY]['links']
 
           links.each_pair do |link_name, xpath|
             Scoutui::Logger::LogMgr.instance.info "\t\t#{link_name} => #{xpath}"  if Scoutui::Utils::TestUtils.instance.isDebug?
-
 
             obj = QBrowser.getObject(my_driver, xpath)
             Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " [click]: link object => #{obj.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?

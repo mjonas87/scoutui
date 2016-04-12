@@ -1,8 +1,4 @@
-
-
 module Scoutui::Base
-
-
   class TestScout
     attr_reader :context
     attr_reader :test_settings  # { host, dut }
@@ -20,8 +16,15 @@ module Scoutui::Base
         @test_settings = Scoutui::Utils::TestUtils.instance.getTestSettings
         @eyesRecord = @test_settings['eyes']
       end
-    end
 
+      if Scoutui::Utils::TestUtils.instance.isDebug?
+        # Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " eyes cfg => #{@eyesRecord}"
+        # Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " title => " + Scoutui::Base::UserVars.instance.getVar('eyes.title')
+        # Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " app => " + Scoutui::Base::UserVars.instance.getVar('eyes.app')
+      end
+
+      @eye_scout = Scoutui::Eyes::EyeFactory.instance.createScout
+    end
 
     def start
       if has_settings?
@@ -43,61 +46,34 @@ module Scoutui::Base
     end
 
     def dump_settings
-      Scoutui::Logger::LogMgr.instance.debug '-' * 72
-      Scoutui::Logger::LogMgr.instance.debug @test_settings
-
-      Scoutui::Logger::LogMgr.instance.debug "UserRecord => #{@userRecord}"
-      Scoutui::Logger::LogMgr.instance.debug "Eyes Record => #{@eyesRecord}"
-      Scoutui::Logger::LogMgr.instance.debug "Host => #{@test_settings['host']}"
+      # Scoutui::Logger::LogMgr.instance.debug '-' * 72
+      # Scoutui::Logger::LogMgr.instance.debug @test_settings
+      # Scoutui::Logger::LogMgr.instance.debug "UserRecord => #{@userRecord}"
+      # Scoutui::Logger::LogMgr.instance.debug "Eyes Record => #{@eyesRecord}"
+      # Scoutui::Logger::LogMgr.instance.debug "Host => #{@test_settings['host']}"
     end
 
-  def teardown
-    @eye_scout.teardown
-  end
-
-    def setup
-
-      if Scoutui::Utils::TestUtils.instance.isDebug?
-        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " eyes cfg => #{@eyesRecord}"
-        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " title => " + Scoutui::Base::UserVars.instance.getVar('eyes.title')
-        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " app => " + Scoutui::Base::UserVars.instance.getVar('eyes.app')
-      end
-
-      begin
-        eye_scout = Scoutui::Eyes::EyeFactory.instance.createScout
-      rescue => ex
-        Scoutui::Logger::LogMgr.instance.debug ex.backtrace
-      end
-
-      eye_scout
+    def teardown
+      @eye_scout.teardown
     end
-
 
     def snap_page(tag)
       @eye_scout.check_window(tag)
     end
 
-
     def run
-      Scoutui::Logger::LogMgr.instance.info 'Beginning Test...'
+      Scoutui::Logger::LogMgr.instance.info 'Beginning Test...'.blue
 
       begin
-        @eye_scout = setup    # Browser is created
-
         @eye_scout.navigate(Scoutui::Base::UserVars.instance.get(:host))
 
         snap_page('Landing Page')
 
         Scoutui::Base::VisualTestFramework.processFile(@eye_scout, @test_settings)
         teardown
-      rescue => ex
-        Scoutui::Logger::LogMgr.instance.debug ex.backtrace
       ensure
-        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__ ).to_s + " Close Eyes" if Scoutui::Utils::TestUtils.instance.isDebug?
-        @eye_scout.closeOut
+        @eye_scout.closeOut unless @eye_scout.nil?
       end
     end
   end
-
-
 end

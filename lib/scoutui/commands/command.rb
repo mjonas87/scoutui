@@ -11,7 +11,6 @@ module Scoutui::Commands
     attr_accessor :executed_result
 
     def initialize(_cmd, _drv=nil)
-      Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + "  Command.init: #{_cmd.to_s}"
       @cmd=_cmd
       @rc=nil
       @drv=_drv
@@ -21,7 +20,6 @@ module Scoutui::Commands
     end
 
     def setResult(r)
-      Scoutui::Logger::LogMgr.instance.commands.debug " setResult(#{r.to_s})"
       @executed=true
       @executed_result=r
     end

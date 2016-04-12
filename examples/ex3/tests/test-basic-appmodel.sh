@@ -7,7 +7,7 @@ export SCOUTUI_BIN=../../../bin/scoutui_driver.rb
 
 
 # Specify the test configuration file
-TEST_CFG="../test-configs/test.config.basic.json"
+TEST_CFG="../test-configs/test.config.json"
 APP_MODEL="../appmodel/page_model.json"
 
 
