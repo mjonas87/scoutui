@@ -1,13 +1,13 @@
 {
     "home": {
         "cars4sale": {
-            "locator": "//a[text()='Find Cars for Sale']",
+            "locator": "//a[text()='Find your car']",
             "visible_when": "always",
             "reqid": "REQ-Home"
         },
         "whyCarMax": {
-            "locator": "//*[@id='header']//a[text()='Why CarMax']",
-            "visible_when": "text(page(home).get(cars4sale))=Find Cars for Sale",
+            "locator": "//a[text()='Why CarMax?']",
+            "visible_when": "text(page(home).get(cars4sale))=Find your car",
             "reqid": "REQ-Home"
         },
 

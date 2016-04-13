@@ -3,7 +3,7 @@
   "basic_nav": {
 
     "find_cars_for_sale": {
-      "locator": "//*[@id='header']//a[text()='Find Cars for Sale']",
+      "locator": "//*[@id='header']//a[text()='Find Your Car']",
       "visible_when": "always"
     },
 

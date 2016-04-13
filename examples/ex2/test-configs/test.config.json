@@ -11,7 +11,7 @@
     "app": "10-16"
   },
 
-  "host": "http://www.carmax.com",
+  "host": "https://beta.carmax.com",
   "dut": "../commands/home.command.yml",
   "dut2": "../commands/commands.yml",
 
