@@ -11,8 +11,8 @@ module Scoutui::Commands
         if e.is_a?(Hash) && e.has_key?('page')
           h=e['page']['name'].to_s
         end
-        puts "====== PAUSE - HIT ENTER #{h} ========="
-        gets()
+        puts "====== PAUSE - HIT ENTER #{h} =========".blue
+        gets
       rescue => ex
         puts "Error during processing: #{$!}"
         puts "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
