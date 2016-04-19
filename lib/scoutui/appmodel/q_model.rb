@@ -50,7 +50,6 @@ module Scoutui::ApplicationModel
       end
 
       hit=@app_model
-
       nodes = s.split(/\./)
 
       nodes.each { |elt|
@@ -67,10 +66,26 @@ module Scoutui::ApplicationModel
       }
 
       hit
-
     end
 
+    # get_page_node("page(login).get(login_form).get(button)")
+    def get_page_node(selector, current_node = @app_model)
+      if selector.match(/^\s*\//) || selector.match(/^\s*css\s*=/i)
+        return nil
+      end
 
+      remaining_selectors = selector.split(/\./)
+      selector = remaining_selectors.shift
+      getter = selector.split(/\(/)[0]
+      fail Exception, "Invalid getter method in '#{getter}'" unless getter.downcase.match(/(page|get)/)
+
+      node_name = selector.match(/\((.*)\)/)[1]
+      if remaining_selectors.any?
+        get_page_node(remaining_selectors.join, current_node[node_name])
+      else
+        [current_node[node_name], node_name]
+      end
+    end
 
     # visible_when: hover(page(x).get(y).get(z))
     def itemize(condition='visible_when', _action='hover', _pgObj=nil)

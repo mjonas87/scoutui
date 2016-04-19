@@ -35,26 +35,29 @@ module Scoutui::Base
       rc
     end
 
-    def self.getFirstObject(drv, _locator, _timeout=30)
-      rc=nil
-      locator=_locator
+    def self.getFirstObject(drv, locator, timeout = 30)
+      first_object = nil
 
       begin
-        locateBy=:xpath
+        locate_by = :xpath
 
-        if _locator.match(/^css\=/i)
-          locateBy = :css
-          locator = _locator.match(/css\=(.*)/i)[1].to_s
-        elsif _locator.match(/^#/i)
-          locateBy = :css
+        if locator.match(/^css\=/i)
+          locate_by = :css
+          locator = locator.match(/css\=(.*)/i)[1].to_s
+        elsif locator.match(/^#/i)
+          locate_by = :css
         end
 
-        Scoutui::Logger::LogMgr.instance.info "Waiting for element: #{locator}".blue
-        Selenium::WebDriver::Wait.new(timeout: _timeout).until { drv.find_elements(locateBy => locator).size > 0 }
-        rc = drv.find_elements(locateBy => locator)[0]
+        begin
+          Selenium::WebDriver::Wait.new(timeout: timeout).until { drv.find_elements(locate_by => locator).size > 0 }
+          first_object = drv.find_elements(locate_by => locator)[0]
+          Scoutui::Logger::LogMgr.instance.info 'Wait'.blue + " : #{locator.yellow} : #{true.to_s.green}"
+        rescue Selenium::WebDriver::Error::TimeOutError => ex
+          Scoutui::Logger::LogMgr.instance.info 'Wait'.blue + " : #{locator.yellow} : #{ex.message.red}"
+        end
       end
 
-      rc
+      first_object
     end
 
     # http://stackoverflow.com/questions/15164742/combining-implicit-wait-and-explicit-wait-together-results-in-unexpected-wait-ti#answer-15174978

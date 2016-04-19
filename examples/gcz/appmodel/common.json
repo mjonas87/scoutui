@@ -1,0 +1,51 @@
+{
+
+  "basic_nav": {
+
+    "find_cars_for_sale": {
+      "locator": "//*[@id='header']//a[text()='Find Your Car']",
+      "visible_when": "always"
+    },
+
+    "sell_us_your_car": {
+      "locator": "//*[@id='header']//a[text()='Sell Us Your Car']",
+      "visible_when": "title(Used Cars for Sale.*)"
+    },
+
+    "research": {
+      "locator": "//*[@id='header']//a[text()='Research']",
+      "when_hovered": [
+        { "RSRCH": [
+          "visible(//*[@id='header']//a[text()='Ratings and Reviews'])",
+          "visible(//*[@id='header']//a[text()='Payment Calculators'])",
+          "visible(page(submenu3).get(fuel_econ))"
+        ]
+        }
+      ]
+    }
+
+  },
+
+  "find_cars_for_sale_sm": {
+    "description": "Example of observer-like pattern, where an element registers itself to another elements action.",
+    "locator": "//*[@id='header']//a[text()='Nationwide Transfers']",
+    "visible_when": "mouseover(page(basic_nav).get(find_cars_for_sale))"
+  },
+
+  "submenu2": {
+
+    "faq": {
+      "locator": "//*[@id='header']//a[text()='FAQ']",
+      "visible_when": "mouseover(page(basic_nav).get(sell_us_your_car))"
+    }
+
+  },
+
+  "submenu3": {
+    "fuel_econ": {
+      "locator": "//*[@id='header']//a[text()='Payment Calculators']"
+    }
+  }
+
+
+}

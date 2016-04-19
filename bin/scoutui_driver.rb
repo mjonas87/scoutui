@@ -6,6 +6,7 @@ require 'logger'
 require 'pry'
 require 'awesome_print'
 require 'colorize'
+require 'active_support/inflector'
 
 Dotenv.load
 

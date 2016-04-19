@@ -92,8 +92,8 @@ module Scoutui::Utils
       Scoutui::Base::QForm.new(_h)
     end
 
-    def getPageElement(s)
-      @app_model.getPageElement(s)
+    def getPageElement(selector)
+      @app_model.get_page_node(selector)
     end
 
     def getAppModel()

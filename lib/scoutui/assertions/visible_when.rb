@@ -1,8 +1,9 @@
 module Scoutui::Assertions
-  class IsVisible < BaseAssertion
-    def initialize(driver, conditions, req = nil )
+  class VisibleWhen < BaseAssertion
+    def initialize(driver, condition, extra_conditions = [], req = nil )
       @driver = driver
-      @conditions = conditions
+      @condition = condition
+      @extra_conditions = extra_conditions
       @req = req
     end
 
@@ -13,8 +14,8 @@ module Scoutui::Assertions
     def run_assertion
       @req = Scoutui::Utils::TestUtils.instance.getReq() if @req.nil?
 
-      @conditions.reject { |condition| condition.evaluate }.map(&:description)
-      raise AssertionFailureException, @conditions.join(' | ') if @conditions.any?
+      @extra_conditions.reject { |condition| condition.evaluate }.map(&:description)
+      raise AssertionFailureException, @extra_conditions.join(' | ') if @extra_conditions.any?
     end
 
     private

@@ -89,25 +89,18 @@ module Scoutui::Base
 
     # { "visible_when" => "always" }
     def visible_when_always(model_key, model_node, element = nil, _req='UI')
-      Scoutui::Logger::LogMgr.instance.debug "Visible When Always: #{model_node.to_s}".blue
+      fail Exception, 'Assertion mismatch' unless model_node.key?('visible_when') && model_node['visible_when'].match(/always/i)
 
-      locator = nil
-      rc = false
+      locator = model_node['locator'].to_s
 
-      if model_node.key?('visible_when') && model_node['visible_when'].is_a?(Array)
-        Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " visible_when_always (array) - TBD"
-        return rc
+      if !locator.nil?
+        Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(!element.nil?, "Verify #{model_key} - #{locator} always visible")
+        report_success("Visible?", locator, true)
+        return true
+      else
+        report_failure("Visible?", locator, false)
+        return false
       end
-
-      if model_node.key?('locator')
-        locator = model_node['locator'].to_s
-      end
-
-      if !locator.nil? &&  model_node.key?('visible_when') && model_node['visible_when'].match(/always/i)
-          Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(!element.nil?, "Verify #{model_key} - #{locator} always visible")
-          rc=true
-      end
-      rc
     end
 
     def visible_when_title(model_key, model_node, element, driver, _req='UI')
@@ -187,7 +180,7 @@ module Scoutui::Base
                 "Verify #{locator} is visible since #{condition} of #{xpath} is #{expectedVal}"
               end
 
-              fail Exception, 'Unable to determine description.' unless desc.present?
+              fail Exception, 'Unable to determine description.' if desc.nil?
 
               locatorObj = Scoutui::Base::QBrowser.getObject(driver, locator)
               Testmgr::TestReport.instance.getReq('UI').tc('visible_when').add(!locatorObj.nil? && locatorObj.displayed?, desc)
@@ -282,6 +275,16 @@ module Scoutui::Base
       end
 
       _processed
+    end
+
+    private
+
+    def report_success(expectation_text, element_selector, error_text)
+      Scoutui::Logger::LogMgr.instance.info "#{expectation_text.blue} : #{element_selector.yellow} : #{error_text.to_s.green}"
+    end
+
+    def report_failure(expectation_text, element_selector, error_text)
+      Scoutui::Logger::LogMgr.instance.info expectation_text.blue + ": #{element_selector.yellow}: #{error_text.to_s.red}"
     end
   end
 end
