@@ -41,25 +41,8 @@ module Scoutui::Commands
 
       _req = Scoutui::Utils::TestUtils.instance.getReq()
       _locator = @cmd.match(/click\s*\((.*)\)/)[1].to_s.strip
-      Scoutui::Logger::LogMgr.instance.command.info __FILE__ + (__LINE__).to_s + " clickObject => #{_locator}"
 
-      # _vars = _locator.scan(/(\$\{.*?\})/)
-      # _vars.each do | _v|
-      #   if _v.length==1
-      #
-      #     _u = Scoutui::Base::UserVars.instance.get(_v[0].to_s)
-      #     puts __FILE__ + (__LINE__).to_s + " Normalize(#{_v}) => #{_u}"
-      #
-      #     _locator.gsub!(_v[0].to_s, _u)
-      #   end
-      #
-      # end
-
-
-      # _locator = Scoutui::Base::UserVars.instance.get(_locator)
       _locator = Scoutui::Base::UserVars.instance.normalize(_locator)
-
-      Scoutui::Logger::LogMgr.instance.command.info __FILE__ + (__LINE__).to_s + " | translate : #{_locator}" if Scoutui::Utils::TestUtils.instance.isDebug?
 
       _clicked=false
 

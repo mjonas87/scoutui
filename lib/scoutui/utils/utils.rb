@@ -71,18 +71,11 @@ module Scoutui::Utils
       @currentTest[:reqid]=_r
     end
 
-    def loadModel(f=nil)
-      if f.nil?
-        return nil
-      end
+    def loadModel(file_name = nil)
+      return if file_name.nil?
 
-      begin
-        @app_model = Scoutui::ApplicationModel::QModel.new(f)
-        @app_model.getAppModel()
-      rescue => ex
-        raise "ErrorLoad : #{f.to_s}"
-      end
-
+      @app_model = Scoutui::ApplicationModel::QModel.new(file_name)
+      @app_model.getAppModel()
       @app_model
     end
 

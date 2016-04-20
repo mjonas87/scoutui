@@ -1,9 +1,7 @@
 require_relative './commands'
 
 module Scoutui::Commands
-
   class VerifyElement < Command
-
     def _verify(elt)
       begin
 
@@ -66,8 +64,6 @@ module Scoutui::Commands
       end
 
     end
-
-
     def execute(drv)
       @drv=drv if !drv.nil?
       _e=getLocator()
@@ -187,9 +183,5 @@ module Scoutui::Commands
 
 
     end
-
   end
-
-
-
 end

@@ -6,40 +6,25 @@ module Scoutui::ApplicationModel
     attr_accessor :_file
     attr_accessor :app_model
 
-    def initialize(f=nil)
-
-      if !f.nil?
-        @_file=f
-        loadPages(@_file)
-      end
-
+    def initialize(file_name = nil)
+      return if file_name.nil?
+      loadPages(file_name)
     end
 
     def getAppModel()
       @app_model
     end
 
-    def loadPages(jlist)
+    def loadPages(file_name_or_list)
+      file_list = file_name_or_list.respond_to?(:each) ? file_name_or_list : [file_name_or_list]
 
-      json_list=[]
-      if jlist.kind_of?(String)
-        json_list << jlist
-      else
-        json_list=jlist
-      end
-
-      jsonData={}
-      json_list.each  { |f|
-        begin
-          data_hash = JSON.parse File.read(f)
-          jsonData.merge!(data_hash)
-        rescue JSON::ParserError
-          Scoutui::Logger::LogMgr.instance.fatal "raise JSON::ParseError - #{f.to_s}"
-          raise "JSONLoadError"
-        end
-
+      @app_model = {}
+      file_list.each  { |file_name|
+        data_hash = YAML.load(File.read(file_name))
+        @app_model.merge!(data_hash)
       }
-      @app_model = jsonData
+
+      @app_model
     end
 
 
@@ -69,7 +54,10 @@ module Scoutui::ApplicationModel
     end
 
     # get_page_node("page(login).get(login_form).get(button)")
-    def get_page_node(selector, current_node = @app_model)
+    def get_page_node(selector, current_node = nil)
+      current_node ||= @app_model
+      fail Exception, 'Current node is nil' if current_node.nil?
+
       if selector.match(/^\s*\//) || selector.match(/^\s*css\s*=/i)
         return nil
       end
@@ -82,8 +70,10 @@ module Scoutui::ApplicationModel
       node_name = selector.match(/\((.*)\)/)[1]
       if remaining_selectors.any?
         get_page_node(remaining_selectors.join, current_node[node_name])
-      else
+      elsif current_node.key?(node_name)
         [current_node[node_name], node_name]
+      else
+        fail Exception, "Unable to find #{node_name} in #{current_node}"
       end
     end
 

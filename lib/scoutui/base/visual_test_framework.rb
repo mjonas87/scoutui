@@ -15,6 +15,7 @@ module Scoutui::Base
       _obj = nil
 
 
+      # TODO: Re-add?
       # fail Exception, "Regex did not conform to expected pattern: '#{selector}'" if selector.match(/^\s*page\(.*\)\s*$/).nil?
 
       model_node, model_key = Scoutui::Utils::TestUtils.instance.getPageElement(selector)
@@ -219,15 +220,13 @@ module Scoutui::Base
       end
     end
 
-    def self.processAssertions(driver, e)
-      Scoutui::Logger::LogMgr.instance.info 'Process Assertions'.yellow
+    def self.processCommandAssertions(driver, e)
+      Scoutui::Logger::LogMgr.instance.info 'Process Command Assertions'.yellow
 
       unless e[STEP_KEY].key?('assertions') && e[STEP_KEY]['assertions'].size > 0
         Scoutui::Logger::LogMgr.instance.info 'No assertions present'.yellow
         return
       end
-
-      puts ap(e[STEP_KEY]['assertions'])
 
       _req = Scoutui::Utils::TestUtils.instance.getReq
       e[STEP_KEY]['assertions'].each do |assertion_node|
@@ -246,7 +245,6 @@ module Scoutui::Base
 
             if !locator.match(/^page\([\w\d]+\)/).nil?
               _obj = processPageElement(driver, assertion_key, locator)
-              puts __FILE__ + (__LINE__).to_s + " Processed #{locator} => #{_obj.class.to_s}"
             else
               _obj = Scoutui::Base::QBrowser.getFirstObject(driver, locator, Scoutui::Commands::Utils.instance.getTimeout)
             end
@@ -254,7 +252,6 @@ module Scoutui::Base
 
           if assertion.key?('visible_when')
             if assertion['visible_when'].match(/always/i)
-              Scoutui::Logger::LogMgr.instance.asserts.info __FILE__ + (__LINE__).to_s + " Verify assertion #{assertion_key} - #{locator} visible - #{!_obj.nil?.to_s}"
               Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(!_obj.nil?, "Verify assertion #{assertion_key} - #{locator} visible")
             elsif Scoutui::Base::Assertions.instance.visible_when_never(assertion_key, assertion, _obj, _req)
               ;
@@ -366,7 +363,7 @@ module Scoutui::Base
             end
 
             processExpected(driver, e)
-            processAssertions(driver, e)
+            processCommandAssertions(driver, e)
 
 
             if isSnapIt(e)
@@ -390,7 +387,7 @@ module Scoutui::Base
         end
 
         processExpected(driver, e)
-        processAssertions(driver, e)
+        processCommandAssertions(driver, e)
 
          if !_region.nil?
           eyeScount.check_window(_name, _region)
