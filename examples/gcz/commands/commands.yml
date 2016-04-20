@@ -3,6 +3,7 @@ page:
   name: Home
   description: Navigate to a specified URL and wait until the expected elements are present
   url: https://giftcardzen.com
+  verify: page(home)
   expected:
     wait: page(home).get(login)
     wait2: page(home).get(sign_up)

@@ -271,6 +271,14 @@ module Scoutui::Base
       end
     end
 
+    def self.processModelAssertions(driver, command_node)
+      Scoutui::Logger::LogMgr.instance.info 'Process Model Assertions'.yellow
+      Scoutui::Logger::LogMgr.instance.info 'No node specified to verify'.red unless command_node['page'].key?('verify')
+
+      model_node = Scoutui::Utils::TestUtils.instance.getPageElement(command_node['page']['verify'])[0]
+      Scoutui::Commands::VerifyElement.new(model_node, driver).execute(driver)
+    end
+
     def self.processExpected(driver, e)
       Scoutui::Logger::LogMgr.instance.info 'Process Expectations'.yellow
       return unless e[STEP_KEY].key?('expected')
@@ -293,30 +301,30 @@ module Scoutui::Base
 
       valid_file=false
       i=0
-      dut_dupes = YAML.load_stream File.read(datafile)
+      commands = YAML.load_stream(File.read(datafile))
       valid_file=true
 
       return if !valid_file
 
-      dut_dupes.each do |e|
-
+      commands.each do |command_node|
         totalWindows = driver.window_handles.length
 
-        ap(e)
+        puts 'Command to Process'.blue
+        ap(command_node)
         i += 1
 
         Scoutui::Utils::TestUtils.instance.setReq('UI')
         Scoutui::Commands::Utils.instance.resetTimeout
 
-        _action = e[STEP_KEY]["action"]
-        _name   = e[STEP_KEY]["name"]
-        _url    = e[STEP_KEY]["url"]
-        _skip   = e[STEP_KEY]["skip"]
-        _region = e[STEP_KEY]["region"]
-        _reqid  = e[STEP_KEY]["reqid"]
+        _action = command_node[STEP_KEY]["action"]
+        _name   = command_node[STEP_KEY]["name"]
+        _url    = command_node[STEP_KEY]["url"]
+        _skip   = command_node[STEP_KEY]["skip"]
+        _region = command_node[STEP_KEY]["region"]
+        _reqid  = command_node[STEP_KEY]["reqid"]
 
-        if e[STEP_KEY].key?("timeout")
-         Scoutui::Commands::Utils.instance.setTimeout(e[STEP_KEY]["timeout"])
+        if command_node[STEP_KEY].key?("timeout")
+         Scoutui::Commands::Utils.instance.setTimeout(command_node[STEP_KEY]["timeout"])
         end
 
         if !_reqid.nil? && !_reqid.to_s.empty?
@@ -334,8 +342,7 @@ module Scoutui::Base
         end
 
 
-        if !isRun(e).nil?
-
+        if !isRun(command_node).nil?
           Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " ========> RUN <================="
           tmpSettings=test_settings.dup
           tmpSettings["dut"]=e[STEP_KEY]["run"].to_s
@@ -352,21 +359,22 @@ module Scoutui::Base
           Testmgr::TestReport.instance.getReq('Command').get_child('isValid').add(Scoutui::Commands::Utils.instance.isValid?(_action), "Verify #{_action} is valid")
 
           begin
-            _command = eyeScout.getStrategy.processCommand(_action, e)
+            _command = eyeScout.getStrategy.processCommand(_action, command_node)
 
             if driver.window_handles.length > totalWindows
               Scoutui::Logger::LogMgr.instance.info "[post-cmd] Total Windows : #{driver.window_handles.length.to_s}"
             end
 
             if !_command.wasExecuted?
-              processCommand(_action, e, driver)
+              processCommand(_action, command_node, driver)
             end
 
-            processExpected(driver, e)
-            processCommandAssertions(driver, e)
+            processExpected(driver, command_node)
+            processCommandAssertions(driver, command_node)
+            processModelAssertions(driver, command_node)
 
 
-            if isSnapIt(e)
+            if isSnapIt(command_node)
               if !_region.nil?
                 eyeScout.check_window(_name, _region)
               else
@@ -381,13 +389,14 @@ module Scoutui::Base
         end
 
 
-        if e[STEP_KEY].key?("url")
-          url = e[STEP_KEY]["url"].to_s
-          eyeScout.getStrategy.processCommand('navigate(' + url + ')', e)
+        if command_node[STEP_KEY].key?("url")
+          url = command_node[STEP_KEY]["url"].to_s
+          eyeScout.getStrategy.processCommand('navigate(' + url + ')', command_node)
         end
 
-        processExpected(driver, e)
-        processCommandAssertions(driver, e)
+        processExpected(driver, command_node)
+        processCommandAssertions(driver, command_node)
+        processModelAssertions(driver, command_node)
 
          if !_region.nil?
           eyeScount.check_window(_name, _region)
@@ -395,9 +404,8 @@ module Scoutui::Base
           eyeScout.check_window(_name)
         end
 
-
-        if e[STEP_KEY].key?('links')
-          links=e[STEP_KEY]['links']
+        if command_node[STEP_KEY].key?('links')
+          links = command_node[STEP_KEY]['links']
 
           links.each_pair do |link_name, selector|
             Scoutui::Logger::LogMgr.instance.info "\t\t#{link_name} => #{selector}"  if Scoutui::Utils::TestUtils.instance.isDebug?
@@ -411,10 +419,8 @@ module Scoutui::Base
             else
               eyeScout.check_window(link_name)
             end
-
           end
         end
-
       end
     end
 

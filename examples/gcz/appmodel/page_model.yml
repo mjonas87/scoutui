@@ -1,22 +1,22 @@
 home:
   login:
-    locator: //a[text()='Login'],
+    locator: //a[text()='Login']
     reqid: REQ-Home
     assertions:
-      visible_when: always,
+      visible_when: always
   sign_up:
-    locator: //a[text()='Sign up'],
+    locator: //a[text()='Sign up']
     reqid: REQ-Home
     assertions:
-      visible_when: always,
+      visible_when: always
   search:
-    locator: css=.search input.form-control,
+    locator: css=.search input.form-control
     reqid: REQ-Home
     assertions:
-      visible_when: always,
+      visible_when: always
   browse:
-    locator: css=.browse-all,
+    locator: css=.browse-all
     reqid: REQ-Home
     assertions:
-      visible_when: always,
+      visible_when: always
 

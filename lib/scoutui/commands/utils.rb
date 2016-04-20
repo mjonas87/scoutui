@@ -78,7 +78,7 @@ module Scoutui::Commands
     end
 
     def isVerifyElt?(_action)
-      !_action.match(/(verifyelt|verifyelement)\(/i).nil?
+      !_action.match(/(verifyelt|verifyelement|verify_element)\(/i).nil?
     end
 
     def isClick?(_action)
@@ -90,7 +90,7 @@ module Scoutui::Commands
     end
 
     def isFillForm?(_action)
-      !_action.match(/fillform\(/i).nil?
+      !_action.match(/(fillform|fill_form)\(/i).nil?
     end
 
     def isMouseOver?(_action)
@@ -102,11 +102,11 @@ module Scoutui::Commands
     end
 
     def isSubmitForm?(_action)
-      !_action.match(/submitform\(/).nil?
+      !_action.match(/(submitform|submit_form)\(/).nil?
     end
 
     def isVerifyForm?(_action)
-      !_action.match(/verifyform\(/).nil?
+      !_action.match(/(verifyform|verify_form)\(/).nil?
     end
 
     def isPause?(_action)
