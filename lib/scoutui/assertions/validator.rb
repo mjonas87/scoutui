@@ -14,21 +14,6 @@ module Scoutui::Assertions
 
       assertions(model_node).each { |a| a.run_assertion }
 
-    #   case condition
-    #     when 'always'
-    #       declare_result(condition, locator) do
-    #         element.displayed?
-    #       end
-    #       # Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(!element.nil?, "Verify #{model_key} - #{model_node['locator']} visible")
-    #     when 'never'
-    #       declare_result(condition, locator) do
-    #         !element.displayed?
-    #       end
-    #       # Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(element.nil?, "Verify #{model_key} #{model_node['locator']} not visible")
-    #     else
-    #       # TODO: More kinds of visibility assertions!
-    #       # elsif assertion['visible_when'].match(/role\=/i)
-    #   end
     end
 
     private
@@ -47,10 +32,6 @@ module Scoutui::Assertions
       return condition if simple_conditions.include?(condition)
       fail Exception, 'Not handling this currently'
       # TODO: Add handling for things like => "visible_when": "click(page(research).get(fuel_economy))",
-    end
-
-    def declare_result(condition_text, locator)
-      Scoutui::Logger::LogMgr.instance.info "Visible #{condition_text.titleize}?".blue + " : #{locator.yellow} : #{true.to_s.green}"
     end
   end
 end

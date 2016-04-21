@@ -224,7 +224,7 @@ module Scoutui::Base
       Scoutui::Logger::LogMgr.instance.info 'Process Command Assertions'.yellow
 
       unless e[STEP_KEY].key?('assertions') && e[STEP_KEY]['assertions'].size > 0
-        Scoutui::Logger::LogMgr.instance.info 'No assertions present'.yellow
+        Scoutui::Logger::LogMgr.instance.info 'No assertions present'.blue
         return
       end
 
