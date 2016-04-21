@@ -86,7 +86,7 @@ module Scoutui::Utils
     end
 
     def getPageElement(selector)
-      @app_model.get_page_node(selector)
+      @app_model.get_page_node(selector)[0]
     end
 
     def getAppModel()

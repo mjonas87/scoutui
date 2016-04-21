@@ -3,6 +3,8 @@ require_relative './commands'
 module Scoutui::Commands
   class VerifyElement < Command
     def initialize(node, driver = nil)
+      fail Exception, "Expected hash, received '#{node.class.to_s}.' ==> #{node}" unless node.is_a?(Hash)
+
       super(nil, driver)
       @node = node
     end
@@ -71,70 +73,81 @@ module Scoutui::Commands
 
     def execute(drv)
       @drv = drv unless drv.nil?
-
-      fail Exception, "Expected hash, received '#{@node.class.to_s}.' ==> #{@node}" unless @node.is_a?(Hash)
-
-      nodes_to_verify = @node.key?('locator') ? [@node] : @node.map { |sub_node_key, sub_node| sub_node }
-      nodes_to_verify.each { |node| verify_node(node) }
+      nodes_to_verify(@node).each { |node| verify_node(node) }
     end
 
     private
 
+    def nodes_to_verify(current_node)
+      return [current_node] if current_node.key?('locator')
+      current_node.map { |sub_node_key, sub_node| find_assertion_nodes(sub_node) }.flatten
+    end
+
     def verify_node(node)
       assertions(node).each { |a| a.run_assertion }
-#       if node.key?('visible_when') && node['visible_when'].match(/title\(/)
-#         current_title = @drv.title
-#         expected_title = Regexp.new(node['visible_when'].match(/title\((.*)\)/)[1].to_s)
-#         rc = !expected_title.match(current_title).nil?
-#
-#         Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Verify expected title (#{current_title}) matches (#{expected_title}) => " + rc.to_s
-#
-# #       Testmgr::TestReport.instance.getReq('UI').tc('visible_when').add(expected_title==current_title, "Verify title matches #{expected_title}")
-#       end
-#
-#       if node.key?('visible_when') && node['visible_when'].match(/(text|value)\s*\(/)
-#         condition = node['visible_when'].match(/(value|text)\((.*)\)/)[1].to_s
-#         tmpObj = node['visible_when'].match(/(value|text)\((.*)\)/)[2].to_s
-#         expectedVal = node['visible_when'].match(/(value|text)\s*\(.*\)\s*\=\s*(.*)/)[2].to_s
-#         Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " tmpObj => #{tmpObj} with expected value #{expectedVal}"
-#
-#         xpath = Scoutui::Base::UserVars.instance.get(tmpObj)
-#
-#         obj = Scoutui::Base::QBrowser.getObject(@drv, xpath)
-#
-#         if !obj.nil?
-#           #  Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " value : #{obj.value.to_s}"
-#           Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " text  : #{obj.text.to_s}"
-#
-#           if obj.tag_name.downcase.match(/(select)/)
-#             _opt = Selenium::WebDriver::Support::Select.new(obj)
-#             opts = _opt.selected_options
-#             Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " selected => #{opts.to_s}"
-#
-#             opts.each do |o|
-#               Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + "| <v, t>::<#{o.attribute('value').to_s},  #{o.text.to_s}>"
-#               desc=nil
-#
-#               if condition=='text' && o.text==expectedVal
-#                 desc=" Verify #{locator} is visible since condition (#{condition} #{xpath} is met."
-#               elsif condition=='value' && o.attribute('value').to_s==expectedVal
-#                 desc=" Verify #{locator} is visible since #{condition} of #{xpath} is #{expectedVal}"
-#               end
-#
-#               if !desc.nil?
-#                 locatorObj = Scoutui::Base::QBrowser.getObject(@drv, locator)
-#
-#                 Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " LocatorObj : #{locatorObj} : #{!locatorObj.nil? && locatorObj.displayed?}"
-#
-#                 Testmgr::TestReport.instance.getReq('UI').tc('visible_when').add(!locatorObj.nil? && locatorObj.displayed?, desc)
-#               end
-#             end
-#           end
-#
-#           Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " value : #{obj.attribute('value').to_s}"
-#         end
-#
-#       end
+
+
+
+      if node.key?('visible_when') && node['visible_when'].match(/title\(/)
+        current_title = @drv.title
+        expected_title = Regexp.new(node['visible_when'].match(/title\((.*)\)/)[1].to_s)
+        rc = !expected_title.match(current_title).nil?
+
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Verify expected title (#{current_title}) matches (#{expected_title}) => " + rc.to_s
+
+#       Testmgr::TestReport.instance.getReq('UI').tc('visible_when').add(expected_title==current_title, "Verify title matches #{expected_title}")
+      end
+
+      if node.key?('visible_when') && node['visible_when'].match(/(text|value)\s*\(/)
+        condition = node['visible_when'].match(/(value|text)\((.*)\)/)[1].to_s
+        tmpObj = node['visible_when'].match(/(value|text)\((.*)\)/)[2].to_s
+        expectedVal = node['visible_when'].match(/(value|text)\s*\(.*\)\s*\=\s*(.*)/)[2].to_s
+        Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " tmpObj => #{tmpObj} with expected value #{expectedVal}"
+
+        xpath = Scoutui::Base::UserVars.instance.get(tmpObj)
+
+        obj = Scoutui::Base::QBrowser.getObject(@drv, xpath)
+
+        if !obj.nil?
+          #  Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " value : #{obj.value.to_s}"
+          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " text  : #{obj.text.to_s}"
+
+          if obj.tag_name.downcase.match(/(select)/)
+            _opt = Selenium::WebDriver::Support::Select.new(obj)
+            opts = _opt.selected_options
+            Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE
+
+__).to_s + " selected => #{opts.to_s}"
+
+            opts.each do |o|
+              Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + "| <v, t>::<#{o.attribute('value').to_s},  #{o.text.to_s}>"
+              desc=nil
+
+              if condition=='text' && o.text==expectedVal
+                desc=" Verify #{locator} is visible since condition (#{condition} #{xpath} is met."
+              elsif condition=='value' && o.attribute('value').to_s==expectedVal
+                desc=" Verify #{locator} is visible since #{condition} of #{xpath} is #{expectedVal}"
+              end
+
+              if !desc.nil?
+                locatorObj = Scoutui::Base::QBrowser.getObject(@drv, locator)
+
+                Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " LocatorObj : #{locatorObj} : #{!locatorObj.nil? && locatorObj.displayed?}"
+
+                Testmgr::TestReport.instance.getReq('UI').tc('visible_when').add(!locatorObj.nil? && locatorObj.displayed?, desc)
+              end
+            end
+          end
+
+          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " value : #{obj.attribute('value').to_s}"
+        end
+
+      end
+
+
+
+
+
     end
 
     def assertions(node)
@@ -142,14 +155,25 @@ module Scoutui::Commands
       assertions_node = node['assertions']
       assertions_node.keys.select { |key| assertion_keys.include?(key) }.map do |key|
         klass = "Scoutui::Assertions::#{key.camelize}".constantize
-        klass.new(@driver, parse_condition(assertions_node[key]), node['locator'])
+        klass.new(@drv, parse_condition(assertions_node[key]), node['locator'])
       end
     end
 
-    def parse_condition(condition)
+    def parse_condition(condition_text)
       simple_conditions = %w'always never'
-      return condition if simple_conditions.include?(condition)
-      fail Exception, 'Not handling this currently'
+      return condition_text if simple_conditions.include?(condition_text)
+
+      complex_conditions = %w'value text select role click visible'
+      regex = Regexp.new "(#{complex_conditions.join('|')})\\s*\\((.*)\\)\\s*\\=\\s*(.*)"
+      condition_array = condition_text.match(regex)
+
+      {
+        type: condition_array[1],
+        locator: condition_array.size > 2 ? condition_array[2] : nil,
+        value: condition_array.size > 3 ? condition_array[3] : nil
+      }
+
+      # fail Exception, 'Not handling this currently'
       # TODO: Add handling for things like => "visible_when": "click(page(research).get(fuel_economy))",
     end
   end

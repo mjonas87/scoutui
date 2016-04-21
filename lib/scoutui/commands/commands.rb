@@ -1,9 +1,7 @@
 require_relative('./command')
 
 module Scoutui::Commands
-
-  STEP_KEY='page'
-
+  STEP_KEY='step'
 
   def self.processCommands(commandList, my_driver)
     commandList.each do |cmd|
@@ -48,7 +46,7 @@ module Scoutui::Commands
         _c.execute(my_driver)
 
         if e["page"].has_key?('then')
-          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " then => #{e['page']['then]']}"
+          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " then => #{e[STEP_KEY]['then]']}"
         end
 
       elsif Scoutui::Commands::Utils.instance.isExistsAlert?(_action)

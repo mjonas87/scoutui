@@ -62,26 +62,20 @@ module Scoutui::Base
 
     # http://stackoverflow.com/questions/15164742/combining-implicit-wait-and-explicit-wait-together-results-in-unexpected-wait-ti#answer-15174978
     def self.getObject(drv, obj, _timeout=30)
-      rc = nil
       locateBy = :xpath
 
       if obj.is_a?(Hash)
-        if obj.has_key?('visible_when')
-          visible_when=!obj['visible_when'].match(/always/i).nil?
-        end
-
-        locator = obj['locator'].to_s
+        locator = obj['locator']
       elsif !obj.match(/^page\([\w\d]+\)/).nil?
-        elt = Scoutui::Utils::TestUtils.instance.getPageElement(obj)
+        node = Scoutui::Utils::TestUtils.instance.getPageElement(obj)
 
-        if elt.is_a?(Hash)
-          locator = elt['locator'].to_s
+        locator = if node.is_a?(Hash)
+          node['locator'].to_s
         else
-          locator=elt.to_s
+          node.to_s
         end
-
       else
-        locator=obj.to_s
+        locator = obj.to_s
       end
 
       if !locator.match(/\$\{.*\}/).nil?
@@ -106,10 +100,9 @@ module Scoutui::Base
         locateBy = :css
       end
 
-
-      Selenium::WebDriver::Wait.new(timeout: _timeout).until { rc=drv.find_element( locateBy => locator) }
-
-      rc
+      binding.pry
+      Selenium::WebDriver::Wait.new(timeout: _timeout).until { element = drv.find_element( locateBy => locator) }
+      element
     end
 
     def wait_for(seconds)
