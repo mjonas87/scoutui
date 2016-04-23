@@ -18,7 +18,10 @@ home:
     locator: css=.browse-all
     reqid: REQ-Home
     assertions:
-      visible_when: text(page(home).get(login))=Login
+      visible_when:
+        type: text
+        locator: page(home).get(login)
+        value: Login
 #  form_first_name:
 #    locator: css=.first-name
 #    assertions:

@@ -274,6 +274,7 @@ module Scoutui::Base
     def self.processModelAssertions(driver, command_node)
       Scoutui::Logger::LogMgr.instance.info 'Process Model Assertions'.yellow
       Scoutui::Logger::LogMgr.instance.info 'No node specified to verify'.red unless command_node[STEP_KEY].key?('verify')
+
       model_node = Scoutui::Utils::TestUtils.instance.getPageElement(command_node[STEP_KEY]['verify'])
       Scoutui::Commands::VerifyElement.new(model_node, driver).execute(driver)
     end

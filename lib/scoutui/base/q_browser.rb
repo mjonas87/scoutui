@@ -100,7 +100,7 @@ module Scoutui::Base
         locateBy = :css
       end
 
-      binding.pry
+      element = nil
       Selenium::WebDriver::Wait.new(timeout: _timeout).until { element = drv.find_element( locateBy => locator) }
       element
     end

@@ -80,7 +80,7 @@ module Scoutui::Commands
 
     def nodes_to_verify(current_node)
       return [current_node] if current_node.key?('locator')
-      current_node.map { |sub_node_key, sub_node| find_assertion_nodes(sub_node) }.flatten
+      current_node.map { |sub_node_key, sub_node| nodes_to_verify(sub_node) }.flatten
     end
 
     def verify_node(node)
