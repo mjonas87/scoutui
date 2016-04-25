@@ -17,21 +17,21 @@ module Scoutui::Assertions
     def declare_result
       result = yield(element)
       result_text = result.to_s.colorize(result ? :green : :red)
-      Scoutui::Logger::LogMgr.instance.info "#{self.class.name.demodulize.titleize} #{(@condition.is_a?(Hash) ? @condition[:type] : @condition).titleize}?".blue + " : #{@locator.yellow} : #{result_text}"
+      Scoutui::Logger::LogMgr.instance.info "#{self.class.name.demodulize.titleize} #{(@condition.is_a?(Hash) ? @condition['type'] : @condition).titleize}?".blue + " : #{@locator.yellow} : #{result_text}"
     end
 
     def assert_complex
-      case @condition[:type]
+      case @condition['type']
         when 'text'
-          target_element = Scoutui::Base::QBrowser.getObject(@driver, @condition[:locator])
+          target_element = Scoutui::Base::QBrowser.getObject(@driver, @condition['locator'])
           declare_result do |element|
             element.displayed?
-          end if target_element.text.downcase == @condition[:value].downcase
+          end if target_element.text.downcase == @condition['value'].downcase
         when 'value'
-          target_element = Scoutui::Base::QBrowser.getObject(@driver, @condition[:locator])
+          target_element = Scoutui::Base::QBrowser.getObject(@driver, @condition['locator'])
           declare_result do |element|
             element.displayed?
-          end if target_element.value == @condition[:value]
+          end if target_element.value == @condition['value']
         else
           # TODO: More kinds of visibility assertions!
           # elsif assertion['visible_when'].match(/role\=/i)

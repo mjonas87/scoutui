@@ -115,9 +115,7 @@ module Scoutui::Commands
           if obj.tag_name.downcase.match(/(select)/)
             _opt = Selenium::WebDriver::Support::Select.new(obj)
             opts = _opt.selected_options
-            Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE
-
-__).to_s + " selected => #{opts.to_s}"
+            Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " selected => #{opts.to_s}"
 
             opts.each do |o|
               Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + "| <v, t>::<#{o.attribute('value').to_s},  #{o.text.to_s}>"
@@ -162,16 +160,7 @@ __).to_s + " selected => #{opts.to_s}"
     def parse_condition(condition_text)
       simple_conditions = %w'always never'
       return condition_text if simple_conditions.include?(condition_text)
-
-      complex_conditions = %w'value text select role click visible'
-      regex = Regexp.new "(#{complex_conditions.join('|')})\\s*\\((.*)\\)\\s*\\=\\s*(.*)"
-      condition_array = condition_text.match(regex)
-
-      {
-        type: condition_array[1],
-        locator: condition_array.size > 2 ? condition_array[2] : nil,
-        value: condition_array.size > 3 ? condition_array[3] : nil
-      }
+      condition_text
 
       # fail Exception, 'Not handling this currently'
       # TODO: Add handling for things like => "visible_when": "click(page(research).get(fuel_economy))",

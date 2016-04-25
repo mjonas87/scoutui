@@ -14,17 +14,17 @@ module Scoutui::Assertions
 
     def condition_type
       return @condition if @is_simple
-      @condition[:type]
+      @condition['type']
     end
 
     def condition_locator
       return nil if @is_simple
-      @condition[:locator]
+      @condition['locator']
     end
 
     def condition_value
       return nil if @is_simple
-      @condition[:value]
+      @condition['value']
     end
 
     def element
