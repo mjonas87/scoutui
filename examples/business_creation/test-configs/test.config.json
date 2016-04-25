@@ -11,7 +11,7 @@
     "app": "10-16"
   },
 
-  "host": "https://giftcardzen.com",
+  "host": "https://zen-staging-vp-app.herokuapp.com/admin/login",
   "dut": "../commands/commands.yml",
 
   "user_vars": {

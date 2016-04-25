@@ -3,7 +3,7 @@
 module Scoutui::Base
   class VisualTestFramework
 
-    STEP_KEY = 'step'
+    STEP_KEY = 'commmands'
     CMD_KEY = 'dut'   # Used to indicate the command file (YML) to execute
 
     def initialize
@@ -144,7 +144,7 @@ module Scoutui::Base
         _form = _action.match(/fillform\((.*)\s*\)/)[1].to_s
      #  _dut = _action.match(/fillform\(.*,\s*(.*)\)/)[1].to_s
 
-        dut = e[STEP_KEY]['dut']
+        dut = e['dut']
 
         Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " DUT => #{dut}" if Scoutui::Utils::TestUtils.instance.isDebug?
         _f = Scoutui::Utils::TestUtils.instance.getForm(_form)
@@ -182,8 +182,8 @@ module Scoutui::Base
 
     def self.isRun(e)
       _run=nil
-      if e[STEP_KEY].key?("run")
-        _run = e[STEP_KEY].key?("run").to_s
+      if e.key?("run")
+        _run = e.key?("run").to_s
       end
       _run
     end
@@ -191,8 +191,8 @@ module Scoutui::Base
     def self.isSnapIt(e)
       _snapit=false
 
-      if e[STEP_KEY].key?("snapit")
-        _snapit = !(e[STEP_KEY]["snapit"].to_s.match(/true/i).nil?)
+      if e.key?("snapit")
+        _snapit = !(e["snapit"].to_s.match(/true/i).nil?)
       end
       _snapit
     end
@@ -223,13 +223,13 @@ module Scoutui::Base
     def self.processCommandAssertions(driver, e)
       Scoutui::Logger::LogMgr.instance.info 'Process Command Assertions'.yellow
 
-      unless e[STEP_KEY].key?('assertions') && e[STEP_KEY]['assertions'].size > 0
+      unless e.key?('assertions') && e['assertions'].size > 0
         Scoutui::Logger::LogMgr.instance.info 'No assertions present'.blue
         return
       end
 
       _req = Scoutui::Utils::TestUtils.instance.getReq
-      e[STEP_KEY]['assertions'].each do |assertion_node|
+      e['assertions'].each do |assertion_node|
         assertion_key = assertion_node.keys[0].to_s
         assertion = assertion_node[assertion_key]
 
@@ -273,20 +273,20 @@ module Scoutui::Base
 
     def self.processModelAssertions(driver, command_node)
       Scoutui::Logger::LogMgr.instance.info 'Process Model Assertions'.yellow
-      Scoutui::Logger::LogMgr.instance.info 'No node specified to verify'.red unless command_node[STEP_KEY].key?('verify')
+      Scoutui::Logger::LogMgr.instance.info 'No node specified to verify'.red unless command_node.key?('verify')
 
-      model_node = Scoutui::Utils::TestUtils.instance.getPageElement(command_node[STEP_KEY]['verify'])
+      model_node = Scoutui::Utils::TestUtils.instance.getPageElement(command_node['verify'])
       Scoutui::Commands::VerifyElement.new(model_node, driver).execute(driver)
     end
 
     def self.processExpected(driver, e)
       Scoutui::Logger::LogMgr.instance.info 'Process Expectations'.yellow
-      return unless e[STEP_KEY].key?('expected')
+      return unless e.key?('expected')
       return unless Scoutui::Utils::TestUtils.instance.assertExpected?
 
       Scoutui::Base::Assertions.instance.setDriver(driver)
       _req = Scoutui::Utils::TestUtils.instance.getReq
-      expected = e[STEP_KEY]['expected']
+      expected = e['expected']
 
       process_expected_as_array(driver, expected) if expected.is_a?(Array)
       process_expected_as_hash(driver, expected) if expected.is_a?(Hash)
@@ -299,32 +299,26 @@ module Scoutui::Base
       baseUrl = Scoutui::Base::UserVars.instance.getHost
       datafile = test_settings['dut']
 
-      valid_file=false
-      i=0
-      commands = YAML.load_stream(File.read(datafile))
-      valid_file=true
-
-      return if !valid_file
+      commands = YAML.load_stream(File.read(datafile))[0]
 
       commands.each do |command_node|
         totalWindows = driver.window_handles.length
 
         puts 'Command to Process'.blue
         ap(command_node)
-        i += 1
 
         Scoutui::Utils::TestUtils.instance.setReq('UI')
         Scoutui::Commands::Utils.instance.resetTimeout
 
-        _action = command_node[STEP_KEY]["action"]
-        _name   = command_node[STEP_KEY]["name"]
-        _url    = command_node[STEP_KEY]["url"]
-        _skip   = command_node[STEP_KEY]["skip"]
-        _region = command_node[STEP_KEY]["region"]
-        _reqid  = command_node[STEP_KEY]["reqid"]
+        _action = command_node['action']
+        _name = command_node['name']
+        _url    = command_node['url']
+        _skip   = command_node['skip']
+        _region = command_node['region']
+        _reqid  = command_node['reqid']
 
-        if command_node[STEP_KEY].key?("timeout")
-         Scoutui::Commands::Utils.instance.setTimeout(command_node[STEP_KEY]["timeout"])
+        if command_node.key?("timeout")
+         Scoutui::Commands::Utils.instance.setTimeout(command_node["timeout"])
         end
 
         if !_reqid.nil? && !_reqid.to_s.empty?
@@ -345,7 +339,7 @@ module Scoutui::Base
         if !isRun(command_node).nil?
           Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " ========> RUN <================="
           tmpSettings=test_settings.dup
-          tmpSettings["dut"]=e[STEP_KEY]["run"].to_s
+          tmpSettings["dut"]=e["run"].to_s
 
           Scoutui::Logger::LogMgr.instance.info " RUN Command file : #{tmpSettings["dut"]}"
           processFile(eyeScout, tmpSettings, strategy)
@@ -389,8 +383,8 @@ module Scoutui::Base
         end
 
 
-        if command_node[STEP_KEY].key?("url")
-          url = command_node[STEP_KEY]["url"].to_s
+        if command_node.key?("url")
+          url = command_node["url"].to_s
           eyeScout.getStrategy.processCommand('navigate(' + url + ')', command_node)
         end
 
@@ -404,8 +398,8 @@ module Scoutui::Base
           eyeScout.check_window(_name)
         end
 
-        if command_node[STEP_KEY].key?('links')
-          links = command_node[STEP_KEY]['links']
+        if command_node.key?('links')
+          links = command_node['links']
 
           links.each_pair do |link_name, selector|
             Scoutui::Logger::LogMgr.instance.info "\t\t#{link_name} => #{selector}"  if Scoutui::Utils::TestUtils.instance.isDebug?

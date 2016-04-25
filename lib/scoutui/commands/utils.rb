@@ -122,7 +122,6 @@ module Scoutui::Commands
     end
 
     def isValid?(cmd)
-
       rc=true
 
       if isPause?(cmd)
@@ -155,8 +154,5 @@ module Scoutui::Commands
 
       rc
     end
-
   end
-
-
 end

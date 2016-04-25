@@ -4,6 +4,7 @@ module Scoutui::Commands
   STEP_KEY='step'
 
   def self.processCommands(commandList, my_driver)
+    binding.pry
     commandList.each do |cmd|
       begin
         rc=processCommand(cmd[:command], cmd[:e], my_driver)

@@ -60,6 +60,7 @@ module Scoutui::Commands
     end
 
     def processCommands(cmds)
+      binding.pry
       Scoutui::Commands::processCommands(cmds, getDriver)
     end
 
