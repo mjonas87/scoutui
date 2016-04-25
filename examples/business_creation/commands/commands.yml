@@ -1,0 +1,25 @@
+step:
+  skip: false
+  name: Sign in as Admin
+  description: Navigate to a specified URL and wait until the expected elements are present
+  url: https://zen-staging-vp-app.herokuapp.com/admin/login
+  verify: page(admin_login)
+
+#---
+#step:
+#  name: Click on Make
+#  action: click(page(find_cars_by).get(make))
+#  expected:
+#    wait: //div[contains(@class, 'open')]//a[text()='Porsche']
+#---
+#step:
+#  name: Select Porsche
+#  action: click(//div[contains(@class, 'open')]//a[text()='${MyMake}'])
+#  expected:
+#    wait: //*[@id='Model']//*[text()='${MyMake}']
+#  assertions: [
+#    assert1: {
+#      "locator": "page(find_cars_by).get(price_list)",
+#
+#    }
+#  ]

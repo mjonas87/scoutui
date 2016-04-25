@@ -1,0 +1,17 @@
+admin_login:
+  email_input:
+    locator: css=#admin_user_email
+    assertions:
+      visible_when: always
+  password_input:
+    locator: css=#admin_user_password
+    assertions:
+      visible_when: always
+  login_button:
+    locator: css=#admin_user_submit_action > input
+    assertions:
+      visible_when: always
+  forgot_password_link:
+    locator: //a[text()='Forgot your password?']
+    assertions:
+      visible_when: always
