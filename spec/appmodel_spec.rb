@@ -25,7 +25,7 @@ describe 'Manage JSON app-model' do
 
   it 'should itemize based on condition visible_when - with action hover' do
 
-    _pg = appModel.getPageElement('page(home).get(cars4sale)')
+    _pg = appModel.get_model_node('page(home).get(cars4sale)')
 
     triggers=appModel.itemize('visible_when', 'hover', 'page(home).get(cars4sale)')
 

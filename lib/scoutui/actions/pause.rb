@@ -1,27 +1,17 @@
-
-
 module Scoutui::Actions
+  class Pause < BaseAction
 
-  class Pause < Action
-    STEP_KEY = 'step'
+    def initialize(driver)
+      super(driver)
+    end
 
-    def execute(e=nil)
-      rc=true
-      h=""
-      begin
-        if e.is_a?(Hash) && e.has_key?(STEP_KEY)
-          h=e['page']['name'].to_s
-        end
-        puts "====== PAUSE - HIT ENTER #{h} =========".blue
-        gets
-      rescue => ex
-        puts "Error during processing: #{$!}"
-        puts "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
-        rc=false
-      end
-      setResult(rc)
+    def up
+      gets
+    end
+
+    def inspect
+      puts "====== PAUSED - ENTER TO CONTINUE =========".yellow
     end
   end
-
-
 end
+

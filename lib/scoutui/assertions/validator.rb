@@ -5,15 +5,7 @@ module Scoutui::Assertions
     end
 
     def validate(model_key, model_node)
-      # return unless model_node.key?('visible_when')
-      #
-      # model_node.each { |key, node| validate(key, node)} if model_node['visible_when'].respond_to?(:each)
-
-     # locator = model_node['locator']
-      # element = Scoutui::Base::QBrowser.getFirstObject(@driver, locator)
-
-      assertions(model_node).each { |a| a.run_assertion }
-
+      assertions(model_node).each { |a| a.perform }
     end
 
     private

@@ -18,7 +18,7 @@ describe 'Manage qforms' do
     model = Scoutui::Utils::TestUtils.instance.loadModel([static_settings_file])
 
 
-    loginForm = Scoutui::Utils::TestUtils.instance.getPageElement('page(login).get(login_form)')
+    loginForm = Scoutui::Utils::TestUtils.instance.get_model_node('page(login).get(login_form)')
 
     _f = Scoutui::Utils::TestUtils.instance.getForm('page(login).get(login_form)')
 

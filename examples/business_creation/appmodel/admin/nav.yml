@@ -1,0 +1,43 @@
+admin_nav:
+  dashboard_link:
+    locator: //a[text()='Dashboard']
+    assertions:
+      visible_when: always
+      if_then:
+        if: "/admin=/admin"
+        then: //a[text()='Dashboard']/parent::li[contains(@class,'current')]
+  admin_users_link:
+    locator: //a[text()='Admin Users']
+    assertions:
+      visible_when: always
+  businesses_link:
+    locator: //a[text()='Businesses']
+    assertions:
+      visible_when: always
+  collections_link:
+    locator: //a[text()='Collections']
+    assertions:
+      visible_when: always
+  comments_link:
+    locator: //a[text()='Comments']
+    assertions:
+      visible_when: always
+  merchants_link:
+    locator: //a[text()='Merchants']
+    assertions:
+      visible_when: always
+  payment_exceptions_link:
+    locator: //a[text()='Payment Exceptions']
+    assertions:
+      visible_when: always
+  payouts_link:
+    locator: //a[text()='Payouts']
+    assertions:
+      visible_when: always
+  users_link:
+    locator: //a[text()='Users']
+    assertions:
+      visible_when: always
+      if_then:
+        if: "/admin/users=/admin/users"
+        then: //a[text()='Users']/parent::li[contains(@class,'current')]

@@ -28,33 +28,20 @@ module Scoutui::ApplicationModel
     end
 
 
-    # getPageElement("page(login).get(login_form).get(button)")
-    def getPageElement(s)
-      if s.match(/^\s*\//) || s.match(/^\s*css\s*=/i)
-        return nil
+    # get_model_node("page(login).get(login_form).get(button)")
+    def get_model_node(node_locator, current_node = @app_model)
+      segments = node_locator.split(/\./)
+      node_key = segments.first.match(/\((.*)\)/)[1]
+
+      if segments.length > 1
+        get_model_node(segments[1..(segments.length - 1)], current_node[node_key])
+      else
+        current_node[node_key]
       end
-
-      hit=@app_model
-      nodes = s.split(/\./)
-
-      nodes.each { |elt|
-        getter = elt.split(/\(/)[0]
-        _obj = elt.match(/\((.*)\)/)[1]
-
-        if getter.downcase.match(/(page|pg)/)
-          hit=@app_model[_obj]
-        elsif getter.downcase=='get'
-          hit=hit[_obj]
-        else
-          return nil
-        end
-      }
-
-      hit
     end
 
-    # get_page_node("page(login).get(login_form).get(button)")
-    def get_page_node(selector, current_node = nil)
+    # get_model_node("page(login).get(login_form).get(button)")
+    def get_model_node(selector, current_node = nil)
       current_node ||= @app_model
       fail Exception, 'Current node is nil' if current_node.nil?
 
@@ -69,7 +56,7 @@ module Scoutui::ApplicationModel
 
       node_name = selector.match(/\((.*)\)/)[1]
       if remaining_selectors.any?
-        get_page_node(remaining_selectors.join, current_node[node_name])
+        get_model_node(remaining_selectors.join, current_node[node_name])
       elsif current_node.key?(node_name)
         [current_node[node_name], node_name]
       else

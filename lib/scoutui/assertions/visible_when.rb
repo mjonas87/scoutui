@@ -1,10 +1,20 @@
 module Scoutui::Assertions
   class VisibleWhen < BaseAssertion
-    def description
-      "Verify #{@xpath_selector} is visible."
+    def self.parse_args(assertion_condition)
+      [assertion_condition]
     end
 
-    def run_assertion
+    def initialize(driver, locator, condition)
+      super(driver, locator)
+      @condition = condition
+    end
+
+    def check?
+      return check_complex? if @condition.is_a?(Hash)
+      true
+    end
+
+    def up
       if @condition.is_a?(Hash)
         assert_complex
       else
@@ -14,27 +24,36 @@ module Scoutui::Assertions
 
     private
 
-    def declare_result
-      result = yield(element)
-      result_text = result.to_s.colorize(result ? :green : :red)
-      Scoutui::Logger::LogMgr.instance.info "#{self.class.name.demodulize.titleize} #{(@condition.is_a?(Hash) ? @condition['type'] : @condition).titleize}?".blue + " : #{@locator.yellow} : #{result_text}"
+    def assertion_element
+      @assertion_element ||= Scoutui::Base::QBrowser.getObject(@driver, @locator)
+    end
+
+    def condition_element
+      @condition_element ||= Scoutui::Base::QBrowser.getObject(@driver, @condition['locator'])
+    end
+
+    def check_complex?
+      case @condition['type']
+        when 'text'
+          return condition_element.text.downcase == @condition['value'].downcase
+        when 'value'
+          return condition_element.value == @condition['value']
+        else
+          fail Exception, "Unknown 'complex' assertion condition"
+      end
     end
 
     def assert_complex
       case @condition['type']
         when 'text'
-          target_element = Scoutui::Base::QBrowser.getObject(@driver, @condition['locator'])
           declare_result do |element|
             element.displayed?
-          end if target_element.text.downcase == @condition['value'].downcase
+          end
         when 'value'
-          target_element = Scoutui::Base::QBrowser.getObject(@driver, @condition['locator'])
           declare_result do |element|
             element.displayed?
-          end if target_element.value == @condition['value']
+          end
         else
-          # TODO: More kinds of visibility assertions!
-          # elsif assertion['visible_when'].match(/role\=/i)
           fail Exception, "Unknown 'complex' assertion condition"
       end
     end
@@ -45,15 +64,17 @@ module Scoutui::Assertions
           declare_result do |element|
             element.displayed?
           end
-        # Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(!element.nil?, "Verify #{model_key} - #{model_node['locator']} visible")
         when 'never'
           declare_result do |element|
             !element.displayed?
           end
-        # Testmgr::TestReport.instance.getReq(_req).get_child('visible_when').add(element.nil?, "Verify #{model_key} #{model_node['locator']} not visible")
         else
           fail Exception, "Unknown 'simple' assertion condition"
       end
+    end
+
+    def print_result(result_text)
+      Scoutui::Logger::LogMgr.instance.info "Visible When #{(@condition.is_a?(Hash) ? @condition['type'] : @condition).titleize}?".blue + " : #{@locator.yellow} : #{result_text}"
     end
   end
 end

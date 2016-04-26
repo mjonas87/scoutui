@@ -49,7 +49,7 @@ module Scoutui::Actions
           _rc=true
 
 
-          page_elt = Scoutui::Utils::TestUtils.instance.getPageElement(_locator)
+          page_elt = Scoutui::Utils::TestUtils.instance.get_model_node(_locator)
           Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " PageElement(#{_locator}) => #{page_elt}"
           _whenHovered(page_elt)
 
@@ -69,7 +69,7 @@ module Scoutui::Actions
               if !_pageObj.match(/^page\([\w\d]+\)/).nil?
       #         _tObj = Scoutui::Base::VisualTestFramework.processPageElement(@drv, 'peter', _pageObj)
 
-                _tLocator = Scoutui::Utils::TestUtils.instance.getPageElement(_pageObj)
+                _tLocator = Scoutui::Utils::TestUtils.instance.get_model_node(_pageObj)
                 _tObj = Scoutui::Base::QBrowser.getFirstObject(@drv, _tLocator['locator'])
 
               else

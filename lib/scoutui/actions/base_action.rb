@@ -4,12 +4,20 @@ module Scoutui::Actions
       @driver = driver
     end
 
+    def valid?
+      true
+    end
+
     def perform
-      up
+      if valid?
+        up
+      else
+        Scoutui::Logger::LogMgr.instance.info "Skipping #{self.class.name}".blue
+      end
     end
 
     def up
-      fail Exception, "'#{self.class.name}#perform' is undefined."
+      fail Exception, "'#{self.class.name}##{__method__}' is undefined."
     end
   end
 end

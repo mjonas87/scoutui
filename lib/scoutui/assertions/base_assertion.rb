@@ -1,53 +1,42 @@
 module Scoutui::Assertions
   class BaseAssertion
+    def self.parse_args(assertion_condition); end
 
-    def run_assertion; end
-    def description; end
-
-    def initialize(driver, condition, locator, req = nil )
+    def initialize(driver, locator)
       @driver = driver
-      @is_simple = condition.is_a?(Hash)
       @locator = locator
-      @req = req
-      @condition = condition
     end
 
-    def condition_type
-      return @condition if @is_simple
-      @condition['type']
-    end
-
-    def condition_locator
-      return nil if @is_simple
-      @condition['locator']
-    end
-
-    def condition_value
-      return nil if @is_simple
-      @condition['value']
-    end
-
-    def element
-      @element ||= Scoutui::Base::QBrowser.getObject(@driver, @locator)
-    end
-
-    def assert!
-      run_assertion
+    def check?
       true
     end
 
-    def assert
-      assert!
-    rescue AssertionFailureException => ex
-      @message = ex.message
-      return false
+    def perform
+      if check?
+        begin
+          up
+        rescue Exception
+          declare_result do |_element|
+            false
+          end
+        end
+      else
+        Scoutui::Logger::LogMgr.instance.info "Skipping #{self.class.name}".blue
+      end
     end
 
-    def failure_message
-      @message ||= ''
+    def up
+      fail Exception, "'#{self.class.name}##{__method__}' is undefined."
     end
-  end
 
-  class AssertionFailureException < Exception
+    def declare_result
+      result = yield(Scoutui::Base::QBrowser.getObject(@driver, @locator))
+      result_text = result.to_s.colorize(result ? :green : :red)
+      print_result(result_text)
+    end
+
+    def print_result(result_text)
+      Scoutui::Logger::LogMgr.instance.info "#{self.class.name.demodulize.titleize} : #{result_text}"
+    end
   end
 end

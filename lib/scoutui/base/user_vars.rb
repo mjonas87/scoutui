@@ -58,7 +58,6 @@ module Scoutui::Base
       value = config.fetch('user_vars', {}).fetch(variable_name, {})
       value = @globals.fetch(variable_name, {}) if value == {}
       value = ENV.fetch(variable_name, {}) if value == {}
-      binding.pry
 
       value == {} ? nil : value
     end

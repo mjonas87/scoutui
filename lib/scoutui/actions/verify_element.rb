@@ -31,7 +31,7 @@ module Scoutui::Actions
             _locator = _v['locator'].to_s
             Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " " + _k.to_s + " => " + _locator
 
-            #  _locator = Scoutui::Utils::TestUtils.instance.getPageElement(_v['locator'])
+            #  _locator = Scoutui::Utils::TestUtils.instance.get_model_node(_v['locator'])
 
             _obj = Scoutui::Base::QBrowser.getFirstObject(@drv, _locator, Scoutui::Actions::Utils.instance.getTimeout())
 
@@ -84,7 +84,7 @@ module Scoutui::Actions
     end
 
     def verify_node(node)
-      assertions(node).each { |a| a.run_assertion }
+      assertions(node).each { |a| a.perform }
 
 
 

@@ -8,3 +8,6 @@
     - fill_form(page(admin_login).get(password_input))={{ADMIN_PASSWORD}}
 - name: Submit sign-in form
   action: click(page(admin_login).get(login_button))
+- name: Impersonate User
+  action: pause
+  verify: page(admin_nav)

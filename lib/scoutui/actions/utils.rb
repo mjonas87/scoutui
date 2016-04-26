@@ -26,7 +26,7 @@ module Scoutui::Actions
                      'verifyelement',
                      'verifyform']
       @totalActions={}
-      @timeout=30
+      @timeout=5
       @command_list.each do |c|
         @totalActions[c]=0
       end
@@ -59,7 +59,7 @@ module Scoutui::Actions
     end
 
     def resetTimeout()
-      setTimeout(30)
+      setTimeout(5)
     end
 
     def setTimeout(_t)

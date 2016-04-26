@@ -1,18 +1,10 @@
-
-#require 'eyes_selenium'
-#require 'selenium-webdriver'
-
 module Scoutui::Base
-
-
   class QBrowser
-
     attr_accessor :driver
 
-    def initialize()
-    end
+    DEFAULT_TIMEOUT = 5
 
-    def self.wait_for_displayed(drv, locator, _timeout=30)
+    def self.wait_for_displayed(drv, locator, _timeout = DEFAULT_TIMEOUT)
       Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " wait_for_displayed(#{xpath}"
       rc=nil
       begin
@@ -23,7 +15,7 @@ module Scoutui::Base
       rc
     end
 
-    def self.wait_for_exist(drv, xpath, _timeout=30)
+    def self.wait_for_exist(drv, xpath, _timeout = DEFAULT_TIMEOUT)
       Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " wait_for_exist(#{xpath}"
       rc=nil
       begin
@@ -35,7 +27,7 @@ module Scoutui::Base
       rc
     end
 
-    def self.getFirstObject(drv, locator, timeout = 30)
+    def self.getFirstObject(drv, locator, timeout = DEFAULT_TIMEOUT)
       first_object = nil
 
       begin
@@ -61,13 +53,13 @@ module Scoutui::Base
     end
 
     # http://stackoverflow.com/questions/15164742/combining-implicit-wait-and-explicit-wait-together-results-in-unexpected-wait-ti#answer-15174978
-    def self.getObject(drv, obj, _timeout=30)
+    def self.getObject(drv, obj, _timeout = DEFAULT_TIMEOUT)
       locateBy = :xpath
 
       if obj.is_a?(Hash)
         locator = obj['locator']
       elsif !obj.match(/^page\([\w\d]+\)/).nil?
-        node = Scoutui::Utils::TestUtils.instance.getPageElement(obj)
+        node = Scoutui::Utils::TestUtils.instance.get_model_node(obj)
 
         locator = if node.is_a?(Hash)
           node['locator'].to_s
@@ -82,7 +74,7 @@ module Scoutui::Base
         _x = Scoutui::Base::UserVars.instance.get(locator)
         if !_x.nil?
           if !_x.match(/^page\([\w\d]+\)/).nil?
-            elt = Scoutui::Utils::TestUtils.instance.getPageElement(_x)
+            elt = Scoutui::Utils::TestUtils.instance.get_model_node(_x)
 
             if elt.is_a?(Hash)
               locator = elt['locator'].to_s

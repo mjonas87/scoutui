@@ -51,7 +51,7 @@ module Scoutui::Actions
           obj.click
           _clicked=true
 
-          page_elt = Scoutui::Utils::TestUtils.instance.getPageElement(_locator)
+          page_elt = Scoutui::Utils::TestUtils.instance.get_model_node(_locator)
 
           Scoutui::Logger::LogMgr.instance.debug "PageElement(#{_locator}) => #{page_elt}"
 

@@ -37,7 +37,7 @@ describe 'Manage JSON page objects' do
 
   it 'should receive nil for unsupported getter' do
     _model = Scoutui::ApplicationModel::QModel.new(static_file1)
-    _pg = _model.getPageElement('page(login)')
+    _pg = _model.get_model_node('page(login)')
     puts __FILE__ + (__LINE__).to_s + " pg => #{_pg.class.to_s}"
     expect(_pg).to be_a_kind_of(Hash)
   end

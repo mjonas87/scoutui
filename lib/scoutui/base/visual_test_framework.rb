@@ -18,7 +18,7 @@ module Scoutui::Base
       # TODO: Re-add?
       # fail Exception, "Regex did not conform to expected pattern: '#{selector}'" if selector.match(/^\s*page\(.*\)\s*$/).nil?
 
-      model_node, model_key = Scoutui::Utils::TestUtils.instance.getPageElement(selector)
+      model_node, model_key = Scoutui::Utils::TestUtils.instance.get_model_node(selector)
       assertion_validator = Scoutui::Assertions::Validator.new(driver)
       assertion_validator.validate(model_key, model_node)
 
@@ -200,7 +200,7 @@ module Scoutui::Base
     def self.verifyCondition(driver, selector)
 
       if !selector.match(/^page\([\w\d]+\)/).nil?
-        model_node = Scoutui::Utils::TestUtils.instance.getPageElement(selector)
+        model_node = Scoutui::Utils::TestUtils.instance.get_model_node(selector)
 
         if model_node.is_a?(Hash) && model_node.key?('locator')
           selector = model_node['locator'].to_s
@@ -275,7 +275,7 @@ module Scoutui::Base
       Scoutui::Logger::LogMgr.instance.info 'Process Model Assertions'.yellow
       Scoutui::Logger::LogMgr.instance.info 'No node specified to verify'.red unless command_node.key?('verify')
 
-      model_node = Scoutui::Utils::TestUtils.instance.getPageElement(command_node['verify'])
+      model_node = Scoutui::Utils::TestUtils.instance.get_model_node(command_node['verify'])
       Scoutui::Actions::VerifyElement.new(model_node, driver).execute(driver)
     end
 
@@ -299,7 +299,15 @@ module Scoutui::Base
       baseUrl = Scoutui::Base::UserVars.instance.getHost
       datafile = test_settings['dut']
 
-      steps = YAML.load_stream(File.read(datafile))[0].map { |step_node| Scoutui::Steps::Step.new(driver, step_node) }
+      factories = {
+          assertion: Scoutui::Assertions::AssertionFactory.new(driver),
+          action: Scoutui::Actions::ActionFactory.new(driver),
+      }
+      factories[:page_component] = Scoutui::ApplicationModel::PageComponentFactory.new(factories[:assertion])
+
+      steps = YAML.load_stream(File.read(datafile))[0].map do |step_node|
+        Scoutui::Steps::StepFactory.new(driver, factories).generate_step(step_node)
+      end
       step_runner = Scoutui::Steps::Runner.new(driver)
       steps.each { |step| step_runner.run(step) }
 
@@ -433,7 +441,7 @@ module Scoutui::Base
         selector = Scoutui::Base::UserVars.instance.normalize(selector) unless selector.match(/\$\{.*\}/).nil?
 
         unless selector.match(/^page\([\w\d]+\)/).nil?
-          model_node = Scoutui::Utils::TestUtils.instance.getPageElement(selector)
+          model_node = Scoutui::Utils::TestUtils.instance.get_model_node(selector)
           next unless model_node.is_a?(Hash)
 
           sub_node_count = model_node.select { |child| model_node[child].is_a?(Hash) && !model_node[child].nil? && model_node[child].key?('locator') }.size

@@ -1,41 +1,20 @@
 home:
   login:
     locator: //a[text()='Login']
-    reqid: REQ-Home
     assertions:
       visible_when: always
   sign_up:
     locator: //a[text()='Sign up']
-    reqid: REQ-Home
     assertions:
       visible_when: always
   search:
     locator: css=.search input.form-control
-    reqid: REQ-Home
     assertions:
       visible_when: always
   browse:
     locator: css=.browse-all
-    reqid: REQ-Home
     assertions:
       visible_when:
         type: text
         locator: page(home).get(login)
         value: Login
-#  form_first_name:
-#    locator: css=.first-name
-#    assertions:
-#      visible_when: always
-#  form_last_name:
-#    locator: css=.last-name
-#    assertions:
-#      visible_when: always
-#  form_first_name_validation:
-#    locator: css=.first-name-validation
-#    assertions:
-#      text_when:
-#        target_node: page(home).get(form_first_name)
-#        target_value: 1
-#        expected_value: Invalid first name
-
-
