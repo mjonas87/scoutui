@@ -2,7 +2,9 @@ module Scoutui::Actions
   class Visit < BaseAction
     def initialize(driver, url)
       super(driver)
-      @url = url.strip.start_with?('/') ? "#{Scoutui::Base::UserVars.instance.getHost}#{url}" : url
+
+      raw_url = url.strip.start_with?('/') ? "#{Scoutui::Base::UserVars.instance.getHost}#{url}" : url
+      @url = Scoutui::Base::UserVars.instance.normalize(raw_url)
     end
 
     def up

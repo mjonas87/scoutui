@@ -42,20 +42,25 @@ module Scoutui::Base
       @globals[:host].to_s
     end
 
-    def normalize(s)
-      _vars = s.scan(/(\$\{.*?\})/)
-      _vars.each do | _v|
-        if _v.length==1
-
-          _u = Scoutui::Base::UserVars.instance.get(_v[0].to_s)
-          puts __FILE__ + (__LINE__).to_s + " Normalize(#{_v}) => #{_u}"
-
-          s.gsub!(_v[0].to_s, _u)
-        end
-
+    def normalize(text)
+      text_variable_regex = /({{(.+?)}})/
+      text.scan(text_variable_regex).each do |match|
+        variable_template, variable_name = match
+        value = get_var(variable_name)
+        text.gsub!(variable_template, value)
       end
+      text
+    end
 
-      s
+    def get_var(variable_name)
+      config = Scoutui::Utils::TestUtils.instance.getTestConfig
+
+      value = config.fetch('user_vars', {}).fetch(variable_name, {})
+      value = @globals.fetch(variable_name, {}) if value == {}
+      value = ENV.fetch(variable_name, {}) if value == {}
+      binding.pry
+
+      value == {} ? nil : value
     end
 
     def get(xpath_key)

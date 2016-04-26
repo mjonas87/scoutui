@@ -4,7 +4,7 @@
   verify: page(admin_login)
 - name: Fill out sign-in form
   actions:
-    - fill_form(page(admin_login).get(email_input))={ADMIN_EMAIL}
-    - fill_form(page(admin_login).get(password_input))={ADMIN_PASSWORD}
+    - fill_form(page(admin_login).get(email_input))={{ADMIN_EMAIL}}
+    - fill_form(page(admin_login).get(password_input))={{ADMIN_PASSWORD}}
 - name: Submit sign-in form
   action: click(page(admin_login).get(login_button))
