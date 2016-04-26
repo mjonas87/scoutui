@@ -17,7 +17,7 @@ def ex2(strategy)
   cmdList << {:command => 'navigate(http://www.google.com)', :e => nil }
   cmdList << {:command => 'pause', :e => nil }
 
-  strategy.processCommands(cmdList)
+  strategy.processActions(cmdList)
 end
 
 def ex1()
@@ -26,8 +26,8 @@ def ex1()
   locator="css=select"
   locator="css=[id=selectLang]"
   locator="#selectLang"
-  strategy.processCommand("click(#{locator})")
-  strategy.processCommand("pause",nil)
+  strategy.processAction("click(#{locator})")
+  strategy.processAction("pause", nil)
 end
 
 
@@ -42,14 +42,14 @@ def test_confirm_js(strategy)
   cmdList << {:command => 'pause', :e => nil }
   cmdList << {:command => 'getalert(dismiss)', :e => nil }
   cmdList << {:command => 'pause', :e => nil }
-  strategy.processCommands(cmdList)
+  strategy.processActions(cmdList)
 end
 
 Scoutui::Utils::TestUtils.instance.setDebug(true)
 
 f = '../gateway/page_model.gat.json'
 
-strategy = Scoutui::Commands::Strategy.new()
+strategy = Scoutui::Actions::Strategy.new()
 if strategy.loadModel(f)
 #  ex2(strategy)
   test_confirm_js(strategy)

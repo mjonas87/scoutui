@@ -1,10 +1,7 @@
 
-module Scoutui::Commands
-  class MouseOver < Command
+module Scoutui::Actions
+  class MouseOver < Action
     def _whenHovered(page_elt)
-      puts 'LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL'
-      binding.pry
-
       if page_elt.is_a?(Hash) && page_elt.has_key?('when_hovered')
         Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " Verify #{page_elt['when_hovered']}"
 
@@ -14,7 +11,7 @@ module Scoutui::Commands
 
           _pg = _elt[_r]
 
-          #    _c = Scoutui::Commands::VerifyElement.new("verifyelement(" + _elt + ")")
+          #    _c = Scoutui::Actions::VerifyElement.new("verifyelement(" + _elt + ")")
           #    _c.execute(@drv)
 
           Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " processPageElement(#{_pg})"
@@ -76,7 +73,7 @@ module Scoutui::Commands
                 _tObj = Scoutui::Base::QBrowser.getFirstObject(@drv, _tLocator['locator'])
 
               else
-                _tObj = Scoutui::Base::QBrowser.getFirstObject(@drv, _pageObj, Scoutui::Commands::Utils.instance.getTimeout())
+                _tObj = Scoutui::Base::QBrowser.getFirstObject(@drv, _pageObj, Scoutui::Actions::Utils.instance.getTimeout())
               end
 
               Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " HIT #{_pageObj} => #{!_tObj.nil?}"

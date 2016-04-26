@@ -1,8 +1,8 @@
 
 
-module Scoutui::Commands
+module Scoutui::Actions
 
-  class SubmitForm < Command
+  class SubmitForm < Action
 
     attr_accessor :form_name
 

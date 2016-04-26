@@ -15,7 +15,7 @@ module Scoutui::Eyes
     end
 
     def navigate(url)
-    @strategy.navigate(url)
+      @strategy.navigate(url)
     end
 
     def drv
@@ -199,7 +199,7 @@ module Scoutui::Eyes
 #        Scoutui::Base::QHarMgr.instance.start
 #        @profile.proxy = Scoutui::Base::QHarMgr.instance.getSeleniumProfile
 
-      @strategy = Scoutui::Commands::Strategy.new
+      @strategy = Scoutui::Actions::Strategy.new
       @eyes = Scoutui::Eyes::EyeFactory.instance.createEyes
 
       ## TBD - move the following into eye_scout ??

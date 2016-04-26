@@ -1,10 +1,10 @@
 
-require_relative './commands'
+require_relative './actions'
 
-module Scoutui::Commands
+module Scoutui::Actions
 
 
-  class VerifyForm < Command
+  class VerifyForm < Action
 
 
     def execute(drv)

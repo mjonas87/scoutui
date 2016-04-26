@@ -22,9 +22,9 @@ module Scoutui::Conditions
       if @condition_text.match(/^\s*page\s*\(/)
         # Page reference
         Scoutui::Utils::TestUtils.instance.getPageElement(@condition_text)
-      elsif Scoutui::Commands::Utils.instance.isCSS(@condition_text)
+      elsif Scoutui::Actions::Utils.instance.isCSS(@condition_text)
         # CSS
-        { 'locator' => Scoutui::Commands::Utils.instance.isCSS(@condition_text) }
+        { 'locator' => Scoutui::Actions::Utils.instance.isCSS(@condition_text) }
       elsif @condition_text.match(/^\s*page\s*\(/)
         # XPath
         Scoutui::Utils::TestUtils.instance.getPageElement(@condition_text)

@@ -1,8 +1,8 @@
 
 
-module Scoutui::Commands
+module Scoutui::Actions
 
-  class Pause < Command
+  class Pause < Action
     STEP_KEY = 'step'
 
     def execute(e=nil)

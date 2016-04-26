@@ -1,8 +1,8 @@
-require_relative './commands'
+require_relative './actions'
 
-module Scoutui::Commands
+module Scoutui::Actions
 
-  class ClickObject < Command
+  class ClickObject < Action
 
     def _whenClicked(page_elt)
       if page_elt.is_a?(Hash) && page_elt.has_key?('when_clicked')
@@ -11,12 +11,10 @@ module Scoutui::Commands
         page_elt['when_clicked'].each do |_elt|
 
           _r = _elt.keys[0].to_s
-          puts 'KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK'
-          binding.pry
 
           _pg = _elt[_r]
 
-          #    _c = Scoutui::Commands::VerifyElement.new("verifyelement(" + _elt + ")")
+          #    _c = Scoutui::Actions::VerifyElement.new("verifyelement(" + _elt + ")")
           #    _c.execute(@drv)
 
           Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " processPageElement(#{_pg})"

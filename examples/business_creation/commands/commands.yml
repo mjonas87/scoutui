@@ -1,11 +1,10 @@
 - name: Navigate to sign in page
-  skip: false
+  action: visit(https://zen-staging-vp-app.herokuapp.com/admin/login)
   description: Navigate to a specified URL and wait until the expected elements are present
-  url: https://zen-staging-vp-app.herokuapp.com/admin/login
   verify: page(admin_login)
 - name: Fill out sign-in form
-  action:
-    - fillform(page(admin_login).get(email_input))={ADMIN_EMAIL}
-    - fillform(page(admin_login).get(password_input))={ADMIN_PASSWORD}
+  actions:
+    - fill_form(page(admin_login).get(email_input))={ADMIN_EMAIL}
+    - fill_form(page(admin_login).get(password_input))={ADMIN_PASSWORD}
 - name: Submit sign-in form
   action: click(page(admin_login).get(login_button))

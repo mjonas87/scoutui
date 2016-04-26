@@ -1,7 +1,7 @@
 
-module Scoutui::Commands
+module Scoutui::Actions
 
-  class SelectWindow < Command
+  class SelectWindow < Action
 
     def execute(drv=nil)
       _rc=false

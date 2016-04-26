@@ -2,9 +2,9 @@
 #   http://stackoverflow.com/questions/15164742/combining-implicit-wait-and-explicit-wait-together-results-in-unexpected-wait-ti#answer-15174978
 # http://selenium.googlecode.com/svn-history/r15117/trunk/docs/api/rb/Selenium/WebDriver/Support/Select.html#selected_options-instance_method
 
-module Scoutui::Commands
+module Scoutui::Actions
 
-  class SelectObject < Command
+  class SelectObject < Action
 
     def execute(drv)
       @drv=drv if !drv.nil?

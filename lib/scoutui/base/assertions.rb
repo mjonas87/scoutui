@@ -44,8 +44,8 @@ module Scoutui::Base
 
       if cmd=='visible' && model_node.is_a?(String) && model_node.match(/^\s*page\s*\(/)
         pageObject = Scoutui::Utils::TestUtils.instance.getPageElement(model_node)
-      elsif !Scoutui::Commands::Utils.instance.isCSS(model_node).nil?
-        pageObject={ 'locator' => Scoutui::Commands::Utils.instance.isCSS(model_node) }
+      elsif !Scoutui::Actions::Utils.instance.isCSS(model_node).nil?
+        pageObject={ 'locator' => Scoutui::Actions::Utils.instance.isCSS(model_node) }
       elsif cmd=='visible' && model_node.is_a?(String) && model_node.match(/^\s*\//)
         pageObject={ 'locator' => model_node }
       end

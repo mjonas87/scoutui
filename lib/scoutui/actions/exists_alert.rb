@@ -1,8 +1,8 @@
 
 
-module Scoutui::Commands
+module Scoutui::Actions
 
-  class ExistsAlert < Command
+  class ExistsAlert < Action
 
 
     def execute(drv=nil)

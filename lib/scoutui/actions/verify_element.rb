@@ -1,7 +1,7 @@
-require_relative './commands'
+require_relative './actions'
 
-module Scoutui::Commands
-  class VerifyElement < Command
+module Scoutui::Actions
+  class VerifyElement < Action
     def initialize(node, driver = nil)
       fail Exception, "Expected hash, received '#{node.class.to_s}.' ==> #{node}" unless node.is_a?(Hash)
 
@@ -33,7 +33,7 @@ module Scoutui::Commands
 
             #  _locator = Scoutui::Utils::TestUtils.instance.getPageElement(_v['locator'])
 
-            _obj = Scoutui::Base::QBrowser.getFirstObject(@drv, _locator, Scoutui::Commands::Utils.instance.getTimeout())
+            _obj = Scoutui::Base::QBrowser.getFirstObject(@drv, _locator, Scoutui::Actions::Utils.instance.getTimeout())
 
             Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " HIT #{_locator} => #{!_obj.nil?}"
           end

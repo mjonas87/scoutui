@@ -1,8 +1,8 @@
 
 
-module Scoutui::Commands
+module Scoutui::Actions
 
-  class Type < Command
+  class Type < Action
 
 
     def execute(drv=nil)

@@ -1,12 +1,13 @@
-module Scoutui::Commands
+module Scoutui::Actions
 
-  class UpdateUrl < Command
+  class UpdateUrl < Action
 
 
     def execute(drv)
       @drv = drv if !drv.nil?
       _req = Scoutui::Utils::TestUtils.instance.getReq()
       baseUrl = Scoutui::Base::UserVars.instance.getHost()
+
       url = @cmd.match(/navigate\s*\((.*)\)/i)[1].to_s.strip
       _relativeUrl = url.strip.start_with?('/')
 

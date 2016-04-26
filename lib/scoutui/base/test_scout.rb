@@ -66,7 +66,6 @@ module Scoutui::Base
 
       begin
         @eye_scout.navigate(Scoutui::Base::UserVars.instance.get(:host))
-
         snap_page('Landing Page')
 
         Scoutui::Base::VisualTestFramework.processFile(@eye_scout, @test_settings)

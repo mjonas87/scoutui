@@ -74,7 +74,7 @@ module Scoutui::Base
       #       fail Exception, "Node with key '#{sub_node_key}' does not have a 'locator' attribute." unless sub_node.key?('locator')
       #
       #       locator = sub_node['locator']
-      #       element = Scoutui::Base::QBrowser.getFirstObject(driver, locator, Scoutui::Commands::Utils.instance.getTimeout)
+      #       element = Scoutui::Base::QBrowser.getFirstObject(driver, locator, Scoutui::Actions::Utils.instance.getTimeout)
       #
       #       if Scoutui::Base::Assertions.instance.visible_when_always(sub_node_key, sub_node, element, _req)
       #         next
@@ -121,25 +121,25 @@ module Scoutui::Base
       # element
     end
 
-    def self.processCommand(_action, e, driver)
+    def self.processAction(_action, e, driver)
       _req = Scoutui::Utils::TestUtils.instance.getReq
       Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " ===  Process ACTION : #{_action}  ==="  if Scoutui::Utils::TestUtils.instance.isDebug?
 
-      if Scoutui::Commands::Utils.instance.isExistsAlert?(_action)
-        _c = Scoutui::Commands::JsAlert::ExistsAlert.new(_action)
+      if Scoutui::Actions::Utils.instance.isExistsAlert?(_action)
+        _c = Scoutui::Actions::JsAlert::ExistsAlert.new(_action)
         _rc = _c.execute(driver)
         Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " existsAlert => #{_rc}"
 
         Scoutui::Logger::LogMgr.instance.asserts.info "Verify alert is present - #{!_rc.nil?.to_s}"
         Testmgr::TestReport.instance.getReq(_req).get_child('expectJsAlert').add(!_rc.nil?, "Verify alert is present")
 
-      elsif Scoutui::Commands::Utils.instance.isVerifyForm?(_action)
-        _c = Scoutui::Commands::VerifyForm.new(_action)
+      elsif Scoutui::Actions::Utils.instance.isVerifyForm?(_action)
+        _c = Scoutui::Actions::VerifyForm.new(_action)
         _c.execute(driver)
 
       elsif !_action.match(/fillform\(/).nil? && false
 
-     #   _c = Scoutui::Commands::FillForm.new(_action)
+     #   _c = Scoutui::Actions::FillForm.new(_action)
 
         _form = _action.match(/fillform\((.*)\s*\)/)[1].to_s
      #  _dut = _action.match(/fillform\(.*,\s*(.*)\)/)[1].to_s
@@ -153,7 +153,7 @@ module Scoutui::Base
         _f.fillForm(driver, dut)
 
       elsif !_action.match(/submitform\(/).nil? && false
-        _cmd = Scoutui::Commands::SubmitForm.new(_action)
+        _cmd = Scoutui::Actions::SubmitForm.new(_action)
      #   _cmd.execute(driver)
 
         _form = _action.match(/submitform\((.*)\s*\)/)[1].to_s
@@ -246,7 +246,7 @@ module Scoutui::Base
             if !locator.match(/^page\([\w\d]+\)/).nil?
               _obj = processPageElement(driver, assertion_key, locator)
             else
-              _obj = Scoutui::Base::QBrowser.getFirstObject(driver, locator, Scoutui::Commands::Utils.instance.getTimeout)
+              _obj = Scoutui::Base::QBrowser.getFirstObject(driver, locator, Scoutui::Actions::Utils.instance.getTimeout)
             end
           end
 
@@ -276,7 +276,7 @@ module Scoutui::Base
       Scoutui::Logger::LogMgr.instance.info 'No node specified to verify'.red unless command_node.key?('verify')
 
       model_node = Scoutui::Utils::TestUtils.instance.getPageElement(command_node['verify'])
-      Scoutui::Commands::VerifyElement.new(model_node, driver).execute(driver)
+      Scoutui::Actions::VerifyElement.new(model_node, driver).execute(driver)
     end
 
     def self.processExpected(driver, e)
@@ -299,123 +299,127 @@ module Scoutui::Base
       baseUrl = Scoutui::Base::UserVars.instance.getHost
       datafile = test_settings['dut']
 
-      commands = YAML.load_stream(File.read(datafile))[0]
+      steps = YAML.load_stream(File.read(datafile))[0].map { |step_node| Scoutui::Steps::Step.new(driver, step_node) }
+      step_runner = Scoutui::Steps::Runner.new(driver)
+      steps.each { |step| step_runner.run(step) }
 
-      commands.each do |command_node|
-        totalWindows = driver.window_handles.length
-
-        puts 'Command to Process'.blue
-        ap(command_node)
-
-        Scoutui::Utils::TestUtils.instance.setReq('UI')
-        Scoutui::Commands::Utils.instance.resetTimeout
-
-        _action = command_node['action']
-        _name = command_node['name']
-        _url    = command_node['url']
-        _skip   = command_node['skip']
-        _region = command_node['region']
-        _reqid  = command_node['reqid']
-
-        if command_node.key?("timeout")
-         Scoutui::Commands::Utils.instance.setTimeout(command_node["timeout"])
-        end
-
-        if !_reqid.nil? && !_reqid.to_s.empty?
-          Testmgr::TestReport.instance.getReq(_reqid)
-          Scoutui::Utils::TestUtils.instance.setReq(_reqid)
-        else
-          Scoutui::Logger::LogMgr.instance.debug 'REQID was not provided'.red
-        end
-
-        skipIt = (!_skip.nil?) && (_skip.to_s.strip.downcase=='true')
-
-        if skipIt
-          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " SKIP - #{_name}" if Scoutui::Utils::TestUtils.instance.isDebug?
-          next
-        end
-
-
-        if !isRun(command_node).nil?
-          Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " ========> RUN <================="
-          tmpSettings=test_settings.dup
-          tmpSettings["dut"]=e["run"].to_s
-
-          Scoutui::Logger::LogMgr.instance.info " RUN Command file : #{tmpSettings["dut"]}"
-          processFile(eyeScout, tmpSettings, strategy)
-          Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Completed execution of subfile"
-          next
-
-        end
-
-        if !(_action.nil? || _action.to_s.empty?)
-          Scoutui::Logger::LogMgr.instance.asserts.info "Verify #{_action} is valid - #{Scoutui::Commands::Utils.instance.isValid?(_action).to_s}"
-          Testmgr::TestReport.instance.getReq('Command').get_child('isValid').add(Scoutui::Commands::Utils.instance.isValid?(_action), "Verify #{_action} is valid")
-
-          begin
-            _command = eyeScout.getStrategy.processCommand(_action, command_node)
-
-            if driver.window_handles.length > totalWindows
-              Scoutui::Logger::LogMgr.instance.info "[post-cmd] Total Windows : #{driver.window_handles.length.to_s}"
-            end
-
-            if !_command.wasExecuted?
-              processCommand(_action, command_node, driver)
-            end
-
-            processExpected(driver, command_node)
-            processCommandAssertions(driver, command_node)
-            processModelAssertions(driver, command_node)
-
-
-            if isSnapIt(command_node)
-              if !_region.nil?
-                eyeScout.check_window(_name, _region)
-              else
-                eyeScout.check_window(_name)
-              end
-            end
-          rescue => ex
-            "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
-          end
-
-          next
-        end
-
-
-        if command_node.key?("url")
-          url = command_node["url"].to_s
-          eyeScout.getStrategy.processCommand('navigate(' + url + ')', command_node)
-        end
-
-        processExpected(driver, command_node)
-        processCommandAssertions(driver, command_node)
-        processModelAssertions(driver, command_node)
-
-         if !_region.nil?
-          eyeScount.check_window(_name, _region)
-        else
-          eyeScout.check_window(_name)
-        end
-
-        if command_node.key?('links')
-          links = command_node['links']
-
-          links.each_pair do |link_name, selector|
-            Scoutui::Logger::LogMgr.instance.info "\t\t#{link_name} => #{selector}"  if Scoutui::Utils::TestUtils.instance.isDebug?
-
-            obj = QBrowser.getObject(driver, selector)
-            Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " [click]: link object => #{obj.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
-            obj.click
-
-            if !_region.nil?
-              eyeScount.check_window(_name, _region)
-            else
-              eyeScout.check_window(link_name)
-            end
-          end
-        end
-      end
+      # commands = YAML.load_stream(File.read(datafile))[0]
+      #
+      # commands.each do |command_node|
+      #   totalWindows = driver.window_handles.length
+      #
+      #   puts 'Command to Process'.blue
+      #   ap(command_node)
+      #
+      #   Scoutui::Utils::TestUtils.instance.setReq('UI')
+      #   Scoutui::Actions::Utils.instance.resetTimeout
+      #
+      #   _action = command_node['action']
+      #   _name = command_node['name']
+      #   _url    = command_node['url']
+      #   _skip   = command_node['skip']
+      #   _region = command_node['region']
+      #   _reqid  = command_node['reqid']
+      #
+      #   if command_node.key?("timeout")
+      #    Scoutui::Actions::Utils.instance.setTimeout(command_node["timeout"])
+      #   end
+      #
+      #   if !_reqid.nil? && !_reqid.to_s.empty?
+      #     Testmgr::TestReport.instance.getReq(_reqid)
+      #     Scoutui::Utils::TestUtils.instance.setReq(_reqid)
+      #   else
+      #     Scoutui::Logger::LogMgr.instance.debug 'REQID was not provided'.red
+      #   end
+      #
+      #   skipIt = (!_skip.nil?) && (_skip.to_s.strip.downcase=='true')
+      #
+      #   if skipIt
+      #     Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " SKIP - #{_name}" if Scoutui::Utils::TestUtils.instance.isDebug?
+      #     next
+      #   end
+      #
+      #
+      #   if !isRun(command_node).nil?
+      #     Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " ========> RUN <================="
+      #     tmpSettings=test_settings.dup
+      #     tmpSettings["dut"]=e["run"].to_s
+      #
+      #     Scoutui::Logger::LogMgr.instance.info " RUN Command file : #{tmpSettings["dut"]}"
+      #     processFile(eyeScout, tmpSettings, strategy)
+      #     Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " Completed execution of subfile"
+      #     next
+      #
+      #   end
+      #
+      #   if !(_action.nil? || _action.to_s.empty?)
+      #     Scoutui::Logger::LogMgr.instance.asserts.info "Verify #{_action} is valid - #{Scoutui::Actions::Utils.instance.isValid?(_action).to_s}"
+      #     Testmgr::TestReport.instance.getReq('Command').get_child('isValid').add(Scoutui::Actions::Utils.instance.isValid?(_action), "Verify #{_action} is valid")
+      #
+      #     begin
+      #       _command = eyeScout.getStrategy.processAction(_action, command_node)
+      #
+      #       if driver.window_handles.length > totalWindows
+      #         Scoutui::Logger::LogMgr.instance.info "[post-cmd] Total Windows : #{driver.window_handles.length.to_s}"
+      #       end
+      #
+      #       if !_command.wasExecuted?
+      #         processAction(_action, command_node, driver)
+      #       end
+      #
+      #       processExpected(driver, command_node)
+      #       processCommandAssertions(driver, command_node)
+      #       processModelAssertions(driver, command_node)
+      #
+      #
+      #       if isSnapIt(command_node)
+      #         if !_region.nil?
+      #           eyeScout.check_window(_name, _region)
+      #         else
+      #           eyeScout.check_window(_name)
+      #         end
+      #       end
+      #     rescue => ex
+      #       "Backtrace:\n\t#{ex.backtrace.join("\n\t")}"
+      #     end
+      #
+      #     next
+      #   end
+      #
+      #
+      #   if command_node.key?("url")
+      #     url = command_node["url"].to_s
+      #     eyeScout.getStrategy.processAction('navigate(' + url + ')', command_node)
+      #   end
+      #
+      #   processExpected(driver, command_node)
+      #   processCommandAssertions(driver, command_node)
+      #   processModelAssertions(driver, command_node)
+      #
+      #    if !_region.nil?
+      #     eyeScount.check_window(_name, _region)
+      #   else
+      #     eyeScout.check_window(_name)
+      #   end
+      #
+      #   if command_node.key?('links')
+      #     links = command_node['links']
+      #
+      #     links.each_pair do |link_name, selector|
+      #       Scoutui::Logger::LogMgr.instance.info "\t\t#{link_name} => #{selector}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+      #
+      #       obj = QBrowser.getObject(driver, selector)
+      #       Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " [click]: link object => #{obj.to_s}"  if Scoutui::Utils::TestUtils.instance.isDebug?
+      #       obj.click
+      #
+      #       if !_region.nil?
+      #         eyeScount.check_window(_name, _region)
+      #       else
+      #         eyeScout.check_window(link_name)
+      #       end
+      #     end
+      #   end
+      # end
     end
 
     private
@@ -483,7 +487,7 @@ module Scoutui::Base
     end
 
     def self.process_element(driver, model_key, model_node)
-      element = Scoutui::Base::QBrowser.getFirstObject(driver, model_node['locator'], Scoutui::Commands::Utils.instance.getTimeout)
+      element = Scoutui::Base::QBrowser.getFirstObject(driver, model_node['locator'], Scoutui::Actions::Utils.instance.getTimeout)
       raise Exception, "NOT FOUND : '#{model_key}' with selector #{model_node['locator']}".red if element.nil?
 
       assertion_validator = Scoutui::Assertions::Validator.new(driver)

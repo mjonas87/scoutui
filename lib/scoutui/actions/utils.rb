@@ -1,13 +1,13 @@
 
 require 'singleton'
 
-module Scoutui::Commands
+module Scoutui::Actions
 
 
   class Utils
     include Singleton
 
-    attr_accessor :totalCommands
+    attr_accessor :totalActions
     attr_accessor :timeout
     attr_accessor :hwnds
 
@@ -25,10 +25,10 @@ module Scoutui::Commands
                      'verifyelt',
                      'verifyelement',
                      'verifyform']
-      @totalCommands={}
+      @totalActions={}
       @timeout=30
       @command_list.each do |c|
-        @totalCommands[c]=0
+        @totalActions[c]=0
       end
 
       @hwnds = { :current => nil, :previous => nil, :handles => [] }
@@ -125,29 +125,29 @@ module Scoutui::Commands
       rc=true
 
       if isPause?(cmd)
-        @totalCommands['pause']+=1
+        @totalActions['pause']+=1
       elsif isExistsAlert?(cmd)
-        @totalCommands['existsAlert']+=1
+        @totalActions['existsAlert']+=1
       elsif isVerifyElt?(cmd)
-        @totalCommands['verifyelt']+=1
+        @totalActions['verifyelt']+=1
       elsif isVerifyForm?(cmd)
-        @totalCommands['verifyform']+=1
+        @totalActions['verifyform']+=1
       elsif isFillForm?(cmd)
-        @totalCommands['fillform']+=1
+        @totalActions['fillform']+=1
       elsif isSubmitForm?(cmd)
-        @totalCommands['submitform']+=1
+        @totalActions['submitform']+=1
       elsif isType?(cmd)
-        @totalCommands['type']+=1
+        @totalActions['type']+=1
       elsif isClick?(cmd)
-        @totalCommands['click']+=1
+        @totalActions['click']+=1
       elsif isMouseOver?(cmd)
-        @totalCommands['mouseover']+=1
+        @totalActions['mouseover']+=1
       elsif isSelect?(cmd)
-        @totalCommands['select']+=1
+        @totalActions['select']+=1
       elsif isNavigate?(cmd)
-        @totalCommands['navigate']+=1
+        @totalActions['navigate']+=1
       elsif isSelectWindow?(cmd)
-        @totalCommands['select_window']+=1
+        @totalActions['select_window']+=1
       else
         rc=false
       end

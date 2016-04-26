@@ -1,8 +1,8 @@
 require 'testmgr'
 
-module Scoutui::Commands::JsAlert
+module Scoutui::Actions::JsAlert
 
-  class ExistsAlert < Scoutui::Commands::Command
+  class ExistsAlert < Scoutui::Actions::Action
 
 
     def execute(drv=nil)

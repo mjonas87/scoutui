@@ -1,7 +1,7 @@
 require 'testmgr'
 #require 'sauce_whisk'
 
-module Scoutui::Commands
+module Scoutui::Actions
 
   class Strategy
 
@@ -24,16 +24,8 @@ module Scoutui::Commands
     end
 
     def navigate(url)
-      rc = false
-      begin
-        processCommand('navigate(' + url + ')', nil)
-        rc=true
-      rescue => ex
-        Scoutui::Logger::LogMgr.instance.warn "Error during processing: #{$!}"
-        Scoutui::Logger::LogMgr.instance.warn "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
-      end
-
-      rc
+      Scoutui::Actions::Visit.new(drv, url).perform
+      # processAction('navigate(' + url + ')', nil)
     end
 
     def report
@@ -59,13 +51,12 @@ module Scoutui::Commands
       @drv.quit
     end
 
-    def processCommands(cmds)
-      binding.pry
-      Scoutui::Commands::processCommands(cmds, getDriver)
+    def processActions(cmds)
+      Scoutui::Actions::processActions(cmds, getDriver)
     end
 
-    def processCommand(_action, e=nil)
-      Scoutui::Commands::processCommand(_action, e, getDriver)
+    def processAction(_action, e=nil)
+      Scoutui::Actions::processAction(_action, e, getDriver)
     end
 
     def setup(dut)

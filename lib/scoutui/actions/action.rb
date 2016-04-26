@@ -1,7 +1,7 @@
 
-module Scoutui::Commands
+module Scoutui::Actions
 
-  class Command
+  class Action
     attr_accessor :description
     attr_accessor :drv
     attr_accessor :cmd
