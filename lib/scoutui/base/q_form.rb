@@ -35,7 +35,7 @@ module Scoutui::Base
     end
 
     def actionElement(drv, locator)
-      user_vars = Scoutui::Base::UserVars.new
+      user_vars = Scoutui::Base::UserVars.inspect
 
       _action=nil
 
@@ -207,7 +207,7 @@ module Scoutui::Base
     end
 
     def fillForm(drv, dut)
-      user_vars = Scoutui::Base::UserVars.new
+      user_vars = Scoutui::Base::UserVars.inspect
 
       Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " fillForm(#{drv.to_s}, #{dut.to_s})"
       Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " | type => #{dut.class.to_s}"

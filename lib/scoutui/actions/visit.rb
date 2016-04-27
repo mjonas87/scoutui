@@ -4,7 +4,7 @@ module Scoutui
       def initialize(driver, url)
         super(driver)
 
-        user_vars = Scoutui::Base::UserVars.new
+        user_vars = Scoutui::Base::UserVars.inspect
         raw_url = url.strip.start_with?('/') ? "#{user_vars.getHost}#{url}" : url
         @url = user_vars.normalize(raw_url)
       end

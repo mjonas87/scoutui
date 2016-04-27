@@ -37,7 +37,7 @@ module Scoutui::Utils
 
       @app_model=nil
 
-      user_vars = Scoutui::Base::UserVars.new
+      user_vars = Scoutui::Base::UserVars.inspect
       user_vars.set('eyes.viewport', '1024x768')
     end
 
@@ -88,7 +88,7 @@ module Scoutui::Utils
     end
 
     def parseCommandLine
-      user_vars = Scoutui::Base::UserVars.new
+      user_vars = Scoutui::Base::UserVars.inspect
 
       OptionParser.new do |opt|
         opt.on('-c', '--config TESTFILE') { |o|
@@ -250,7 +250,7 @@ module Scoutui::Utils
 
     # Returns JSON file contents/format
     def getTestSettings
-      user_vars = Scoutui::Base::UserVars.new
+      user_vars = Scoutui::Base::UserVars.inspect
 
       Scoutui::Logger::LogMgr.instance.setLevel(@options[:log_level])
 

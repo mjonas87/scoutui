@@ -70,7 +70,7 @@ module Scoutui::Actions
     def initialize
 
       @profile=nil
-      user_vars = Scoutui::Base::UserVars.new
+      user_vars = Scoutui::Base::UserVars.inspect
       browserType = user_vars.getBrowserType
 
       if false

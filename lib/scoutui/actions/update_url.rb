@@ -6,7 +6,7 @@ module Scoutui::Actions
     def execute(drv)
       @drv = drv if !drv.nil?
       _req = Scoutui::Utils::TestUtils.instance.getReq()
-      user_vars = Scoutui::Base::UserVars.new
+      user_vars = Scoutui::Base::UserVars.inspect
       baseUrl = user_vars.getHost()
 
       url = @cmd.match(/navigate\s*\((.*)\)/i)[1].to_s.strip

@@ -6,7 +6,7 @@ module Scoutui::Assertions
       @driver = driver
       @model_node = model_node
       @locator = @model_node['locator']
-      @user_vars = Scoutui::Base::UserVars.new.with_fetcher_for_node(@model_node)
+      @user_vars = Scoutui::Base::UserVars.inspect.with_fetcher_for_node(@model_node)
     end
 
     def check?

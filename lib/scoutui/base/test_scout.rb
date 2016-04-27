@@ -18,7 +18,7 @@ module Scoutui::Base
       end
 
       if Scoutui::Utils::TestUtils.instance.isDebug?
-        # user_vars = Scoutui::Base::UserVars.new
+        # user_vars = Scoutui::Base::UserVars.inspect
         # Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " eyes cfg => #{@eyesRecord}"
         # Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " title => " + user_vars.getVar('eyes.title')
         # Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " app => " + user_vars.getVar('eyes.app')

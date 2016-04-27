@@ -170,7 +170,7 @@ module Scoutui::Base
 
         if !obj.nil? && !obj.attribute('type').downcase.match(/(text|password|email)/).nil?
           Scoutui::Logger::LogMgr.instance.commands.info "send_keys(#{_val})"
-          user_vars = Scoutui::Base::UserVars.new
+          user_vars = Scoutui::Base::UserVars.inspect
           obj.send_keys(user_vars.get(_val))
         else
           Scoutui::Logger::LogMgr.instance.warn __FILE__ + (__LINE__).to_s + " Unable to process command TYPE => #{obj.to_s}"
@@ -297,7 +297,7 @@ module Scoutui::Base
       fail Exception, "Unable to find test data file '#{test_settings['dut']}' using key 'dut'" if test_settings['dut'].nil?
       driver = eyeScout.drv
 
-      user_vars = Scoutui::Base::UserVars.new
+      user_vars = Scoutui::Base::UserVars.inspect
       baseUrl = user_vars.getHost
       datafile = test_settings['dut']
 
@@ -440,7 +440,7 @@ module Scoutui::Base
 
     def self.process_expected_as_hash(driver, expected)
       expected.each_pair do |link_name, selector|
-        user_vars = Scoutui::Base::UserVars.new
+        user_vars = Scoutui::Base::UserVars.inspect
         selector = user_vars.normalize(selector) unless selector.match(/\$\{.*\}/).nil?
 
         unless selector.match(/^page\([\w\d]+\)/).nil?

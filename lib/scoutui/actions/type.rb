@@ -1,10 +1,5 @@
-
-
 module Scoutui::Actions
-
   class Type < Action
-
-
     def execute(drv=nil)
       @drv=drv if !drv.nil?
 
@@ -26,7 +21,7 @@ module Scoutui::Actions
             obj.clear
           end
 
-          user_vars = Scoutui::Base::UserVars.new
+          user_vars = Scoutui::Base::UserVars.inspect
           obj.send_keys(user_vars.get(_val))
           _rc=true
         else
@@ -40,12 +35,6 @@ module Scoutui::Actions
       Testmgr::TestReport.instance.getReq(_req).testcase('type').add(!obj.nil?, "Verify object #{_xpath} to type #{_val} exists : #{obj.class.to_s}")
       Testmgr::TestReport.instance.getReq(_req).testcase('type').add(_rc, "Verify typed data #{_rc}")
       setResult(_rc)
-
     end
-
-
   end
-
-
-
 end

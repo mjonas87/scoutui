@@ -16,13 +16,14 @@ module Scoutui::Base
     end
 
     def with_fetcher_for_node(model_node)
+      clone = self.clone
       klass = Scoutui::UserVariables::Fetchers::ModelNode
 
-      unless user_var_fetchers.any? { |fetcher| fetcher.class == klass}
-        user_var_fetchers.unshift(klass.new(model_node))
+      unless clone.user_var_fetchers.any? { |fetcher| fetcher.class == klass}
+        clone.user_var_fetchers.unshift(klass.new(model_node))
       end
 
-      self
+      clone
     end
 
     def dump
@@ -32,9 +33,7 @@ module Scoutui::Base
     end
 
     def getViewPort
-      user_vars = Scoutui::Base::UserVars.new
-
-      arr = user_vars.getVar('eyes.viewport').match(/(\d+)\s*x\s*(\d+)$/i)
+      arr = getVar('eyes.viewport').match(/(\d+)\s*x\s*(\d+)$/i)
       if arr.size==3
         _sz = {:width => arr[1].to_i, :height => arr[2].to_i }
       end

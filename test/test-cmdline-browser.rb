@@ -20,7 +20,7 @@ puts test_settings
 puts "browser => #{test_settings[:browser]}"
 
 puts '-' * 72
-user_vars = Scoutui::Base::UserVars.new
+user_vars = Scoutui::Base::UserVars.inspect
 user_vars.dump
 
 puts '-' * 72
