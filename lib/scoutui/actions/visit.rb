@@ -3,9 +3,10 @@ module Scoutui::Actions
     def initialize(driver, url)
       super(driver)
 
-      raw_url = url.strip.start_with?('/') ? "#{Scoutui::Base::UserVars.instance.getHost}#{url}" : url
-      @url = Scoutui::Base::UserVars.instance.normalize(raw_url)
-    end
+      user_vars = Scoutui::Base::UserVars.new
+      raw_url = url.strip.start_with?('/') ? "#{user_vars.getHost}#{url}" : url
+      @url = user_vars.normalize(raw_url)
+    en
 
     def up
       @driver.navigate.to(@url)

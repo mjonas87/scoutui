@@ -12,6 +12,7 @@ module Scoutui::Base
     end
 
     def isVisible(driver, model_node, _req = nil)
+      user_vars = Scoutui::Base::UserVars.new
       puts __FILE__ + (__LINE__).to_s + " [isVisible]: #{model_node}"
 
       rc =false
@@ -28,7 +29,7 @@ module Scoutui::Base
         tmpObj = model_node.match(/(value|text)\((.*)\)/)[2].to_s
         expectedVal = model_node.match(/(value|text)\s*\(.*\)\s*\=\s*(.*)/)[2].to_s
 
-        xpath = Scoutui::Base::UserVars.instance.get(tmpObj)
+        xpath = user_vars.get(tmpObj)
         obj = Scoutui::Base::QBrowser.getObject(driver, xpath)
 
         puts __FILE__ + (__LINE__).to_s + " #{condition} : #{obj.text}"
@@ -38,7 +39,7 @@ module Scoutui::Base
         model_node = model_node.match(/(visible)\((.*)\)/)[2].to_s
 
         if !model_node.match(/\$\{.*\}/).nil?
-          model_node = Scoutui::Base::UserVars.instance.normalize(model_node)
+          model_node = user_vars.normalize(model_node)
         end
       end
 
@@ -156,8 +157,7 @@ module Scoutui::Base
       Scoutui::Logger::LogMgr.instance.debug "Visible When Value: #{model_node.to_s}".blue
 
       _processed=false
-
-
+      user_vars = Scoutui::Base::UserVars.new
 
       if model_node.key?('visible_when') && !model_node['visible_when'].is_a?(Array) && model_node['visible_when'].match(/^\s*(text|value)\s*\(/)
         _processed = true
@@ -165,7 +165,7 @@ module Scoutui::Base
         tmpObj = model_node['visible_when'].match(/(value|text)\((.*)\)/)[2].to_s
         expectedVal = model_node['visible_when'].match(/(value|text)\s*\(.*\)\s*\=\s*(.*)/)[2].to_s
 
-        xpath = Scoutui::Base::UserVars.instance.get(tmpObj)
+        xpath = user_vars.get(tmpObj)
         obj = Scoutui::Base::QBrowser.getObject(driver, xpath)
 
         if !obj.nil?
@@ -249,7 +249,8 @@ module Scoutui::Base
         tmpObj = model_node['visible_when'].match(/(visible)\((.*)\)/)[2].to_s
         expectedVal = model_node['visible_when'].match(/(visible)\s*\(.*\)\s*\=\s*(.*)/)[2].to_s
 
-        locator = Scoutui::Base::UserVars.instance.get(tmpObj)
+        user_vars = Scoutui::Base::UserVars.new
+        locator = user_vars.get(tmpObj)
         depObj = Scoutui::Base::QBrowser.getObject(driver, locator)
 
         Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + "condition (#{condition}), tmpObj (#{tmpObj}) (#{depObj}), expectedVal (#{expectedVal})  :  element : #{element.displayed?}"

@@ -71,7 +71,8 @@ module Scoutui::Base
       end
 
       if !locator.match(/\$\{.*\}/).nil?
-        _x = Scoutui::Base::UserVars.instance.get(locator)
+        user_vars = Scoutui::Base::UserVars.new
+        _x = user_vars.get(locator)
         if !_x.nil?
           if !_x.match(/^page\([\w\d]+\)/).nil?
             elt = Scoutui::Utils::TestUtils.instance.get_model_node(_x)

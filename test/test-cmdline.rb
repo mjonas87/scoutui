@@ -20,9 +20,10 @@ puts test_settings
 puts "accounts => #{test_settings[:accounts]}"
 
 puts '-' * 72
-Scoutui::Base::UserVars.instance.dump()
+user_vars = Scoutui::Base::UserVars.new
+user_vars.dump
 
 puts '-' * 72
-puts "accounts => " + Scoutui::Base::UserVars.instance.getVar(:accounts).to_s
-puts "eyes.viewport => " + Scoutui::Base::UserVars.instance.getVar('eyes.viewport').to_s
-puts "eyes.viewport => " + Scoutui::Base::UserVars.instance.getViewPort().to_s
+puts "accounts => " + user_vars.getVar(:accounts).to_s
+puts "eyes.viewport => " + user_vars.getVar('eyes.viewport').to_s
+puts "eyes.viewport => " + user_vars.getViewPort().to_s

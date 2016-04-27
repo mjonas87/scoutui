@@ -15,7 +15,8 @@ module Scoutui::Conditions
     end
 
     def xpath_selector
-      Scoutui::Base::UserVars.instance.normalize(super)
+      user_vars = Scoutui::Base::UserVars.new
+      user_vars.normalize(super)
     end
 
     def page_element

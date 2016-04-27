@@ -40,7 +40,8 @@ module Scoutui::Actions
       _req = Scoutui::Utils::TestUtils.instance.getReq()
       _locator = @cmd.match(/click\s*\((.*)\)/)[1].to_s.strip
 
-      _locator = Scoutui::Base::UserVars.instance.normalize(_locator)
+      user_vars = Scoutui::Base::UserVars.new
+      _locator = user_vars.normalize(_locator)
 
       _clicked=false
 

@@ -26,7 +26,8 @@ module Scoutui::Actions
             obj.clear
           end
 
-          obj.send_keys(Scoutui::Base::UserVars.instance.get(_val))
+          user_vars = Scoutui::Base::UserVars.new
+          obj.send_keys(user_vars.get(_val))
           _rc=true
         else
           Scoutui::Logger::LogMgr.instance.commands.debug  __FILE__ + (__LINE__).to_s + " Unable to process command TYPE => #{obj.to_s}"

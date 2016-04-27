@@ -5,7 +5,7 @@ admin_nav:
       visible_when: always
       if_then:
         if: "/admin=/admin"
-        then: //a[text()='Dashboard']/parent::li[contains(@class,'current')]
+        then: "//{{this.locator}}/parent::li[contains(@class,'current')]"
   admin_users_link:
     locator: //a[text()='Admin Users']
     assertions:

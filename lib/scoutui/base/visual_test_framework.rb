@@ -170,7 +170,8 @@ module Scoutui::Base
 
         if !obj.nil? && !obj.attribute('type').downcase.match(/(text|password|email)/).nil?
           Scoutui::Logger::LogMgr.instance.commands.info "send_keys(#{_val})"
-          obj.send_keys(Scoutui::Base::UserVars.instance.get(_val))
+          user_vars = Scoutui::Base::UserVars.new
+          obj.send_keys(user_vars.get(_val))
         else
           Scoutui::Logger::LogMgr.instance.warn __FILE__ + (__LINE__).to_s + " Unable to process command TYPE => #{obj.to_s}"
         end
@@ -296,7 +297,8 @@ module Scoutui::Base
       fail Exception, "Unable to find test data file '#{test_settings['dut']}' using key 'dut'" if test_settings['dut'].nil?
       driver = eyeScout.drv
 
-      baseUrl = Scoutui::Base::UserVars.instance.getHost
+      user_vars = Scoutui::Base::UserVars.new
+      baseUrl = user_vars.getHost
       datafile = test_settings['dut']
 
       factories = {
@@ -438,7 +440,8 @@ module Scoutui::Base
 
     def self.process_expected_as_hash(driver, expected)
       expected.each_pair do |link_name, selector|
-        selector = Scoutui::Base::UserVars.instance.normalize(selector) unless selector.match(/\$\{.*\}/).nil?
+        user_vars = Scoutui::Base::UserVars.new
+        selector = user_vars.normalize(selector) unless selector.match(/\$\{.*\}/).nil?
 
         unless selector.match(/^page\([\w\d]+\)/).nil?
           model_node = Scoutui::Utils::TestUtils.instance.get_model_node(selector)

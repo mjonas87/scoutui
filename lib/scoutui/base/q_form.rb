@@ -35,6 +35,7 @@ module Scoutui::Base
     end
 
     def actionElement(drv, locator)
+      user_vars = Scoutui::Base::UserVars.new
 
       _action=nil
 
@@ -47,12 +48,12 @@ module Scoutui::Base
       # element.getAttribute("type").equalsIgnoreCase("text")
       if !_type.match(/(password|text|email)/i).nil? && !_tag.match(/(input|textarea)/i).nil?
 
-        _v = Scoutui::Base::UserVars.instance.get(dut[k].to_s)
+        _v = user_vars.get(dut[k].to_s)
 
         _action="send_keys"
         obj.send_keys(_v)
       elsif !_type.match(/(date|number|search|tel|time|url|week)/i).nil?
-        _v = Scoutui::Base::UserVars.instance.get(dut[k].to_s)
+        _v = user_vars.get(dut[k].to_s)
         _action="send_keys"
         obj.send_keys(_v)
       elsif !_type.match(/(button|checkbox|radio|submit)/i).nil?
@@ -206,6 +207,7 @@ module Scoutui::Base
     end
 
     def fillForm(drv, dut)
+      user_vars = Scoutui::Base::UserVars.new
 
       Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " fillForm(#{drv.to_s}, #{dut.to_s})"
       Scoutui::Logger::LogMgr.instance.commands.debug __FILE__ + (__LINE__).to_s + " | type => #{dut.class.to_s}"
@@ -229,13 +231,13 @@ module Scoutui::Base
 
               # element.getAttribute("type").equalsIgnoreCase("text")
               if !_type.match(/(password|text|email)/i).nil? && !_tag.match(/(input|textarea)/i).nil?
-                _v = Scoutui::Base::UserVars.instance.get(dut[k].to_s)
+                _v = user_vars.get(dut[k].to_s)
                 obj.send_keys(_v)
 
               elsif _type.match(/(select)/i)
-                _v = Scoutui::Base::UserVars.instance.get(dut[k].to_s)
+                _v = user_vars.get(dut[k].to_s)
                 _opt = Selenium::WebDriver::Support::Select.new(obj)
-                _opt.select_by(:text, Scoutui::Base::UserVars.instance.get(_v))
+                _opt.select_by(:text, user_vars.get(_v))
               else
                 Scoutui::Logger::LogMgr.instance.commands.warn " Unidentified attribute type : #{_type.to_s}"
               end

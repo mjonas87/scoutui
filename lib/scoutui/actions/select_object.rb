@@ -28,11 +28,12 @@ module Scoutui::Actions
           if !obj.nil? && obj.tag_name.downcase.match(/(select)/)
 
             _opt = Selenium::WebDriver::Support::Select.new(obj)
-            _opt.select_by(:text, Scoutui::Base::UserVars.instance.get(_val))
+            user_vars = Scoutui::Base::UserVars.new
+            _opt.select_by(:text, user_vars.get(_val))
 
             _rc=true
 
-      #      obj.send_keys(Scoutui::Base::UserVars.instance.get(_val))
+      #      obj.send_keys(Scoutui::Base::UserVars.new.get(_val))
           else
             Scoutui::Logger::LogMgr.instance.debug  __FILE__ + (__LINE__).to_s + " Unable to process command SELECT => #{obj.to_s}"
           end

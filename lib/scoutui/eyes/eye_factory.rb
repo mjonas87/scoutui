@@ -12,7 +12,8 @@ module Scoutui::Eyes
     end
 
     def createScout()
-      browserType = Scoutui::Base::UserVars.instance.getBrowserType()
+      user_vars = Scoutui::Base::UserVars.new
+      browserType = user_vars.getBrowserType()
       eyeScout = EyeScout.new(browserType)
     end
 
@@ -42,7 +43,8 @@ module Scoutui::Eyes
           eyes.api_key = license_key
           eyes.force_fullpage_screenshot = true
 
-          match_level = Scoutui::Base::UserVars.instance.getVar('eyes.match_level')
+          user_vars = Scoutui::Base::UserVars.new
+          match_level = user_vars.getVar('eyes.match_level')
 
           eyes.match_level = Applitools::Eyes::MATCH_LEVEL[match_level.to_sym]
         end

@@ -1,13 +1,8 @@
-
 require 'singleton'
 require 'pp'
 require 'optparse'
 
-
-
 module Scoutui::Utils
-
-
   class TestUtils
     include Singleton
 
@@ -19,7 +14,6 @@ module Scoutui::Utils
     attr_accessor :final_rc
 
     def initialize
-
       @final_rc=false
       @metrics=nil
 
@@ -43,8 +37,8 @@ module Scoutui::Utils
 
       @app_model=nil
 
-      Scoutui::Base::UserVars.instance.set('eyes.viewport', '1024x768')
-
+      user_vars = Scoutui::Base::UserVars.new
+      user_vars.set('eyes.viewport', '1024x768')
     end
 
     def getFinalRc()
@@ -93,7 +87,8 @@ module Scoutui::Utils
       @app_model
     end
 
-    def parseCommandLine()
+    def parseCommandLine
+      user_vars = Scoutui::Base::UserVars.new
 
       OptionParser.new do |opt|
         opt.on('-c', '--config TESTFILE') { |o|
@@ -142,7 +137,7 @@ module Scoutui::Utils
         opt.on('-i', '--include_expectations') { |o| @options[:include_expected_as_asserts] = true}
         opt.on('-l', '--lang LOCAL')    { |o|
           @options[:loc] = o
-          Scoutui::Base::UserVars.instance.setVar(:lang, @options[:loc].to_s)
+          user_vars.setVar(:lang, @options[:loc].to_s)
         }
         opt.on('-k', '--key EyesLicense') { |o| options[:license_file] = o }
         opt.on('-a', '--app AppName')   { |o| @options[:app] = o }
@@ -161,7 +156,7 @@ module Scoutui::Utils
 
         opt.on('-u', '--user USER_ID')  { |o|
           @options[:userid] = o
-          Scoutui::Base::UserVars.instance.setVar(:user, @options[:userid].to_s)
+          user_vars.setVar(:user, @options[:userid].to_s)
         }
         opt.on('-p', '--password PASSWORD') { |o| @options[:password] = o }
         opt.on('-e', '--eyes', "Toggle eyes") {
@@ -191,7 +186,7 @@ module Scoutui::Utils
         # Scoutui::Logger::LogMgr.instance.info "Match Level => #{@options[:match_level]}"
         # Scoutui::Logger::LogMgr.instance.info "Accounts    => #{@options[:accounts]}"
         # Scoutui::Logger::LogMgr.instance.info "Viewport    => #{@options[:viewport]}"
-        # Scoutui::Logger::LogMgr.instance.info "Viewport (Var) => #{Scoutui::Base::UserVars.instance.getViewPort().to_s}"
+        # Scoutui::Logger::LogMgr.instance.info "Viewport (Var) => #{user_vars.getViewPort().to_s}"
         # Scoutui::Logger::LogMgr.instance.info "PageModel file => #{@options[:page_model].to_s}"
       end
 
@@ -255,23 +250,24 @@ module Scoutui::Utils
 
     # Returns JSON file contents/format
     def getTestSettings
+      user_vars = Scoutui::Base::UserVars.new
 
       Scoutui::Logger::LogMgr.instance.setLevel(@options[:log_level])
 
       [:accounts, :browser, :dut, :host, :userid, :password].each do |k|
 
         if @options.has_key?(k) && !@options[k].nil?
-          Scoutui::Base::UserVars.instance.set(k, @options[k].to_s)
+          user_vars.set(k, @options[k].to_s)
         elsif @options[:test_config].has_key?(k.to_s)
           # Ensure commnand line takes precedence
           if !@options[k].nil?
-            Scoutui::Base::UserVars.instance.set(k, @options[k].to_s)
+            user_vars.set(k, @options[k].to_s)
           else
-            Scoutui::Base::UserVars.instance.set(k, @options[:test_config][k.to_s].to_s)
+            user_vars.set(k, @options[:test_config][k.to_s].to_s)
           end
 
         elsif @env_list.has_key?(k)
-          Scoutui::Base::UserVars.instance.set(k, ENV[@env_list[k].to_s])
+          user_vars.set(k, ENV[@env_list[k].to_s])
         end
       end
 
@@ -294,7 +290,7 @@ module Scoutui::Utils
             _v=@options[k.to_sym].to_s
           end
 
-          Scoutui::Base::UserVars.instance.set('eyes.' + k, _v) if !_v.nil?
+          user_vars.set('eyes.' + k, _v) if !_v.nil?
 
         end
       end

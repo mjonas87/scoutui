@@ -70,7 +70,8 @@ module Scoutui::Actions
     def initialize
 
       @profile=nil
-      browserType = Scoutui::Base::UserVars.instance.getBrowserType
+      user_vars = Scoutui::Base::UserVars.new
+      browserType = user_vars.getBrowserType
 
       if false
         if !browserType.to_s.match(/chrome/i).nil?

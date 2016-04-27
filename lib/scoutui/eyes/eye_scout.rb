@@ -174,8 +174,9 @@ module Scoutui::Eyes
     def initialize(browserType)
       @testResults=nil
 
-      browserType = Scoutui::Base::UserVars.instance.getBrowserType
-      viewport_size = Scoutui::Base::UserVars.instance.getViewPort
+      user_vars = Scoutui::Base::UserVars.new
+      browserType = user_vars.getBrowserType
+      viewport_size = user_vars.getViewPort
 
       Testmgr::TestReport.instance.setDescription('ScoutUI Test')
       Testmgr::TestReport.instance.setEnvironment(:qa, Scoutui::Utils::TestUtils.instance.getHost)
@@ -191,9 +192,9 @@ module Scoutui::Eyes
         # Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " sauce    => " + Scoutui::Utils::TestUtils.instance.eyesEnabled?.to_s
         # Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " viewport => #{viewport_size}"
         # Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " eyes cfg => #{@eyesRecord}"
-        # Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " title => " + Scoutui::Base::UserVars.instance.getVar('eyes.title')
-        # Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " app => " + Scoutui::Base::UserVars.instance.getVar('eyes.app')
-        # Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " match_level => " + Scoutui::Base::UserVars.instance.getVar('eyes.match_level')
+        # Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " title => " + user_vars.getVar('eyes.title')
+        # Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " app => " + user_vars.getVar('eyes.app')
+        # Scoutui::Logger::LogMgr.instance.info __FILE__ + (__LINE__).to_s + " match_level => " + user_vars.getVar('eyes.match_level')
       end
 
 #        Scoutui::Base::QHarMgr.instance.start
@@ -204,9 +205,10 @@ module Scoutui::Eyes
 
       ## TBD - move the following into eye_scout ??
       if Scoutui::Utils::TestUtils.instance.eyesEnabled?
+        user_vars = Scoutui::Base::UserVars.new
         @driver = @eyes.open(
-            app_name:  Scoutui::Base::UserVars.instance.getVar('eyes.app'),   # @eyesRecord['app'],
-            test_name: Scoutui::Base::UserVars.instance.getVar('eyes.title'), # @eyesRecord['title'],
+            app_name:  user_vars.getVar('eyes.app'),   # @eyesRecord['app'],
+            test_name: user_vars.getVar('eyes.title'), # @eyesRecord['title'],
             viewport_size: viewport_size,
             #    viewport_size: {width: 800, height: 600},
             driver: @strategy.getDriver)

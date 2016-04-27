@@ -23,8 +23,8 @@ module Scoutui::Assertions
       end
     end
 
-    def inspect
-      Scoutui::Logger::LogMgr.instance.info 'If'.blue + " #{@if_operand_left} == #{@if_operand_right} ".yellow + 'Then'.blue + @then_xpath.yellow
+    def print_result(result_text)
+      Scoutui::Logger::LogMgr.instance.info 'If'.blue + " #{@if_operand_left} == #{@if_operand_right}".yellow + ' Then'.blue + @then_xpath.yellow + " : #{result_text}"
     end
   end
 end

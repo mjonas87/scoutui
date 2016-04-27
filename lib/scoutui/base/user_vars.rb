@@ -8,16 +8,14 @@ module Scoutui::Base
 
     attr_accessor :globals
 
-    def initialize
-      @globals={
-          :accounts => '/tmp/qa/accounts.yaml',
-          :browser => 'chrome',
-          :userid => nil,
-          :password => nil,
-          :host => nil,
-          :localization => 'en-us'
-      }
-    end
+    USER_VAR_FETCHERS = [
+        Scoutui::UserVariables::Fetchers::ModelNode.new,
+        Scoutui::UserVariables::Fetchers::TestConfig.new,
+        Scoutui::UserVariables::Fetchers::Globals.new,
+        Scoutui::UserVariables::Fetchers::Env.new
+    ]
+
+    def
 
     def dump
       @globals.each_pair do |k, v|
@@ -26,13 +24,16 @@ module Scoutui::Base
     end
 
     def getViewPort
-      arr=Scoutui::Base::UserVars.instance.getVar('eyes.viewport').match(/(\d+)\s*x\s*(\d+)$/i)
+      user_vars = Scoutui::Base::UserVars.new
+      arr = user_vars.getVar('eyes.viewport').match(/(\d+)\s*x\s*(\d+)$/i)
       if arr.size==3
         _sz = {:width => arr[1].to_i, :height => arr[2].to_i }
       end
 
       _sz
     end
+
+    def
 
     def getBrowserType
       @globals[:browser].to_sym
@@ -55,9 +56,9 @@ module Scoutui::Base
     def get_var(variable_name)
       config = Scoutui::Utils::TestUtils.instance.getTestConfig
 
-      value = config.fetch('user_vars', {}).fetch(variable_name, {})
-      value = @globals.fetch(variable_name, {}) if value == {}
-      value = ENV.fetch(variable_name, {}) if value == {}
+      USER_VAR_FETCHERS.each do |fetcher|
+        fetcher.fetch(variable_name)
+      end
 
       value == {} ? nil : value
     end
