@@ -33,6 +33,7 @@ module Scoutui::Base
 
     def getViewPort
       user_vars = Scoutui::Base::UserVars.new
+
       arr = user_vars.getVar('eyes.viewport').match(/(\d+)\s*x\s*(\d+)$/i)
       if arr.size==3
         _sz = {:width => arr[1].to_i, :height => arr[2].to_i }
