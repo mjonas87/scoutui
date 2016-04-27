@@ -3,27 +3,30 @@ require 'faker'
 
 module Scoutui::Base
   class UserVars
+    def global_fetcher
+      @global_fetcher ||= Scoutui::UserVariables::Fetchers::Globals.new
+    end
 
     def user_var_fetchers
       @fetchers ||= [
-              # Scoutui::UserVariables::Fetchers::TestConfig.new,
-              # Scoutui::UserVariables::Fetchers::Globals.new,
-              # Scoutui::UserVariables::Fetchers::Env.new
+              Scoutui::UserVariables::Fetchers::TestConfig.new,
+              global_fetcher,
+              Scoutui::UserVariables::Fetchers::Env.new
           ]
     end
 
     def with_fetcher_for_node(model_node)
-      # klass = Scoutui::UserVariables::Fetchers::ModelNode
-      #
-      # unless user_var_fetchers.any? { |fetcher| fetcher.class == klass}
-      #   user_var_fetchers.unshift(klass.new(model_node))
-      # end
+      klass = Scoutui::UserVariables::Fetchers::ModelNode
+
+      unless user_var_fetchers.any? { |fetcher| fetcher.class == klass}
+        user_var_fetchers.unshift(klass.new(model_node))
+      end
 
       self
     end
 
     def dump
-      @globals.each_pair do |k, v|
+      global_fetcher.var_hash.each_pair do |k, v|
         Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " #{k} => #{v}"
       end
     end
@@ -39,11 +42,11 @@ module Scoutui::Base
     end
 
     def getBrowserType
-      @globals[:browser].to_sym
+      global_fetcher.var_hash[:browser].to_sym
     end
 
     def getHost
-      @globals[:host].to_s
+      global_fetcher.var_hash[:host].to_s
     end
 
     def normalize(text)
@@ -97,8 +100,8 @@ module Scoutui::Base
         foundKey=false
       end
 
-      if @globals.has_key?(xpath_key) && foundKey
-        magical_wizard_value = @globals[xpath_key]
+      if global_fetcher.var_hash.has_key?(xpath_key) && foundKey
+        magical_wizard_value = global_fetcher.var_hash[xpath_key]
       end
 
       magical_wizard_value
@@ -110,11 +113,11 @@ module Scoutui::Base
     end
 
     def getVar(k)
-      @globals[k].to_s
+      global_fetcher.var_hash[k].to_s
     end
 
     def setVar(k, v)
-      @globals[k]=v
+      global_fetcher.var_hash[k]=v
       v
     end
   end
