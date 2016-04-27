@@ -3,7 +3,7 @@ module Scoutui
     module Fetchers
       class Globals
         def var_hash
-          {
+          @var_hash ||= {
             :accounts => '/tmp/qa/accounts.yaml',
             :browser => 'chrome',
             :userid => nil,

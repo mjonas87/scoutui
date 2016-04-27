@@ -5,7 +5,7 @@ module Scoutui::Actions
     def initialize(driver, locator, value)
       super(driver)
       @locator = locator
-      user_vars = Scoutui::Base::UserVars.inspect
+      user_vars = Scoutui::Base::UserVars.instance
       @value = user_vars.normalize(value)
     end
 

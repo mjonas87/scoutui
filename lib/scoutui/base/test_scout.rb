@@ -18,7 +18,7 @@ module Scoutui::Base
       end
 
       if Scoutui::Utils::TestUtils.instance.isDebug?
-        # user_vars = Scoutui::Base::UserVars.inspect
+        # user_vars = Scoutui::Base::UserVars.instance
         # Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " eyes cfg => #{@eyesRecord}"
         # Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " title => " + user_vars.getVar('eyes.title')
         # Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " app => " + user_vars.getVar('eyes.app')
@@ -66,7 +66,7 @@ module Scoutui::Base
       Scoutui::Logger::LogMgr.instance.info 'Beginning Test...'.blue
 
       begin
-        @eye_scout.navigate(user_vars.get(:host))
+        @eye_scout.navigate(Scoutui::Base::UserVars.instance.get(:host))
         snap_page('Landing Page')
 
         Scoutui::Base::VisualTestFramework.processFile(@eye_scout, @test_settings)

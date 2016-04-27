@@ -3,6 +3,12 @@ require 'faker'
 
 module Scoutui::Base
   class UserVars
+    include Singleton
+
+    def initialize(fetchers = [])
+      @fetchers = fetchers unless fetchers.size == 0
+    end
+
     def global_fetcher
       @global_fetcher ||= Scoutui::UserVariables::Fetchers::Globals.new
     end
@@ -16,8 +22,19 @@ module Scoutui::Base
     end
 
     def with_fetcher_for_node(model_node)
-      clone = self.clone
+      clone = Scoutui::Base::UserVars.send(:new, self.user_var_fetchers)
       klass = Scoutui::UserVariables::Fetchers::ModelNode
+
+      unless clone.user_var_fetchers.any? { |fetcher| fetcher.class == klass}
+        clone.user_var_fetchers.unshift(klass.new(model_node))
+      end
+
+      clone
+    end
+
+    def with_fetcher_for_browser(model_node)
+      clone = Scoutui::Base::UserVars.send(:new, self.user_var_fetchers)
+      klass = Scoutui::UserVariables::Fetchers::Browser
 
       unless clone.user_var_fetchers.any? { |fetcher| fetcher.class == klass}
         clone.user_var_fetchers.unshift(klass.new(model_node))
@@ -68,6 +85,7 @@ module Scoutui::Base
         result = fetcher.fetch(variable_name)
         return result unless result.nil?
       end
+      variable_name
     end
 
     def get(xpath_key)

@@ -6,11 +6,11 @@ module Scoutui::Assertions
       @driver = driver
     end
 
-    def generate_assertion(locator, assertion_key, assertion_condition)
+    def generate_assertion(model_node, assertion_key, assertion_condition)
       fail Exception, "Unknown assertion '#{assertion_key}'" unless ALLOWED_ASSERTIONS.include?(assertion_key)
 
       klass = "Scoutui::Assertions::#{assertion_key.camelize}".constantize
-      args = [@driver, locator] + klass.parse_args(assertion_condition)
+      args = [@driver, model_node] + klass.parse_args(assertion_condition)
       klass.new(*args)
     end
   end

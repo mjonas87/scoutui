@@ -8,12 +8,11 @@ module Scoutui::ApplicationModel
 
     def generate_page_components(node)
       if node.key?(COMPONENT_NODE_IDENTIFIER)
-        locator = node['locator']
         assertions = node['assertions'].map do |assertion_key, assertion_condition|
-          @assertion_factory.generate_assertion(locator, assertion_key, assertion_condition)
+          @assertion_factory.generate_assertion(node, assertion_key, assertion_condition)
         end
 
-        [PageComponent.new(locator, assertions)]
+        [PageComponent.new(node['locator'], assertions)]
       elsif !node.is_a?(Hash)
         []
       else

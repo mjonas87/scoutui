@@ -174,7 +174,7 @@ module Scoutui::Eyes
     def initialize(browserType)
       @testResults=nil
 
-      user_vars = Scoutui::Base::UserVars.inspect
+      user_vars = Scoutui::Base::UserVars.instance
       browserType = user_vars.getBrowserType
       viewport_size = user_vars.getViewPort
 
@@ -205,7 +205,7 @@ module Scoutui::Eyes
 
       ## TBD - move the following into eye_scout ??
       if Scoutui::Utils::TestUtils.instance.eyesEnabled?
-        user_vars = Scoutui::Base::UserVars.inspect
+        user_vars = Scoutui::Base::UserVars.instance
         @driver = @eyes.open(
             app_name:  user_vars.getVar('eyes.app'),   # @eyesRecord['app'],
             test_name: user_vars.getVar('eyes.title'), # @eyesRecord['title'],

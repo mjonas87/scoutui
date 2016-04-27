@@ -104,7 +104,7 @@ module Scoutui::Actions
         expectedVal = node['visible_when'].match(/(value|text)\s*\(.*\)\s*\=\s*(.*)/)[2].to_s
         Scoutui::Logger::LogMgr.instance.debug __FILE__ + (__LINE__).to_s + " tmpObj => #{tmpObj} with expected value #{expectedVal}"
 
-        user_vars = Scoutui::Base::UserVars.inspect
+        user_vars = Scoutui::Base::UserVars.instance
         xpath = user_vars.get(tmpObj)
 
         obj = Scoutui::Base::QBrowser.getObject(@drv, xpath)

@@ -3,7 +3,7 @@ module Scoutui
     module Fetchers
       class Env
         def fetch(variable_name)
-          ENV.with_indifferent_access[variable_name]
+          ENV.to_hash.with_indifferent_access[variable_name]
         end
       end
     end

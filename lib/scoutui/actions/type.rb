@@ -21,7 +21,7 @@ module Scoutui::Actions
             obj.clear
           end
 
-          user_vars = Scoutui::Base::UserVars.inspect
+          user_vars = Scoutui::Base::UserVars.instance
           obj.send_keys(user_vars.get(_val))
           _rc=true
         else

@@ -7,6 +7,7 @@ require 'pry'
 require 'awesome_print'
 require 'colorize'
 require 'active_support/inflector'
+require 'active_support/core_ext/hash'
 
 Dotenv.load
 

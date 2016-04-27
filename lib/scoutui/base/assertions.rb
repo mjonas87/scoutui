@@ -12,7 +12,7 @@ module Scoutui::Base
     end
 
     def isVisible(driver, model_node, _req = nil)
-      user_vars = Scoutui::Base::UserVars.inspect
+      user_vars = Scoutui::Base::UserVars.instance
       puts __FILE__ + (__LINE__).to_s + " [isVisible]: #{model_node}"
 
       rc =false
@@ -157,7 +157,7 @@ module Scoutui::Base
       Scoutui::Logger::LogMgr.instance.debug "Visible When Value: #{model_node.to_s}".blue
 
       _processed=false
-      user_vars = Scoutui::Base::UserVars.inspect
+      user_vars = Scoutui::Base::UserVars.instance
 
       if model_node.key?('visible_when') && !model_node['visible_when'].is_a?(Array) && model_node['visible_when'].match(/^\s*(text|value)\s*\(/)
         _processed = true
@@ -249,7 +249,7 @@ module Scoutui::Base
         tmpObj = model_node['visible_when'].match(/(visible)\((.*)\)/)[2].to_s
         expectedVal = model_node['visible_when'].match(/(visible)\s*\(.*\)\s*\=\s*(.*)/)[2].to_s
 
-        user_vars = Scoutui::Base::UserVars.inspect
+        user_vars = Scoutui::Base::UserVars.instance
         locator = user_vars.get(tmpObj)
         depObj = Scoutui::Base::QBrowser.getObject(driver, locator)
 
