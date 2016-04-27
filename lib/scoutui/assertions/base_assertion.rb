@@ -2,9 +2,11 @@ module Scoutui::Assertions
   class BaseAssertion
     def self.parse_args(assertion_condition); end
 
-    def initialize(driver, locator)
+    def initialize(driver, model_node)
       @driver = driver
-      @locator = locator
+      @model_node = model_node
+      @locator = @model_node['locator']
+      @user_vars = Scoutui::Base::UserVars.new.with_fetcher_for_node(@model_node)
     end
 
     def check?

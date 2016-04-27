@@ -4,8 +4,8 @@ module Scoutui::Assertions
       [assertion_condition]
     end
 
-    def initialize(driver, locator, condition)
-      super(driver, locator)
+    def initialize(driver, model_node, condition)
+      super(driver, model_node)
       @condition = condition
     end
 

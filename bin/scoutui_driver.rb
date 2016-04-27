@@ -18,7 +18,7 @@ Dotenv.load
 # --browser <chrome|firefox|ie>
 
 begin
-  nav = Scoutui::Navigator.new(Scoutui::Utils::TestUtils.instance.parseCommandLine())
+  nav = Scoutui::Navigator.new(Scoutui::Utils::TestUtils.instance.parseCommandLine)
   runner = Scoutui::Base::TestScout.new(nav)
   runner.start
   runner.report
@@ -26,4 +26,3 @@ rescue Exception => ex
   Scoutui::Logger::LogMgr.instance.debug ex.inspect.red
   Scoutui::Logger::LogMgr.instance.debug ex.backtrace.join("\n")
 end
-

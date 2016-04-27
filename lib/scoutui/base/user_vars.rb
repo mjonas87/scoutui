@@ -2,20 +2,25 @@ require 'singleton'
 require 'faker'
 
 module Scoutui::Base
-
   class UserVars
-    include Singleton
 
-    attr_accessor :globals
+    def user_var_fetchers
+      @fetchers ||= [
+              # Scoutui::UserVariables::Fetchers::TestConfig.new,
+              # Scoutui::UserVariables::Fetchers::Globals.new,
+              # Scoutui::UserVariables::Fetchers::Env.new
+          ]
+    end
 
-    USER_VAR_FETCHERS = [
-        Scoutui::UserVariables::Fetchers::ModelNode.new,
-        Scoutui::UserVariables::Fetchers::TestConfig.new,
-        Scoutui::UserVariables::Fetchers::Globals.new,
-        Scoutui::UserVariables::Fetchers::Env.new
-    ]
+    def with_fetcher_for_node(model_node)
+      # klass = Scoutui::UserVariables::Fetchers::ModelNode
+      #
+      # unless user_var_fetchers.any? { |fetcher| fetcher.class == klass}
+      #   user_var_fetchers.unshift(klass.new(model_node))
+      # end
 
-    def
+      self
+    end
 
     def dump
       @globals.each_pair do |k, v|
@@ -32,8 +37,6 @@ module Scoutui::Base
 
       _sz
     end
-
-    def
 
     def getBrowserType
       @globals[:browser].to_sym
@@ -53,14 +56,15 @@ module Scoutui::Base
       text
     end
 
+    def fill(variable_name)
+      get_var(variable_name)
+    end
+
     def get_var(variable_name)
-      config = Scoutui::Utils::TestUtils.instance.getTestConfig
-
-      USER_VAR_FETCHERS.each do |fetcher|
-        fetcher.fetch(variable_name)
+      user_var_fetchers.each do |fetcher|
+        result = fetcher.fetch(variable_name)
+        return result unless result.nil?
       end
-
-      value == {} ? nil : value
     end
 
     def get(xpath_key)

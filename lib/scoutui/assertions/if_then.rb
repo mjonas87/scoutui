@@ -5,11 +5,11 @@ module Scoutui::Assertions
       [results[1], results[2], assertion_condition['then']]
     end
 
-    def initialize(driver, locator, if_operand_left, if_operand_right, then_xpath)
-      super(driver, locator)
-      @if_operand_left = if_operand_left
-      @if_operand_right = if_operand_right
-      @then_xpath = then_xpath
+    def initialize(driver, model_node, if_operand_left, if_operand_right, then_xpath)
+      super(driver, model_node)
+      @if_operand_left = @user_vars.fill(if_operand_left)
+      @if_operand_right = @user_vars.fill(if_operand_right)
+      @then_xpath = @user_vars.fill(then_xpath)
     end
 
     def check?
