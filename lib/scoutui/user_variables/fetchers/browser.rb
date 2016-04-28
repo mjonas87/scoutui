@@ -2,7 +2,7 @@ module Scoutui
   module UserVariables
     module Fetchers
       class Browser
-        REGEX = /browser\.(.*)/
+        REGEX = /\{\{browser\.(.*)\}\}/
 
         def initialize(driver)
           @driver = driver
@@ -10,6 +10,7 @@ module Scoutui
 
         def fetch(variable_name)
           if variable_name =~ REGEX
+            binding.pry
             attribute = variable_name.match(REGEX)[1]
             driver.send(attribute.to_sym)
           end
