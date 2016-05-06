@@ -9,7 +9,6 @@ module Scoutui::ApplicationModel
     def generate_page_components(node)
       if node.key?(COMPONENT_NODE_IDENTIFIER)
         assertions = node['assertions'].map do |assertion_key, assertion_condition|
-          binding.pry
           @assertion_factory.generate_assertion(node, assertion_key, assertion_condition)
         end
 

@@ -32,12 +32,12 @@ module Scoutui::Base
       clone
     end
 
-    def with_fetcher_for_browser(model_node)
+    def with_fetcher_for_browser(driver)
       clone = Scoutui::Base::UserVars.send(:new, self.user_var_fetchers)
       klass = Scoutui::UserVariables::Fetchers::Browser
 
       unless clone.user_var_fetchers.any? { |fetcher| fetcher.class == klass}
-        clone.user_var_fetchers.unshift(klass.new(model_node))
+        clone.user_var_fetchers.unshift(klass.new(driver))
       end
 
       clone

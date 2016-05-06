@@ -4,7 +4,7 @@ admin_nav:
     assertions:
       visible_when: always
       if_then:
-        if: "/admin={{browser.current_url}}"
+        if: "/admin={{browser.current_path}}"
         then: "{{this.locator}}/parent::li[contains(@class,'current')]"
   admin_users_link:
     locator: //a[text()='Admin Users']
@@ -39,5 +39,5 @@ admin_nav:
     assertions:
       visible_when: always
       if_then:
-        if: "/admin/users={{browser.current_url}}"
+        if: "/admin/users={{browser.current_path}}"
         then: "{{this.locator}}/parent::li[contains(@class,'current')]"

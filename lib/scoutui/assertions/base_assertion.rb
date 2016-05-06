@@ -6,7 +6,7 @@ module Scoutui::Assertions
       @driver = driver
       @model_node = model_node
       @locator = @model_node['locator']
-      @user_vars = Scoutui::Base::UserVars.instance.with_fetcher_for_node(@model_node)
+      @user_vars = Scoutui::Base::UserVars.instance.with_fetcher_for_node(@model_node).with_fetcher_for_browser(driver)
     end
 
     def check?
@@ -23,7 +23,7 @@ module Scoutui::Assertions
           end
         end
       else
-        Scoutui::Logger::LogMgr.instance.info "Skipping #{self.class.name}".blue
+        print_skip
       end
     end
 
@@ -39,6 +39,10 @@ module Scoutui::Assertions
 
     def print_result(result_text)
       Scoutui::Logger::LogMgr.instance.info "#{self.class.name.demodulize.titleize} : #{result_text}"
+    end
+
+    def print_skip
+      Scoutui::Logger::LogMgr.instance.info "Skipping #{self.class.name}".blue
     end
   end
 end
